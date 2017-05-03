@@ -1,0 +1,11 @@
+{
+  "name": "robot-dev-example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "robot-js-sdk": "git://github.com/RobotUnion/robot-js-sdk.git"
+  }
+}
