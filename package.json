@@ -1,14 +1,14 @@
 {
   "name": "robot-js-sdk",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "bin": {
-    "rr": "bin/rr.js",
+    "rr":   "bin/rr.js",
     "rpkg": "bin/rpkg.js",
     "init": "bin/init.js"
   },
-  "author": "",
+  "author": "nombrekeff",
   "license": "ISC",
   "dependencies": {
     "jszip": "^3.1.3"
