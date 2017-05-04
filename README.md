@@ -1,5 +1,5 @@
 # RobotUnion Node.js SDK (experimental)
-[![GitHub version](https://badge.fury.io/gh/boennemann%2Fbadges.svg)](https://github.com/RobotUnion/robot-js-sdk)
+
 
 Toolset to create Robot Apps for [R.A.L.F.](https://ralf.robotunion.net)
 based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
