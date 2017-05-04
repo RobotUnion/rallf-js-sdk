@@ -1,13 +1,12 @@
-RobotUnion Node.js SDK (experimental)
-==================
+# RobotUnion Node.js SDK (experimental)
+[![GitHub version](https://badge.fury.io/gh/boennemann%2Fbadges.svg)](https://github.com/RobotUnion/robot-js-sdk)
 
 Toolset to create Robot Apps for [R.A.L.F.](https://ralf.robotunion.net)
 based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
 
 
-
-# First steps
-## Installation
+## First steps
+### Installation
 * Create a new node project `npm init`
 * Add `RobotUnion/robot-js-sdk` as a dependecy to your `package.json`
 
@@ -22,7 +21,7 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
   ```
 * Run `npm install` to install the sdk
 
-## Create simple Robot Task
+### Create simple Robot Task
   * Create the RobotApp manifest `manifest.json` within the `config` folder
 
     ```json
@@ -67,11 +66,11 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
     * Finally create a `run` function, this funtion is going to run when the RobotApp runs
     * Check wd api [here](https://github.com/admc/wd/blob/master/doc/api.md) for more documentation
 
-## Run debug
+### Run debug
 ```sh
 $ rr
 ```
-## Package app
+### Package app
 ```sh
 $ rpkg
 ```
