@@ -5,7 +5,6 @@ Toolset to create Robot Apps for [R.A.L.F.](https://ralf.robotunion.net)
 based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
 
 
-
 # First steps
 ## Installation
 * Create a new node project `npm init`
@@ -37,8 +36,8 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
       "secret": "access_secret"
     }
     ```
-      <!-- * You can get the access key and secret from [RALF Panel](https://ralf-staging.robotunion.net/)
-      * `main`: should be the main file of the RobotApp `src/main.js` -->
+      * You can get the access key and secret from [RALF Panel](https://ralf-staging.robotunion.net/)
+      * `main`: should be the main file of the RobotApp `src/main.js`
 
 
   * Create a `src` folder within your app folder
@@ -56,8 +55,20 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
         super();
       }
       run(){
-          this.logger.debug("Started");
-          let google = this.device.get('www.google.com');
+        let device = this.device;
+        let logger = this.logger;
+
+        logger.debug("Started");
+
+        device.init({browserName: 'chrome'},
+          function() {
+            logger.debug("Initted");
+            device.get("https://github.com", _ => {
+              device.title(function(err, title) {
+                logger.debug(title);
+              })
+            })
+          })
       }
     }
     module.exports = MyFirstTask;

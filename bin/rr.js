@@ -1,117 +1,24 @@
 #!/usr/bin/env node
 'use strict';
 
-const https    = require('https');
-const fs       = require('fs');
-const exec     = require('child_process').exec;
-const readline = require('readline');
-const crypto   = require('crypto');
-const CWD      = process.cwd();
-const BASE_URL = 'https://api.robotunion.net';
+const RallfReq  = require('./requester');
+const fs        = require('fs');
+const readline  = require('readline');
+const clc       = require('cli-color');
+const exec      = require('child_process').exec;
+const CWD       = process.cwd();
+const BASE_URL  = 'https://api.robotunion.net';
 
 let rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
+let log     = process.stdout;
+let blue    = clc.xterm(24);
+let warning = clc.xterm(3);
+let success = clc.xterm(28);
+let errorcl = clc.xterm(1);
 
-class RallfSigner {
-  constructor(key) {
-      this.secret = key;
-  }
-  sign(message){
-    console.log("ASDASD", this.secret);
-    return crypto.createHmac('sha256', this.secret).update(message).digest('hex');
-  }
-}
-
-let uniqid = function (pr, en) {
-	var pr = pr || '', en = en || false, result;
-
-	let seed = function (s, w) {
-		s = parseInt(s, 10).toString(16);
-		return w < s.length ? s.slice(s.length - w) : (w > s.length) ? new Array(1 + (w - s.length)).join('0') + s : s;
-	};
-
-	result = pr + seed(parseInt(new Date().getTime() / 1000, 10), 8) + seed(Math.floor(Math.random() * 0x75bcd15) + 1, 5);
-
-	if (en) result += (Math.random() * 10).toFixed(8).toString();
-
-	return result;
-};
-
-class RallfRequester {
-  constructor(config) {
-    this.config = config;
-  }
-
-  buildSignature(){
-      // let access_key = "edbeb673024f2d0e23752e2814ca1ac4c589f761";
-      // let access_secret = "wlqDEET8uIr5RN00AMuuceI9LLKMTNLpzlETlX3djVg=";
-      // let nonce = "1570156405";
-      // let timestamp = "1411000260";
-
-      // # access_secret bytes, used later as a key to make the signature
-      let access_secret_bin = new Buffer(this.config.secret, 'hex');
-      let signer = new RallfSigner(access_secret_bin);
-
-      // # Number used for a single use, see http://en.wikipedia.org/wiki/Cryptographic_nonce
-      let nonce = uniqid();
-
-      // # Current unix timestamp, see http://en.wikipedia.org/wiki/Unix_time
-      let timestamp = Math.floor((new Date()).getTime() / 1000);
-
-      // # Authentication scheme version, now 1
-      let version = 1;
-      let signature = signer.sign(this.config.key + nonce + timestamp);
-
-      console.log(`
-        Signatureads:
-          key: ${this.config.key}
-          secret: ${this.config.secret}
-          secret_bin: ${access_secret_bin}
-          nonce: ${nonce}
-          timestamp: ${timestamp}
-          signature: ${signature}
-      `)
-
-      return `Signature access-key=${this.config.key}, nonce=${nonce}, timestamp=${timestamp}, version=${version}, signature=${signature}`;
-
-  }
-
-  request(method, path, params = [], cb) {
-    let signature = this.buildSignature();
-    console.log("Signature: "+signature+"\n");
-    const options = {
-      host: this.config.url,
-      path: path,
-      method: method,
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "X-Signature": signature
-      }
-    }
-    function callback(response) {
-      var data = '';
-      console.log('headers:', response);
-      //another chunk of data has been recieved, so append it to `str`
-      response.on('data', function (chunk) {
-        console.log('DATA!!!!')
-        data += chunk;
-      });
-
-      //the whole response has been recieved, so we just print it out here
-      response.on('end', function () {
-        console.log("datum", data);
-        // cb(JSON.parse(data))
-        cb(data);
-      });
-    }
-    let req = https.request(options, callback);
-    if (method == 'POST') req.write(JSON.stringify(params));
-    req.end();
-  }
-}
 
 function createDevelpoment(profile, account) {
   // echo "Creating new development ... ";
@@ -124,23 +31,32 @@ function createDevelpoment(profile, account) {
       'user_id': profile.id,
       'account': account.name,
       'account_id': account.id,
-      'development_id': '123123-1sadas-13-123'
+      'development_id': '123124-1sadas-13-123'
   }
   fs.writeFileSync(CWD+'/.robot.dev', JSON.stringify(identity, null, 2));
 }
 
-let config = require(CWD+'/config/manifest.json');
-config.url = BASE_URL;
+// Main logic
+let manifestPath = `${CWD}/config/manifest.json`;
+if (!fs.existsSync(manifestPath)) {
+  log(
+    'Could not find ' + blue('./config/manifest.json'),
+    '\nPlease create one and try again.'
+  );
+  rl.close();
+  return;
+}
 
-if (config.debug_url) config.url = config.debug_url;
+let config = require(manifestPath);
+config.url = config.debug_url || BASE_URL;
 
-let requester = new RallfRequester(config);
+let requester = new RallfReq(config);
 let indentity;
 
-if(!fs.existsSync(CWD+'/.robot.dev')) {
+if(!fs.existsSync(`${CWD}/.robot.dev`)) {
 
-  console.log("Development not found, creating new one...");
-  console.log("Listing accounts... ");
+  log.write(warning("Development not found") + ", creating new one...");
+  log.write("Listing accounts... ");
 
   requester.request('GET', '/user/v1/profile', {},
     resp => {
@@ -186,17 +102,30 @@ if(!fs.existsSync(CWD+'/.robot.dev')) {
 // .robot.dev exists
 else{
   indentity = fs.readFileSync(CWD+'/.robot.dev', 'utf8');
-  console.log("Compiling...");
+  log.write('Compiling...');
   exec('rpkg', function (error, stdout, stderr) {
 
-    console.log(
-      `[ok]\n`,
-      `Uploading...`
-    );
-    requester.request('POST', 'app/v1/upload', {
-      file: fs.readFileSync(CWD+'/out/app.tsk', 'utf8')},
+    if (error) {
+      log.write(`   [${errorcl('error')}]\n`);
+      log.write(JSON.stringify(error, null, 4));
+      rl.close();
+    }
+
+    log.write(`   [${success('ok')}]\n`);
+    log.write('Uploading...');
+    requester.request('POST', 'app/v1/upload',
+      {
+        file: fs.readFileSync(CWD+'/out/app.tsk', 'utf8')
+      },
       (resp) => {
+        log.write(`   [${success('ok')}]\n`);
+        log.write('Launching...');
         console.log(resp)
+      },
+      (err) => {
+        log.write(`   [${errorcl('error')}]\n`);
+        log.write(JSON.stringify(err, null, 4));
+        rl.close();
       }
     )
   });
