@@ -2,6 +2,7 @@
 'use strict';
 
 const RallfReq  = require('./requester');
+const pkg       = require('../package.json');
 const fs        = require('fs');
 const readline  = require('readline');
 const clc       = require('cli-color');
@@ -14,29 +15,40 @@ let rl = readline.createInterface({
     output: process.stdout
 });
 let log     = process.stdout;
-let blue    = clc.xterm(24);
+let lgray   = clc.xterm(59).bold;
+let info    = clc.xterm(23);
+let red     = clc.xterm(9);
 let warning = clc.xterm(3);
 let success = clc.xterm(28);
 let errorcl = clc.xterm(1);
 
-
-function createDevelpoment(profile, account) {
+function createDevelopment(profile, account) {
   // echo "Creating new development ... ";
   console.log("Creating new development...");
   // $response = $requester->request('POST', '/user/v1/developments', ['account_id' => $account->id]);
   // $development = $response->data;
   console.log('123123-1sadas-13-123'+ " created OK\n");
   let identity = {
-      'user': profile.username,
-      'user_id': profile.id,
-      'account': account.name,
-      'account_id': account.id,
-      'development_id': '123124-1sadas-13-123'
+    'user': profile.username,
+    'user_id': profile.id,
+    'account': account.name,
+    'account_id': account.id,
+    'development_id': '123124-1sadas-13-123'
   }
   fs.writeFileSync(CWD+'/.robot.dev', JSON.stringify(identity, null, 2));
 }
 
+function writeLogToFile(msg) {
+  let date = (new Date()).toJSON();
+  fs.appendFileSync(
+    'rr.log',
+    `[${date}] - ${msg.replace(/[\n]/g, '')}\n`
+  );
+  log.write(`[${info('info ')}] check rr.log for further information about the error.`)
+}
+
 // Main logic
+
 let manifestPath = `${CWD}/config/manifest.json`;
 if (!fs.existsSync(manifestPath)) {
   log(
@@ -50,19 +62,23 @@ if (!fs.existsSync(manifestPath)) {
 let config = require(manifestPath);
 config.url = config.debug_url || BASE_URL;
 
+if (!config.secret || !config.key) {
+  log.write(warning(`Please check your manifest.json file, it seems some credentials are not present.`))
+  rl.close();
+  return;
+}
+
 let requester = new RallfReq(config);
 let indentity;
 
 if(!fs.existsSync(`${CWD}/.robot.dev`)) {
-
-  log.write(warning("Development not found") + ", creating new one...");
-  log.write("Listing accounts... ");
-
-  requester.request('GET', '/user/v1/profile', {},
+  log.write(`[${warning('warn ')}] Development not found, creating new one...\n`)
+  log.write(`[     ] Listing accounts...`);
+  requester.request('GET', '/user/v1/profile',
+    {},
     resp => {
-      console.log("Arribed", resp)
+      log.write(`\r[${success(' ok ')}] Listing accounts... \n`);
       let profile  = resp;
-
       let totalPermissions = profile.permissions.length;
       console.log(`Found ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
 
@@ -79,7 +95,7 @@ if(!fs.existsSync(`${CWD}/.robot.dev`)) {
               selectedAccount = profile.permissions[parsed].account;
               console.log(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}`);
               rl.close();
-              createDevelpoment(profile, selectedAccount);
+              createDevelopment(profile, selectedAccount);
             }
             else {
               console.log(`Please enter a number between 1-${totalPermissions}`);
@@ -93,38 +109,45 @@ if(!fs.existsSync(`${CWD}/.robot.dev`)) {
         selectedAccount = profile.permissions[0].account;
         console.log(`Selected account: [1] (${selectedAccount.name}) ${selectedAccount.id}`);
         rl.close();
-        createDevelpoment(profile, selectedAccount);
+        createDevelopment(profile, selectedAccount);
       }
-
-    });
+    },
+    error => {
+      log.write(`\r[${errorcl('error')}] Listing accounts... \n`);
+      writeLogToFile(JSON.stringify(error));
+      rl.close();
+    }
+  );
 
 }
 // .robot.dev exists
 else{
-  indentity = fs.readFileSync(CWD+'/.robot.dev', 'utf8');
-  log.write('Compiling...');
+  indentity = JSON.parse(fs.readFileSync(CWD+'/.robot.dev', 'utf8'));
+  log.write(`[${success('succs')}] Found development [${info(indentity.development_id)}]\n`);
+
+  log.write(`[     ] Compiling...`);
   exec('rpkg', function (error, stdout, stderr) {
 
     if (error) {
-      log.write(`   [${errorcl('error')}]\n`);
-      log.write(JSON.stringify(error, null, 4));
+      log.write(`\r[${errorcl('error')}] Compiling\n`);
+      writeLogToFile(error);
       rl.close();
     }
 
-    log.write(`   [${success('ok')}]\n`);
-    log.write('Uploading...');
+    log.write(`\r[${success('succs')}] Compiled correctly!\n`);
+    log.write(`[     ] Uploading...`);
     requester.request('POST', 'app/v1/upload',
       {
         file: fs.readFileSync(CWD+'/out/app.tsk', 'utf8')
       },
       (resp) => {
-        log.write(`   [${success('ok')}]\n`);
+        log.write(`\r[${success('succs')}] Uploading correctly! \n`);
         log.write('Launching...');
         console.log(resp)
       },
       (err) => {
-        log.write(`   [${errorcl('error')}]\n`);
-        log.write(JSON.stringify(err, null, 4));
+        log.write(`\r[${errorcl('error')}] Uploading failed\n`);
+        writeLogToFile(err);
         rl.close();
       }
     )

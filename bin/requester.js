@@ -75,9 +75,18 @@ class RallfRequester {
 
       //the whole response has been recieved, so we just print it out here
       response.on('end', function () {
-        // console.log("datum", data);
-        // cb(JSON.parse(data))
-        cb(data);
+        let isValidJson = isJsonString(data);
+        if (isValidJson) {
+          data = JSON.parse(data);
+        }
+        if (data.error || !isValidJson) {
+          if (cb_error && typeof cb_error == 'function') {
+            cb_error(data);
+          }
+        }
+        else if (cb && typeof cb == 'function') {
+          cb(data);
+        }
       });
     }
     let req = https.request(options, callback);
@@ -105,5 +114,12 @@ let uniqid = function (pr, en) {
 
 	return result;
 };
-
+function isJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
 module.exports = RallfRequester;
