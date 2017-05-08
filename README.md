@@ -5,13 +5,9 @@ Toolset to create Robot Apps for [R.A.L.F.](https://ralf.robotunion.net)
 based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
 
 
-<<<<<<< HEAD
-# First steps
-## Installation
-=======
+
 ## First steps
 ### Installation
->>>>>>> 3415fc997d35abd09ffc5e5245f1cb804c6cc36d
 * Create a new node project `npm init`
 * Add `RobotUnion/robot-js-sdk` as a dependecy to your `package.json`
 
