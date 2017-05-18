@@ -1,4 +1,4 @@
-
+'use strict';
 /*
   RALLF Robot js SDK Requester class
 */
@@ -51,7 +51,7 @@ class RallfRequester {
       return `Signature access-key=${this.config.key}, nonce=${nonce}, timestamp=${timestamp}, version=${version}, signature=${signature}`;
 
   }
-  request(method, path, params = [], cb, cb_error) {
+  request(method, path, params, cb, cb_error) {
     let signature = this.buildSignature();
     // console.log("Signature: "+signature+"\n");
     const options = {

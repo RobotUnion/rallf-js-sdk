@@ -4,13 +4,19 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "rr":   "bin/rr.js",
+    "rr": "bin/rr.js",
     "rpkg": "bin/rpkg.js",
     "init": "bin/init.js"
+  },
+  "scripts": {
+    "rr": "bin/rr",
+    "rpkg": "bin/rpkg",
+    "init": "bin/init"
   },
   "author": "nombrekeff",
   "license": "ISC",
   "dependencies": {
+    "color-cli": "^0.1.0",
     "jszip": "^3.1.3"
   }
 }
