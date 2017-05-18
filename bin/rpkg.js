@@ -29,7 +29,7 @@ if (fs.existsSync(manifestPath)) {
 console.log(`Started packaging development ${config ? '['+success(config.name)+']': ''}...`);
 
 if(!fs.existsSync(CWD+'/out')) {
-  console.log(`[${info('info')}] Created ${info('out')} folder.\n`);
+  console.log(`[${info('info')}] Created ${info('out')} folder.`);
   fs.mkdirSync('out');
 }
 addFolder('src');

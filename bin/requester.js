@@ -38,15 +38,15 @@ class RallfRequester {
       let version = 1;
       let signature = signer.sign(this.config.key + nonce + timestamp);
 
-      // console.log(`
-      //   Signatureads:
-      //     key: ${this.config.key}
-      //     secret: ${this.config.secret}
-      //     secret_bin: ${access_secret_bin}
-      //     nonce: ${nonce}
-      //     timestamp: ${timestamp}
-      //     signature: ${signature}
-      // `)
+      console.log(`
+        Signature:
+          key: ${this.config.key}
+          secret: ${this.config.secret}
+          secret_bin: ${access_secret_bin}
+          nonce: ${nonce}
+          timestamp: ${timestamp}
+          signature: ${signature}
+      `)
 
       return `Signature access-key=${this.config.key}, nonce=${nonce}, timestamp=${timestamp}, version=${version}, signature=${signature}`;
 
@@ -65,18 +65,12 @@ class RallfRequester {
       }
     }
     function callback(response) {
-      var data = '';
-      // console.log('headers:', response);
-      //another chunk of data has been recieved, so append it to `str`
+      let data = '';
       response.on('data', function (chunk) {
-        // console.log('DATA!!!!')
         data += chunk;
       });
-
-      //the whole response has been recieved, so we just print it out here
       response.on('end', function () {
-        let isValidJson = isJsonString(data);
-        if (isValidJson) {
+        if (isJsonString(data)) {
           data = JSON.parse(data);
         }
         if (data.error || !isValidJson) {

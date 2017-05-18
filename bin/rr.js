@@ -8,7 +8,7 @@ const readline  = require('readline');
 const clc       = require('cli-color');
 const exec      = require('child_process').exec;
 const CWD       = process.cwd();
-const BASE_URL  = 'https://api.alpha.rallf.com';
+const BASE_URL  = 'api.alpha.rallf.com';
 
 let rl = readline.createInterface({
     input: process.stdin,
@@ -74,14 +74,10 @@ let indentity;
 if(!fs.existsSync(`${CWD}/.robot.dev`)) {
   log.write(`[${warning('warn ')}] Development not found, creating new one...\n`)
   log.write(`[     ] Listing accounts...`);
-  requester.request('GET', '/public/v1/version',
-    {},
-    resp => {
-      console.log("version", resp)
-    })
   requester.request('GET', '/user/v1/profile',
     {},
     resp => {
+      console.log(resp)
       log.write(`\r[${success(' ok ')}] Listing accounts... \n`);
       let profile  = resp;
       let totalPermissions = profile.permissions.length;
@@ -123,7 +119,6 @@ if(!fs.existsSync(`${CWD}/.robot.dev`)) {
       rl.close();
     }
   );
-
 }
 // .robot.dev exists
 else{
