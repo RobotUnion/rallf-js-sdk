@@ -1,19 +1,14 @@
 'use strict';
-/*
-  RALLF Robot js SDK Requester class
-*/
-
 const https  = require('https');
 const crypto = require('crypto');
 
-class RallfSigner {
-  constructor(key) {
-      this.secret = key;
-  }
-  sign(message){
-    return crypto.createHmac('sha256', this.secret).update(message).digest('hex');
-  }
+function RallfSigner(key){
+  this.secret = key;
 }
+RallfSigner.prototype.sign = function(message) {
+  return crypto.createHmac('sha256', this.secret).update(message).digest('hex');
+}
+
 class RallfRequester {
   constructor(config) {
     this.config = config;
