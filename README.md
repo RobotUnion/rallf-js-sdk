@@ -21,7 +21,7 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
   }
   ```
 * Run `npm install` to install the sdk
-
+* Run `npm install git://github.com/RobotUnion/robot-js-sdk.git -g` so you can have access to the debug commands
 ### Create simple Robot Task
   * Create the RobotApp manifest `manifest.json` within the `config` folder
 
@@ -89,7 +89,7 @@ $ rpkg
 ```
 
 
-# API
+<!-- # API
 ## Task
 * Properties
-  * ``
+  * `` -->
