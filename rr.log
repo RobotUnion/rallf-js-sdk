@@ -1,1 +1,21 @@
-[2017-05-18T22:17:56.497Z] - {"error":{"code":401,"message":"Unauthorized"}}
+[2017-09-04T15:18:36.811Z] - ""
+[2017-09-04T15:21:39.062Z] - ""
+[2017-09-04T15:22:25.998Z] - {"error":{"code":401,"message":"Unauthorized"}}
+[2017-09-04T15:24:25.012Z] - {"error":{"code":401,"message":"Unauthorized"}}
+[2017-09-04T15:24:55.230Z] - ""
+[2017-09-04T15:25:33.899Z] - ""
+[2017-09-04T15:26:30.097Z] - ""
+[2017-09-04T15:27:52.750Z] - ""
+[2017-09-04T15:29:18.820Z] - ""
+[2017-09-04T15:30:22.734Z] - ""
+[2017-09-04T15:34:16.735Z] - ""
+[2017-09-04T15:34:48.377Z] - ""
+[2017-09-04T15:35:31.329Z] - ""
+[2017-09-04T15:45:13.385Z] - ""
+[2017-09-04T15:48:08.876Z] - ""
+[2017-09-04T15:50:28.171Z] - ""
+[2017-09-04T15:53:09.349Z] - ""
+[2017-09-04T16:11:45.559Z] - <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>Your browser sent a request that this server could not understand.<br /></p><hr><address>Apache/2.4.27 (Debian) Server at api.alpha.rallf.com Port 443</address></body></html>
+[2017-09-04T16:12:36.788Z] - <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>Your browser sent a request that this server could not understand.<br /></p><hr><address>Apache/2.4.27 (Debian) Server at api.alpha.rallf.com Port 443</address></body></html>
+[2017-09-04T16:14:29.169Z] - <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>Your browser sent a request that this server could not understand.<br /></p><hr><address>Apache/2.4.27 (Debian) Server at api.alpha.rallf.com Port 443</address></body></html>
+[2017-09-04T16:15:21.273Z] - <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN"><html><head><title>400 Bad Request</title></head><body><h1>Bad Request</h1><p>Your browser sent a request that this server could not understand.<br /></p><hr><address>Apache/2.4.27 (Debian) Server at api.alpha.rallf.com Port 443</address></body></html>

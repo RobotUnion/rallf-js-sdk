@@ -1,23 +1,40 @@
 'use strict';
 const https  = require('https');
 const crypto = require('crypto');
+var request = require('request');
+/**
+*  @class {RallfSigner} - Used to sign messages
+*  @param {String} key  - Secret key
+*/
+class RallfSigner{
+  constructor(key){
+    this.secret = key;
+  }
 
-function RallfSigner(key){
-  this.secret = key;
-}
-RallfSigner.prototype.sign = function(message) {
-  return crypto.createHmac('sha256', this.secret).update(message).digest('hex');
+  /**
+  * @method {sign}
+  * @param  {String} message - the message to sign
+  * @return {String} - hex string
+  */
+  sign(message) {
+    return crypto.createHmac('sha256', this.secret).update(message).digest('hex');
+  }
 }
 
+/**
+*  @class {RallfRequester}
+*  @param {Object} config
+*/
 class RallfRequester {
   constructor(config) {
     this.config = config;
   }
+
+  /**
+  * @method {buildSignature}
+  * @return {String} - 'Signature access-key="", nonce="", timestamp="", version="", signature=""';
+  */
   buildSignature(){
-      // let access_key = "edbeb673024f2d0e23752e2814ca1ac4c589f761";
-      // let access_secret = "wlqDEET8uIr5RN00AMuuceI9LLKMTNLpzlETlX3djVg=";
-      // let nonce = "1570156405";
-      // let timestamp = "1411000260";
 
       // # access_secret bytes, used later as a key to make the signature
       let access_secret_bin = new Buffer(this.config.secret, 'hex');
@@ -27,35 +44,35 @@ class RallfRequester {
       let nonce = uniqid();
 
       // # Current unix timestamp, see http://en.wikipedia.org/wiki/Unix_time
-      let timestamp = Math.floor((new Date()).getTime() / 1000);
+      let timestamp = Math.floor(Date.now() / 1000);
 
       // # Authentication scheme version, now 1
       let version = 1;
       let signature = signer.sign(this.config.key + nonce + timestamp);
 
-      // console.log(`
-      //   Signature:
-      //     key: ${this.config.key}
-      //     secret: ${this.config.secret}
-      //     secret_bin: ${access_secret_bin}
-      //     nonce: ${nonce}
-      //     timestamp: ${timestamp}
-      //     signature: ${signature}
-      // `)
-
-      return `Signature access-key=${this.config.key}, nonce=${nonce}, timestamp=${timestamp}, version=${version}, signature=${signature}`;
-
+      return 'Signature access-key="'+this.config.key+'", nonce="'+nonce+'", timestamp="'+timestamp+'", version="'+version+'", signature="'+signature+'"';
   }
-  request(method, path, params, cb, cb_error) {
-    let signature = this.buildSignature();
-    // console.log("Signature: "+signature+"\n");
+
+  /**
+  * @method {request}
+  * @param {String}   method   - 'POST' | 'GET' | ...
+  * @param {String}   path     - 'user/v1/accounts'
+  * @param {Object}   params   - {...}
+  * @param {function} cb       - callback function
+  * @param {function} cb_error - error callback function
+  */
+  request(method, file_path, params, cb, cb_error) {
+    let signature = this.buildSignature(), req;
     const options = {
       host: this.config.url,
       path: path,
       method: method,
+      url: this.config.url+path,
+      port: null,
+      ignore_errors: true,
       headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
+        // "accept": "application/json",
+        // "content-type": "application/json",
         "X-Signature": signature
       }
     }
@@ -65,31 +82,73 @@ class RallfRequester {
         data += chunk;
       });
       response.on('end', function () {
-        if (isJsonString(data)) {
-          data = JSON.parse(data);
-        }
+        let isValidJson = isJsonString(data);
+        data = isValidJson ? JSON.parse(data): data;
         if (data.error || !isValidJson) {
           if (cb_error && typeof cb_error == 'function') {
             cb_error(data);
           }
         }
-        else if (cb && typeof cb == 'function') {
+        else if (cb && typeof cb == 'function')
           cb(data);
-        }
       });
     }
-    let req = https.request(options, callback);
-    req.on('error', function(err) {
-      if (cb_error && typeof cb_error == 'function') {
-        cb_error(err);
-      }
+    req = request(options, callback);
+    var form = req.form();
+    form.append('file', fs.createReadStream(file_path), {
+      contentType: 'application/zip'
     });
-    if (method == 'POST') req.write(JSON.stringify(params));
+    req.on('error', function(err) {
+      if (cb_error && typeof cb_error == 'function')
+        cb_error(err);
+    });
+    // if (method == 'POST') req.write(JSON.stringify(params));
+    req.end();
+  }
+  upload(path, file, cb, cb_error){
+    let signature = this.buildSignature(), req;
+    const options = {
+      host: this.config.url,
+      path: path,
+      method: 'POST',
+      url: this.config.url+path,
+      port: null,
+      ignore_errors: true,
+      headers: {
+        "accept": "application/json",
+        "content-type": "multipart/form-data",
+        "X-Signature": signature
+      }
+    }
+    function callback(response) {
+      let data = '';
+      response.on('data', function (chunk) {
+        data += chunk;
+      });
+      response.on('end', function () {
+        let isValidJson = isJsonString(data);
+        data = isValidJson ? JSON.parse(data): data;
+        if (data.error || !isValidJson) {
+          if (cb_error && typeof cb_error == 'function') {
+            cb_error(data);
+          }
+        }
+        else if (cb && typeof cb == 'function')
+          cb(data);
+      });
+    }
+    req = https.request(options, callback);
+    req.on('error', function(err) {
+      if (cb_error && typeof cb_error == 'function')
+        cb_error(err);
+    });
+    req.write(new Buffer(file));
     req.end();
   }
 }
 
-let uniqid = function (pr, en) {
+
+function uniqid (pr, en) {
 	var pr = pr || '', en = en || false, result;
 
 	let seed = function (s, w) {
@@ -105,10 +164,12 @@ let uniqid = function (pr, en) {
 };
 function isJsonString(str) {
     try {
-        JSON.parse(str);
+      JSON.parse(str);
+      return true;
     } catch (e) {
-        return false;
+      return false;
     }
-    return true;
 }
+
+
 module.exports = RallfRequester;
