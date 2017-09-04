@@ -1,7 +1,9 @@
 'use strict';
 const https  = require('https');
 const crypto = require('crypto');
-var request = require('request');
+const request = require('request');
+const fs           = require('fs');
+
 /**
 *  @class {RallfSigner} - Used to sign messages
 *  @param {String} key  - Secret key
@@ -61,7 +63,7 @@ class RallfRequester {
   * @param {function} cb       - callback function
   * @param {function} cb_error - error callback function
   */
-  request(method, file_path, params, cb, cb_error) {
+  request(method, path, params, cb, cb_error) {
     let signature = this.buildSignature(), req;
     const options = {
       host: this.config.url,
@@ -93,16 +95,12 @@ class RallfRequester {
           cb(data);
       });
     }
-    req = request(options, callback);
-    var form = req.form();
-    form.append('file', fs.createReadStream(file_path), {
-      contentType: 'application/zip'
-    });
+    req = https.request(options, callback);
     req.on('error', function(err) {
       if (cb_error && typeof cb_error == 'function')
         cb_error(err);
     });
-    // if (method == 'POST') req.write(JSON.stringify(params));
+    if (method == 'POST') req.write(JSON.stringify(params));
     req.end();
   }
   upload(path, file, cb, cb_error){
@@ -111,7 +109,7 @@ class RallfRequester {
       host: this.config.url,
       path: path,
       method: 'POST',
-      url: this.config.url+path,
+      url: 'https://'+this.config.url+path,
       port: null,
       ignore_errors: true,
       headers: {
@@ -120,30 +118,17 @@ class RallfRequester {
         "X-Signature": signature
       }
     }
-    function callback(response) {
-      let data = '';
-      response.on('data', function (chunk) {
-        data += chunk;
-      });
-      response.on('end', function () {
-        let isValidJson = isJsonString(data);
-        data = isValidJson ? JSON.parse(data): data;
-        if (data.error || !isValidJson) {
-          if (cb_error && typeof cb_error == 'function') {
-            cb_error(data);
-          }
-        }
-        else if (cb && typeof cb == 'function')
-          cb(data);
-      });
-    }
-    req = https.request(options, callback);
-    req.on('error', function(err) {
-      if (cb_error && typeof cb_error == 'function')
+    function callback(err, httpresp, response) {
+      if (err) {
         cb_error(err);
-    });
-    req.write(new Buffer(file));
-    req.end();
+      }
+      else{
+        cb(response)
+      }
+    }
+    req = request(options, callback);
+    var form = req.form();
+    form.append('file', fs.createReadStream(file));
   }
 }
 

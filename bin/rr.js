@@ -8,6 +8,7 @@ const fs           = require('fs');
 const exec         = require('child_process').exec;
 const manifestPath = `${process.cwd()}/config/manifest.json`;
 const robotDevPath = `${process.cwd()}/.robot.dev`;
+const panelUrl     = 'https://alpha.rallf.com/'
 let requester, identity, config;
 
 function createDevelopment(profile, account) {
@@ -135,11 +136,13 @@ else{
       (resp) => {
         log.write(`\r[${success('succs')}] Uploading correctly! \n`);
         log.write('Launching...');
-        console.log(resp)
+        console.log(`You can go check your development at: ${panelUrl}/developments/session/${identity.development_id}`)
+        rl.close();
       },
       (err) => {
         log.write(`\r[${errorcl('error')}] Uploading failed\n`);
-        writeLogToFile(err);
+        console.log("error, ", err);
+        writeLogToFile(JSON.stringify(err));
         rl.close();
       }
     )
