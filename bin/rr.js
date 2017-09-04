@@ -24,6 +24,7 @@ function createDevelopment(profile, account) {
         'development_id': resp.data.id
       }
       fs.writeFileSync(process.cwd()+'/.robot.dev', JSON.stringify(identity, null, 2));
+      doDevelopmentExecution();
     },
     error => {
       log.write(`\r[${errorcl('error')}] Creating Development...\n`);
@@ -118,6 +119,10 @@ if(!fs.existsSync(robotDevPath)) {
 
 // .robot.dev exists
 else{
+  doDevelopmentExecution();
+}
+
+function doDevelopmentExecution() {
   identity = JSON.parse(fs.readFileSync(robotDevPath, 'utf8'));
   log.write(`[${success('succs')}] Found development [${info(identity.development_id)}]\n`);
 
@@ -135,8 +140,8 @@ else{
       process.cwd()+'/out/app.tsk',
       (resp) => {
         log.write(`\r[${success('succs')}] Uploading correctly! \n`);
-        log.write('Launching...');
-        console.log(`You can go check your development at: ${panelUrl}/developments/session/${identity.development_id}`)
+        log.write('Launching...\n');
+        console.log(`You can go check your development at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
         rl.close();
       },
       (err) => {
@@ -148,7 +153,6 @@ else{
     )
   });
 }
-
 
 // Example .robot.dev
 // {
