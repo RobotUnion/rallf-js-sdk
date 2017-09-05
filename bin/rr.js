@@ -79,8 +79,7 @@ if(!fs.existsSync(robotDevPath)) {
     },
     error => {
       log.write(`\r[${errorcl('error')}] Listing accounts... \n`);
-      // console.error(error)
-      writeLogToFile(JSON.stringify(error));
+      writeLogToFile(error);
       rl.close();
     }
   );
@@ -114,7 +113,7 @@ function doDevelopmentExecution(justCreatedDev) {
       },
       (err) => {
         log.write(`\r[${errorcl('error')}] Uploading failed\n`);
-        writeLogToFile(JSON.stringify(err));
+        writeLogToFile(err);
         rl.close();
       }
     )
@@ -137,13 +136,16 @@ function createDevelopment(profile, account) {
     },
     error => {
       log.write(`\r[${errorcl('error')}] Creating Development...\n`);
-      writeLogToFile(JSON.stringify(error));
+      writeLogToFile(error);
       rl.close();
     }
   )
 }
 function writeLogToFile(msg) {
   let date = (new Date()).toJSON();
+  console.log("ERROR: ", msg.code || msg);
+  
+  msg = json.stringify(msg);
   fs.appendFileSync(
     'rr.log',
     `[${date}] - ${msg.replace(/[\n]/g, '')}\n`
