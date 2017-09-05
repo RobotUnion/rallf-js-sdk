@@ -11,7 +11,6 @@ const robotDevPath = `${process.cwd()}/.robot.dev`;
 const panelUrl     = 'https://alpha.rallf.com/'
 let requester, identity, config;
 
-// Check if manifest exists
 if (!fs.existsSync(manifestPath)) {
   log(
     'Could not find ' + blue('./config/manifest.json'),
@@ -20,14 +19,10 @@ if (!fs.existsSync(manifestPath)) {
   rl.close();
   return;
 }
-/*
-  Require manifest and
-  set config.url to config.debug_url or the default one
-*/
+
 config = require(manifestPath);
 config.url = config.debug_url || pkg.base_url;
 
-// Check if secret & key are set in manifest
 if (!config.secret || !config.key) {
   log.write(warning(`Please check your manifest.json file, it seems some credentials are not present. [!secret, !key]`))
   rl.close();
@@ -35,7 +30,7 @@ if (!config.secret || !config.key) {
 }
 
 requester = new RallfReq(config);
-// .robot.dev does not exist
+
 if(!fs.existsSync(robotDevPath)) {
   log.write(`[${warning('warn ')}] Development not found, creating new one...\n`);
   log.write(`[     ] Listing accounts...`);
@@ -85,12 +80,13 @@ if(!fs.existsSync(robotDevPath)) {
     }
   );
 }
+else doDevelopmentExecution(false);
 
-// .robot.dev exists
-else{
-  doDevelopmentExecution(false);
-}
-
+/**
+* @function doDevelopmentExecution
+*   - It will compile project and uploaded to the development specified in .robot.dev
+* @param {boolean} justCreatedDev - the users profile
+*/
 function doDevelopmentExecution(justCreatedDev) {
   identity = JSON.parse(fs.readFileSync(robotDevPath, 'utf8'));
   if(!justCreatedDev) log.write(`[${success('succs')}] Found development [${info(identity.development_id)}]\n`);
@@ -120,6 +116,13 @@ function doDevelopmentExecution(justCreatedDev) {
     )
   });
 }
+
+/**
+* @function createDevelopment
+*   - It will create a development and will create a .robot.dev file at .
+* @param {object} profile - the users profile
+* @param {object} account - the users account
+*/
 function createDevelopment(profile, account) {
   log.write(`[     ] Creating Development...`);
   requester.request('POST', '/user/v1/developments', {'account_id': account.id, 'name': config.name || ''},
@@ -142,6 +145,11 @@ function createDevelopment(profile, account) {
     }
   )
 }
+
+/**
+* @function writeLogToFile
+* @param {object|string} msg - the message to write to rr.log
+*/
 function writeLogToFile(msg) {
   let date = (new Date()).toJSON();
   console.log("ERROR: ", msg.code || msg);

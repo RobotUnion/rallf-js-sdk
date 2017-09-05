@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 'use strict';
+
+/*
+  rpkg - Used for packaging task into a .tsk file
+*/
+
 const fs    = require('fs');
 const clc   = require('cli-color');
 const CWD   = process.cwd();
@@ -41,8 +46,6 @@ JSZip.generateNodeStream({ type: 'nodebuffer', streamFiles: true })
   .on('finish', function () {
     console.log("["+success('ok')+"] Development packed to "+info('out/app.tsk'));
   });
-
-
 
 
 function addFile(path) {
