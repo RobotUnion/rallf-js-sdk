@@ -31,7 +31,7 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
       "name": "robot-dev-example",
       "type": "web",
       "main": "src/main.js",
-      "version": "1.0.0",
+      "version_name": "1.0.0",
       "key": "access_key",
       "secret": "access_secret"
     }
