@@ -42,7 +42,7 @@ if(!fs.existsSync(robotDevPath)) {
   requester.request('GET', '/user/v1/profile',
     null,
     resp => {
-      log.write(`\r[${success(' ok ')}] Listing accounts... \n`);
+      log.write(`\r[${success(' ok  ')}] Listing accounts... \n`);
       let profile  = resp.data;
       let totalPermissions = profile.permissions.length;
       console.log(`Found ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
@@ -88,12 +88,12 @@ if(!fs.existsSync(robotDevPath)) {
 
 // .robot.dev exists
 else{
-  doDevelopmentExecution();
+  doDevelopmentExecution(false);
 }
 
-function doDevelopmentExecution() {
+function doDevelopmentExecution(justCreatedDev) {
   identity = JSON.parse(fs.readFileSync(robotDevPath, 'utf8'));
-  log.write(`[${success('succs')}] Found development [${info(identity.development_id)}]\n`);
+  if(!justCreatedDev) log.write(`[${success('succs')}] Found development [${info(identity.development_id)}]\n`);
 
   log.write(`[     ] Compiling...`);
   exec('rpkg', function (error, stdout, stderr) {
@@ -109,7 +109,7 @@ function doDevelopmentExecution() {
       process.cwd()+'/out/app.tsk',
       (resp) => {
         log.write(`\r[${success('succs')}] Uploading correctly! \n`);
-        log.write('Launching...\n');
+        // log.write('Launching...\n');
         console.log(`You can go check your development at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
         rl.close();
       },
@@ -126,7 +126,7 @@ function createDevelopment(profile, account) {
   log.write(`[     ] Creating Development...`);
   requester.request('POST', '/user/v1/developments', {'account_id': account.id, 'name': config.name || ''},
     resp => {
-      log.write(`\r[${success(' ok ')}] Created development [${resp.data.id}] \n`);
+      log.write(`\r[${success(' ok ')}] Created development [${info(resp.data.id)}] \n`);
       identity = {
         'user': profile.username,
         'user_id': profile.id,
@@ -135,7 +135,7 @@ function createDevelopment(profile, account) {
         'development_id': resp.data.id
       }
       fs.writeFileSync(process.cwd()+'/.robot.dev', JSON.stringify(identity, null, 2));
-      doDevelopmentExecution();
+      doDevelopmentExecution(true);
     },
     error => {
       log.write(`\r[${errorcl('error')}] Creating Development...\n`);
