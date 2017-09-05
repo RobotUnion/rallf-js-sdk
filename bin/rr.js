@@ -42,10 +42,10 @@ if(!fs.existsSync(robotDevPath)) {
   requester.request('GET', '/user/v1/profile',
     null,
     resp => {
-      log.write(`\r[${success(' ok  ')}] Listing accounts... \n`);
+      log.write(`\r[${success('  ok  ')}] Listing accounts... \n`);
       let profile  = resp.data;
       let totalPermissions = profile.permissions.length;
-      console.log(`Found ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
+      console.log(`\nFound ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
 
       let selectedAccount = null;
       if (totalPermissions > 1) {
