@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "Toolset to create Robot Apps for RALLF based on Client for webdriver/selenium 2.",
   "bin": {
-    "rr": "bin/rr.js",
-    "rpkg": "bin/rpkg.js",
-    "init": "bin/init.js"
+    "rallf rr": "bin/rr.js",
+    "rallf rpkg": "bin/rpkg.js",
+    "rallf init": "bin/init.js"
   },
   "author": "RobotUnion",
   "license": "ISC",
