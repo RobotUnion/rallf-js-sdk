@@ -72,7 +72,7 @@ if(!fs.existsSync(robotDevPath)) {
       }
       else{
         selectedAccount = profile.permissions[0].account;
-        log.write(`\r\rSelected account: [1] (${selectedAccount.name}) ${selectedAccount.id}`);
+        log.write(`\r\eSelected account: [1] (${selectedAccount.name}) ${selectedAccount.id}`);
         rl.close();
         createDevelopment(profile, selectedAccount);
       }
@@ -144,7 +144,7 @@ function createDevelopment(profile, account) {
 function writeLogToFile(msg) {
   let date = (new Date()).toJSON();
   console.log("ERROR: ", msg.code || msg);
-  
+
   msg = json.stringify(msg);
   fs.appendFileSync(
     'rr.log',
