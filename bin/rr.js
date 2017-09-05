@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const { clc, log, lgray, info, red, warning, success, errorcl, rl } = require('./config/clc.js');
+const { clc, log, lgray, info, red, warning, success, errorcl, rl } = require('./clc.js');
 const RallfReq     = require('./requester');
 const pkg          = require('../package.json');
 const fs           = require('fs');
