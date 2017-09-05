@@ -42,7 +42,7 @@ if(!fs.existsSync(robotDevPath)) {
   requester.request('GET', '/user/v1/profile',
     null,
     resp => {
-      log.write(`\r[${success('  ok  ')}] Listing accounts... \n`);
+      log.write(`\r[${success(' ok  ')}] Listing accounts... \n`);
       let profile  = resp.data;
       let totalPermissions = profile.permissions.length;
       console.log(`\nFound ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
@@ -109,13 +109,11 @@ function doDevelopmentExecution(justCreatedDev) {
       process.cwd()+'/out/app.tsk',
       (resp) => {
         log.write(`\r[${success('succs')}] Uploading correctly! \n`);
-        // log.write('Launching...\n');
-        console.log(`You can go check your development at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
+        console.log(`Development found at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
         rl.close();
       },
       (err) => {
         log.write(`\r[${errorcl('error')}] Uploading failed\n`);
-        console.log("error, ", err);
         writeLogToFile(JSON.stringify(err));
         rl.close();
       }
@@ -126,7 +124,7 @@ function createDevelopment(profile, account) {
   log.write(`[     ] Creating Development...`);
   requester.request('POST', '/user/v1/developments', {'account_id': account.id, 'name': config.name || ''},
     resp => {
-      log.write(`\r[${success(' ok ')}] Created development [${info(resp.data.id)}] \n`);
+      log.write(`\r[${success('  ok ')}] Created development [${info(resp.data.id)}] \n`);
       identity = {
         'user': profile.username,
         'user_id': profile.id,
