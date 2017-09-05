@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const {clc, log, lgray, info, red, warning, success, errorcl, rl} = require('./config/clc.js');
+const { clc, log, lgray, info, red, warning, success, errorcl, rl } = require('./config/clc.js');
 const RallfReq     = require('./requester');
 const pkg          = require('../package.json');
 const fs           = require('fs');
@@ -10,37 +10,6 @@ const manifestPath = `${process.cwd()}/config/manifest.json`;
 const robotDevPath = `${process.cwd()}/.robot.dev`;
 const panelUrl     = 'https://alpha.rallf.com/'
 let requester, identity, config;
-
-function createDevelopment(profile, account) {
-  log.write(`[     ] Creating Development...`);
-  requester.request('POST', '/user/v1/developments', {'account_id': account.id, 'name': config.name || ''},
-    resp => {
-      log.write(`\r[${success(' ok ')}] Created development [${resp.data.id}] \n`);
-      identity = {
-        'user': profile.username,
-        'user_id': profile.id,
-        'account': account.name,
-        'account_id': account.id,
-        'development_id': resp.data.id
-      }
-      fs.writeFileSync(process.cwd()+'/.robot.dev', JSON.stringify(identity, null, 2));
-      doDevelopmentExecution();
-    },
-    error => {
-      log.write(`\r[${errorcl('error')}] Creating Development...\n`);
-      writeLogToFile(JSON.stringify(error));
-      rl.close();
-    }
-  )
-}
-function writeLogToFile(msg) {
-  let date = (new Date()).toJSON();
-  fs.appendFileSync(
-    'rr.log',
-    `[${date}] - ${msg.replace(/[\n]/g, '')}\n`
-  );
-  log.write(`[${info('info ')}] check rr.log for further information about the error.`)
-}
 
 // Check if manifest exists
 if (!fs.existsSync(manifestPath)) {
@@ -58,7 +27,7 @@ if (!fs.existsSync(manifestPath)) {
 config = require(manifestPath);
 config.url = config.debug_url || pkg.base_url;
 
-// Check if manifest secret & key are set in manifest
+// Check if secret & key are set in manifest
 if (!config.secret || !config.key) {
   log.write(warning(`Please check your manifest.json file, it seems some credentials are not present. [!secret, !key]`))
   rl.close();
@@ -153,12 +122,33 @@ function doDevelopmentExecution() {
     )
   });
 }
-
-// Example .robot.dev
-// {
-//   "user": "johndoe",
-//   "user_id": "xxxxxxxxxxxxx-xxxxxxxxxxx-xxxxxxxx-xxxxx",
-//   "account": "johndoe",
-//   "account_id": "xxxxxxxxxxxxx-xxxxxxxxxxx-xxxxxxxx-xxxxx",
-//   "development_id": "xxxxxxxxxxx-xxxxxxxxxxxx-xxxxxxxxxx-xxxxx"
-// }
+function createDevelopment(profile, account) {
+  log.write(`[     ] Creating Development...`);
+  requester.request('POST', '/user/v1/developments', {'account_id': account.id, 'name': config.name || ''},
+    resp => {
+      log.write(`\r[${success(' ok ')}] Created development [${resp.data.id}] \n`);
+      identity = {
+        'user': profile.username,
+        'user_id': profile.id,
+        'account': account.name,
+        'account_id': account.id,
+        'development_id': resp.data.id
+      }
+      fs.writeFileSync(process.cwd()+'/.robot.dev', JSON.stringify(identity, null, 2));
+      doDevelopmentExecution();
+    },
+    error => {
+      log.write(`\r[${errorcl('error')}] Creating Development...\n`);
+      writeLogToFile(JSON.stringify(error));
+      rl.close();
+    }
+  )
+}
+function writeLogToFile(msg) {
+  let date = (new Date()).toJSON();
+  fs.appendFileSync(
+    'rr.log',
+    `[${date}] - ${msg.replace(/[\n]/g, '')}\n`
+  );
+  log.write(`[${info('info ')}] check rr.log for further information about the error.`)
+}
