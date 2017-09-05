@@ -72,7 +72,8 @@ if(!fs.existsSync(robotDevPath)) {
       }
       else{
         selectedAccount = profile.permissions[0].account;
-        log.write(`\r\eSelected account: [1] (${selectedAccount.name}) ${selectedAccount.id}`);
+        rl.clearLine();
+        log.write(`\r\r\rSelected account: [1] (${selectedAccount.name}) ${selectedAccount.id}`);
         rl.close();
         createDevelopment(profile, selectedAccount);
       }
