@@ -145,7 +145,7 @@ function writeLogToFile(msg) {
   let date = (new Date()).toJSON();
   console.log("ERROR: ", msg.code || msg);
 
-  msg = json.stringify(msg);
+  msg = JSON.stringify(msg);
   fs.appendFileSync(
     'rr.log',
     `[${date}] - ${msg.replace(/[\n]/g, '')}\n`
