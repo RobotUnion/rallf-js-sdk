@@ -1,7 +1,7 @@
 # RobotUnion Node.js SDK (experimental)
 
 
-Toolset to create Robot Apps for [R.A.L.F.](https://ralf.robotunion.net)
+Toolset to create Robot Apps for [RALLF](https://ralf.robotunion.net)
 based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
 
 
@@ -21,6 +21,7 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
   }
   ```
 * Run `npm install` to install the sdk
+* Run `npm install git://github.com/RobotUnion/robot-js-sdk.git -g` so you can have access to the debug commands
 
 ### Create simple Robot Task
   * Create the RobotApp manifest `manifest.json` within the `config` folder
@@ -30,14 +31,12 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
       "name": "robot-dev-example",
       "type": "web",
       "main": "src/main.js",
-      "debug_url": "",
       "version_name": "1.0.0",
-      "code_version": 0,
       "key": "access_key",
       "secret": "access_secret"
     }
     ```
-      * You can get the access key and secret from [RALF Panel](https://ralf-staging.robotunion.net/)
+      * You can get the access key and secret from [RALLF Panel](https://alpha.rallf.com/)
       * `main`: should be the main file of the RobotApp `src/main.js`
 
 
@@ -87,9 +86,7 @@ $ rr
 ```sh
 $ rpkg
 ```
-
-
-# API
-## Task
-* Properties
-  * ``
+If `-l` flag is passed it will log the output
+```sh
+$ rpkg -l
+```

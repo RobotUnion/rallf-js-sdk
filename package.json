@@ -1,22 +1,18 @@
 {
   "name": "robot-js-sdk",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Toolset to create Robot Apps for RALLF based on Client for webdriver/selenium 2.",
   "bin": {
-    "rr": "bin/rr.js",
-    "rpkg": "bin/rpkg.js",
-    "init": "bin/init.js"
+    "rallf rr": "bin/rr.js",
+    "rallf rpkg": "bin/rpkg.js",
+    "rallf init": "bin/init.js"
   },
-  "scripts": {
-    "rr": "bin/rr",
-    "rpkg": "bin/rpkg",
-    "init": "bin/init"
-  },
-  "author": "nombrekeff",
+  "author": "RobotUnion",
   "license": "ISC",
   "dependencies": {
     "color-cli": "^0.1.0",
-    "jszip": "^3.1.3"
-  }
+    "jszip": "^3.1.3",
+    "request": "^2.81.0"
+  },
+  "base_url": "api.alpha.rallf.com"
 }
