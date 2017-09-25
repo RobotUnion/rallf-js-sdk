@@ -1,8 +1,8 @@
 'use strict';
-const https  = require('https');
-const crypto = require('crypto');
+const https   = require('https');
+const crypto  = require('crypto');
 const request = require('request');
-const fs           = require('fs');
+const fs      = require('fs');
 
 /**
 *  @class {RallfSigner} - Used to sign messages

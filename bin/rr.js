@@ -44,27 +44,38 @@ if(!fs.existsSync(robotDevPath)) {
 
       let selectedAccount = null;
       if (totalPermissions > 1) {
+
+        /* Lists all account to select from */
         for(let i = 0; i < totalPermissions; i++){
           let account = profile.permissions[i].account;
           console.log(` - [${ i }] (${account.name}) ${account.id}`);
         }
-        function askSelectAccount() {
+
+        /* Asks to select an account */
+        (function askSelectAccount() {
           rl.question('\nSelect Account: ', function (selectedIndex) {
             let parsed = parseInt(selectedIndex);
+            /*
+              If entered number 'parsed' is a valid account index
+              we use that account to create development
+            */
             if (parsed <= totalPermissions) {
               selectedAccount = profile.permissions[parsed].account;
               console.log(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}`);
               rl.close();
               createDevelopment(profile, selectedAccount);
             }
+
+            /* If its invalid show message and ask again */
             else {
-              console.log(`Please enter a number between 1-${totalPermissions}`);
+              console.log(`Please enter a number between 0-${totalPermissions-1}`);
               askSelectAccount()
             }
           });
-        }
-        askSelectAccount();
+        })();
       }
+
+      /* Has only one account so we use it to create the development */
       else{
         selectedAccount = profile.permissions[0].account;
         rl.clearLine();
