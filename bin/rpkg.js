@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 const fs   = require('fs');
-const clc  = require('cli-color');
+const clc  = require('node_modules/color-cli/index.js');
 const CWD  = process.cwd();
 const ARGS = process.argv.slice(2);
 
