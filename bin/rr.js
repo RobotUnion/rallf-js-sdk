@@ -16,8 +16,7 @@ if (!fs.existsSync(manifestPath)) {
     'Could not find ' + blue('./config/manifest.json'),
     '\nPlease create one and try again.'
   );
-  rl.close();
-  return;
+  return rl.close();
 }
 
 config = require(manifestPath);
@@ -25,8 +24,7 @@ config.url = config.debug_url || pkg.base_url;
 
 if (!config.secret || !config.key) {
   log.write(warning(`Please check your manifest.json file, it seems some credentials are not present. [!secret, !key]`))
-  rl.close();
-  return;
+  return rl.close();
 }
 
 requester = new RallfReq(config);
@@ -40,7 +38,7 @@ if(!fs.existsSync(robotDevPath)) {
       log.write(`\r[${success(' ok  ')}] Listing accounts... \n`);
       let profile  = resp.data;
       let totalPermissions = profile.permissions.length;
-      console.log(`\nFound ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
+      log.write(`\nFound ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
 
       let selectedAccount = null;
       if (totalPermissions > 1) {
@@ -48,7 +46,7 @@ if(!fs.existsSync(robotDevPath)) {
         /* Lists all account to select from */
         for(let i = 0; i < totalPermissions; i++){
           let account = profile.permissions[i].account;
-          console.log(` - [${ i }] (${account.name}) ${account.id}`);
+          log.write(` - [${ i }] (${account.name}) ${account.id}`);
         }
 
         /* Asks to select an account */
@@ -61,14 +59,14 @@ if(!fs.existsSync(robotDevPath)) {
             */
             if (parsed <= totalPermissions) {
               selectedAccount = profile.permissions[parsed].account;
-              console.log(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}`);
+              log.write(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}`);
               rl.close();
               createDevelopment(profile, selectedAccount);
             }
 
             /* If its invalid show message and ask again */
             else {
-              console.log(`Please enter a number between 0-${totalPermissions-1}`);
+              log.write(`Please enter a number between 0-${totalPermissions-1}`);
               askSelectAccount()
             }
           });
@@ -116,7 +114,7 @@ function doDevelopmentExecution(justCreatedDev) {
       process.cwd()+'/out/app.tsk',
       (resp) => {
         log.write(`\r[${success('succs')}] Uploading correctly! \n`);
-        console.log(`Development found at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
+        log.write(`Development found at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
         rl.close();
       },
       (err) => {
