@@ -5,7 +5,7 @@ const fs       = require('fs');
 const readline = require('readline');
 const CWD      = process.cwd();
 const rl       = readline.createInterface({input: process.stdin, output: process.stdout});
-const _package  = require(CWD+'/package.json');
+const _package = require(CWD+'/package.json');
 
 
 let manifestTmplt = {
@@ -30,7 +30,6 @@ log(
   `
 );
 
-
 function writeManifest(manifest) {
   let cfigPath = CWD+'/config';
   let manifestStr = JSON.stringify(manifest, null, 4);
@@ -43,7 +42,8 @@ function writeManifest(manifest) {
 let keys = Object.keys(manifestTmplt);
 let klength = keys.length;
 
-let ask = function (i) {
+/* Asks for each field in manifestTmplt */
+(function ask (i) {
   let key = keys[i];
   let packageKey = _package[key];
   let mkey = manifestTmplt[key];
@@ -51,13 +51,8 @@ let ask = function (i) {
     `   ${key}${(packageKey || mkey) ? ' ('+(packageKey || mkey)+')': ''}: `,
     function (value) {
       manifestTmplt[key] = value || packageKey || mkey;
-      if (i < klength-1) {
-        ask(++i);
-      }
-      else{
-        writeManifest(manifestTmplt);
-      }
+      if (i < klength-1) ask(++i)
+      else writeManifest(manifestTmplt)
     }
   );
-}
-ask(0);
+})(0);
