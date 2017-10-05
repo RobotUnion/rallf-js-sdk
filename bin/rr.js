@@ -16,6 +16,7 @@ if (!fs.existsSync(manifestPath)) {
     'Could not find ' + info('./config/manifest.json'),
     '\nPlease create one and try again.'
   );
+  process.exit();
   return rl.close();
 }
 
