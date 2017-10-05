@@ -114,7 +114,7 @@ function doDevelopmentExecution(justCreatedDev) {
       process.cwd()+'/out/app.tsk',
       (resp) => {
         log.write(`\r[${success('succs')}] Uploading correctly! \n`);
-        log.write(`Development found at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
+        log.write(`Development found at: ${info(panelUrl+'developments/session/'+identity.development_id)}`)
         rl.close();
       },
       (err) => {
