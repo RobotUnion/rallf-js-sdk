@@ -13,7 +13,7 @@ let requester, identity, config;
 
 if (!fs.existsSync(manifestPath)) {
   log(
-    'Could not find ' + blue('./config/manifest.json'),
+    'Could not find ' + info('./config/manifest.json'),
     '\nPlease create one and try again.'
   );
   return rl.close();
