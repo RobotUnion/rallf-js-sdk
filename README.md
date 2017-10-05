@@ -5,7 +5,6 @@ Toolset to create Robot Apps for [RALLF](https://ralf.robotunion.net)
 based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
 
 
-
 ## First steps
 ### Installation
 * Create a new node project `npm init`
