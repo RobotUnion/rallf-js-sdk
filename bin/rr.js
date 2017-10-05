@@ -12,7 +12,7 @@ const panelUrl     = 'https://alpha.rallf.com/'
 let requester, identity, config;
 
 if (!fs.existsSync(manifestPath)) {
-  log(
+  log.write(
     'Could not find ' + info('./config/manifest.json'),
     '\nPlease create one and try again.'
   );
