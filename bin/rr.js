@@ -46,7 +46,7 @@ if(!fs.existsSync(robotDevPath)) {
         /* Lists all account to select from */
         for(let i = 0; i < totalPermissions; i++){
           let account = profile.permissions[i].account;
-          log.write(` - [${ i }] (${account.name}) ${account.id}`);
+          log.write(`\n - [${ i }] (${account.name}) ${account.id}`);
         }
 
         /* Asks to select an account */

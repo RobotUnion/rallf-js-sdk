@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 'use strict';
-const fs   = require('fs');
-const clc  = require('node_modules/color-cli/index.js');
-const CWD  = process.cwd();
-const ARGS = process.argv.slice(2);
-
 /*
   rpkg - Used for packaging task into a .tsk file
 */
