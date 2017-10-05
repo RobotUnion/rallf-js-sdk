@@ -35,6 +35,7 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
       "secret": "access_secret"
     }
     ```
+      * The **name** of your task will be the one in `manifest.json`
       * You can get the access key and secret from [RALLF Panel](https://alpha.rallf.com/)
       * `main`: should be the main file of the RobotApp `src/main.js`
 
