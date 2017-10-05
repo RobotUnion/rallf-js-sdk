@@ -12,6 +12,11 @@ let rl = readline.createInterface({
     output: process.stdout
 });
 
+/*
+  Overrite rl.close because original close method was not working
+  Below code does what expected
+  TODO: Check in future to see if original method works
+*/
 rl.close = function () {
   process.exit();
 }
