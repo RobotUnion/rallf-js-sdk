@@ -57,10 +57,9 @@ if(!fs.existsSync(robotDevPath)) {
               If entered number 'parsed' is a valid account index
               we use that account to create development
             */
-            console.log("Selected: ", parsed);
             if (parsed <= totalPermissions) {
               selectedAccount = profile.permissions[parsed].account;
-              log.write(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}`);
+              log.write(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}\n`);
               rl.close();
               createDevelopment(profile, selectedAccount);
             }
