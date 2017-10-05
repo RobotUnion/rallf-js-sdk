@@ -12,6 +12,10 @@ let rl = readline.createInterface({
     output: process.stdout
 });
 
+rl.close = function () {
+  process.exit();
+}
+
 module.exports = {
   clc, log, lgray, info, red, warning, success, errorcl, rl
 }
