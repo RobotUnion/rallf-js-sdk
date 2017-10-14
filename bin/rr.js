@@ -12,12 +12,12 @@ const panelUrl     = 'https://alpha.rallf.com/'
 let requester, identity, config;
 
 if (!fs.existsSync(manifestPath)) {
-  log(
-    'Could not find ' + blue('./config/manifest.json'),
+  console.log(
+    'Could not find ' + info('./config/manifest.json'),
     '\nPlease create one and try again.'
   );
-  rl.close();
-  return;
+  // process.exit();
+  return rl.close();
 }
 
 config = require(manifestPath);
@@ -25,8 +25,7 @@ config.url = config.debug_url || pkg.base_url;
 
 if (!config.secret || !config.key) {
   log.write(warning(`Please check your manifest.json file, it seems some credentials are not present. [!secret, !key]`))
-  rl.close();
-  return;
+  return rl.close();
 }
 
 requester = new RallfReq(config);
@@ -40,31 +39,42 @@ if(!fs.existsSync(robotDevPath)) {
       log.write(`\r[${success(' ok  ')}] Listing accounts... \n`);
       let profile  = resp.data;
       let totalPermissions = profile.permissions.length;
-      console.log(`\nFound ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
+      log.write(`\nFound ${totalPermissions} ${(totalPermissions == 1 ? 'account':'accounts')}:`);
 
       let selectedAccount = null;
       if (totalPermissions > 1) {
+
+        /* Lists all account to select from */
         for(let i = 0; i < totalPermissions; i++){
           let account = profile.permissions[i].account;
-          console.log(` - [${ i }] (${account.name}) ${account.id}`);
+          log.write(`\n - [${ i }] (${account.name}) ${account.id}`);
         }
-        function askSelectAccount() {
+
+        /* Asks to select an account */
+        (function askSelectAccount() {
           rl.question('\nSelect Account: ', function (selectedIndex) {
             let parsed = parseInt(selectedIndex);
+            /*
+              If entered number 'parsed' is a valid account index
+              we use that account to create development
+            */
             if (parsed <= totalPermissions) {
               selectedAccount = profile.permissions[parsed].account;
-              console.log(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}`);
+              log.write(`Selected account: [${ parsed }] (${selectedAccount.name}) ${selectedAccount.id}\n`);
               rl.close();
               createDevelopment(profile, selectedAccount);
             }
+
+            /* If its invalid show message and ask again */
             else {
-              console.log(`Please enter a number between 1-${totalPermissions}`);
+              log.write(`Please enter a number between 0-${totalPermissions-1}`);
               askSelectAccount()
             }
           });
-        }
-        askSelectAccount();
+        })();
       }
+
+      /* Has only one account so we use it to create the development */
       else{
         selectedAccount = profile.permissions[0].account;
         rl.clearLine();
@@ -105,7 +115,7 @@ function doDevelopmentExecution(justCreatedDev) {
       process.cwd()+'/out/app.tsk',
       (resp) => {
         log.write(`\r[${success('succs')}] Uploading correctly! \n`);
-        console.log(`Development found at: ${info(panelUrl+'/developments/session/'+identity.development_id)}`)
+        log.write(`Development found at: ${info(panelUrl+'developments/session/'+identity.development_id)}`)
         rl.close();
       },
       (err) => {
@@ -124,7 +134,7 @@ function doDevelopmentExecution(justCreatedDev) {
 * @param {object} account - the users account
 */
 function createDevelopment(profile, account) {
-  log.write(`[     ] Creating Development...`);
+  log.write(`\n[     ] Creating Development...`);
   requester.request('POST', '/user/v1/developments', {'account_id': account.id, 'name': config.name || ''},
     resp => {
       log.write(`\r[${success('  ok ')}] Created development [${info(resp.data.id)}] \n`);

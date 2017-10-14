@@ -1,9 +1,6 @@
-# Ignore everything
-*
-
-# But not these files...
-!.gitignore
-!src/*
-!bin/*
-!bin
-!README.md
+/config
+/.robot.dev
+/node_modules
+/doc
+/out
+/rr.log

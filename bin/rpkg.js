@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 'use strict';
-
 /*
   rpkg - Used for packaging task into a .tsk file
 */
@@ -57,11 +56,7 @@ function addFolder(path) {
   JSZip.folder(path);
   let files = fs.readdirSync(CWD+'/'+path);
   files.forEach(file => {
-    if (fs.lstatSync(path+'/'+file).isDirectory()) {
-      addFolder(path+'/'+file);
-    }
-    else {
-      addFile(path+'/'+file);
-    }
-  })
+    fs.lstatSync(path+'/'+file).isDirectory() ?
+      addFolder(path+'/'+file): addFile(path+'/'+file);
+  });
 }
