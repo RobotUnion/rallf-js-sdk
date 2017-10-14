@@ -1,5 +1,9 @@
-/config
-/.robot.dev
-/node_modules
-/doc
-/out
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!src/*
+!bin/*
+!bin
+!README.md
