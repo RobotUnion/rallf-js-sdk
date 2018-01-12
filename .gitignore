@@ -4,3 +4,7 @@
 /doc
 /out
 /rr.log
+/example
+/.vscode
+*.php
+*.png
