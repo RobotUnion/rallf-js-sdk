@@ -7,12 +7,17 @@
     "rpkg": "bin/rpkg.js",
     "init": "bin/init.js"
   },
+  "scripts": {
+    "rr": "node bin/rr-2.js"
+  },
   "author": "RobotUnion",
   "license": "ISC",
   "dependencies": {
     "cli-color": "^1.2.0",
     "jszip": "^3.1.3",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "selenium-webdriver": "^3.6.0",
+    "wd": "1.1.1"
   },
   "base_url": "api.alpha.rallf.com"
 }

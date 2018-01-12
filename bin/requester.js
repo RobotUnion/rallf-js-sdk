@@ -77,11 +77,10 @@ class RallfRequester {
         "X-Signature": signature
       }
     }
-
     function callback(response) {
       let data = '';
       response.on('data', (chunk) => data += chunk);
-      response.on('end', function() {
+      response.on('end', function () {
         let isValidJson = isJsonString(data);
         data = isValidJson ? JSON.parse(data) : data;
         if (data.error || !isValidJson) {
@@ -92,7 +91,7 @@ class RallfRequester {
       });
     }
     req = https.request(options, callback);
-    req.on('error', function(err) {
+    req.on('error', function (err) {
       if (cb_error && typeof cb_error == 'function')
         cb_error(err);
     });
@@ -102,27 +101,7 @@ class RallfRequester {
   upload(path, file, cb, cb_error) {
     let signature = this.buildSignature(),
       req;
-    const options = {
-      host: this.config.url,
-      path: path,
-      method: 'POST',
-      url: 'https://' + this.config.url + path,
-      port: null,
-      ignore_errors: true,
-      headers: {
-        "accept": "application/json",
-        "content-type": "multipart/form-data",
-        "X-Signature": signature
-      }
-    }
-
-    function callback(err, httpresp, response) {
-      if (err) cb_error(err)
-      else cb(response)
-    }
-    req = request(options, callback);
-    var form = req.form();
-    form.append('file', fs.createReadStream(file));
+    cb();
   }
 }
 
@@ -132,7 +111,7 @@ function uniqid(pr, en) {
     en = en || false,
     result;
 
-  let seed = function(s, w) {
+  let seed = function (s, w) {
     s = parseInt(s, 10).toString(16);
     return w < s.length ? s.slice(s.length - w) : (w > s.length) ? new Array(1 + (w - s.length)).join('0') + s : s;
   };
