@@ -88,17 +88,17 @@ $ rr
 
 ### Run Locally
 This will **run** the task as and log locally.
-```js
+```
 $ rd 5.189.191.163 {} {} null test
 ```
 Usage: rd <selenium_url> <json_robot> <json_input> [<debug_id>] [<env>]
 
 ### Package app
 This will **package** the task into the `out` folder.
-```js
+```
 $ rpkg
 ```
 If `-l` flag is passed it will log the output
-```shjs
+```
 $ rpkg -l
 ```
