@@ -1,5 +1,5 @@
 # RobotUnion Node.js SDK (experimental)
-## ! NOT YET USABLE
+### ! NOT YET USABLE
 
 Toolset to create Robot Apps for [RALLF](https://ralf.robotunion.net)
 based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
@@ -60,12 +60,13 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
 
         logger.debug("Started");
 
-        device.init({browserName: 'chrome'},
-          function() {
+        device.init({ browserName: 'chrome '},
+          () => {
             logger.debug("Initted");
             device.get("https://github.com", _ => {
-              device.title(function(err, title) {
+              device.title((err, title) => {
                 logger.debug(title);
+                this.finish();
               })
             })
           })
@@ -76,6 +77,7 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
     * First you need to require `Task` from `Execution/Task`
     * Now create a class to extend `Task` from
     * Finally create a `run` function, this funtion is going to run when the **RobotApp** runs
+    * When you want to finish the execution just call `this.finish()`
     * Check wd api [here](https://github.com/admc/wd/blob/master/doc/api.md) for more documentation
 
 ### Run debug
@@ -83,6 +85,13 @@ This will **package and upload** the task as a development to the account you se
 ```sh
 $ rr
 ```
+
+This will **run** the task as and log locally.
+```sh
+$ rd
+```
+Usage: rd <selenium_url> <json_robot> <json_input> [<debug_id>] [<env>]
+
 ### Package app
 This will **package** the task into the `output` folder.
 ```sh

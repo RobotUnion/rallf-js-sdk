@@ -1,6 +1,6 @@
 {
   "name": "robot-js-sdk",
-  "version": "0.1.0",
+  "version": "0.0.2",
   "description": "Toolset to create Robot Apps for RALLF based on Client for webdriver/selenium 2.",
   "bin": {
     "rr": "bin/rr.js",
