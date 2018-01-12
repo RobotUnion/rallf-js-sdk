@@ -80,24 +80,25 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
     * When you want to finish the execution just call `this.finish()`
     * Check wd api [here](https://github.com/admc/wd/blob/master/doc/api.md) for more documentation
 
-### Run debug
+### Run On Rallf
 This will **package and upload** the task as a development to the account you select.
 ```sh
 $ rr
 ```
 
+### Run Locally
 This will **run** the task as and log locally.
-```sh
-$ rd
+```js
+$ rd 5.189.191.163 {} {} null test
 ```
 Usage: rd <selenium_url> <json_robot> <json_input> [<debug_id>] [<env>]
 
 ### Package app
-This will **package** the task into the `output` folder.
-```sh
+This will **package** the task into the `out` folder.
+```js
 $ rpkg
 ```
 If `-l` flag is passed it will log the output
-```sh
+```shjs
 $ rpkg -l
 ```
