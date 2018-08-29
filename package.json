@@ -5,7 +5,8 @@
   "bin": {
     "rr": "bin/rr.js",
     "rpkg": "bin/rpkg.js",
-    "init": "bin/init.js"
+    "init": "bin/init.js",
+    "rallf-js-runner": "bin/rallf-js-runner.js"
   },
   "scripts": {
     "rr": "node bin/rr-2.js",
