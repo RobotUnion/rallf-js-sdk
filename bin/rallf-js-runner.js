@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --no-deprecation --no-warning
 
 const argv = require('yargs').argv;
 const path = require('path');
@@ -68,16 +68,22 @@ try {
     task.setInput(JSON.parse(input));
 
     task.onFinish = function (x) {
-      driver.quit(() => {
-        process.stdout.write('finished: ' + x);
-        return process.exit(0);
-      });
+      driver.quit();
+      process.stdout.write('finished: ' + JSON.stringify(x));
+      return process.exit(0);
     };
     taskLogger.debug('running');
     task.run();
   });
 } catch (error) {
-  driver.quit();
-  process.stderr.write('error: ' + JSON.stringify(error));
+  driver.quit().then();
+  if (error.toString().includes('ECONNREFUSED')) {
+    process.stderr.write('\nerror: Seem like you cant connect, please try again or contact us');
+  }
+  else if (!error.includes('DeprecationWarning:')) {
+    process.stderr.write('\nerror: ' + JSON.stringify(error));
+  } else {
+    console.log("Catched the fcking deprecation wanr");
+  }
   return process.exit(1);
 }
