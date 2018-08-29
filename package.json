@@ -1,5 +1,5 @@
 {
-  "name": "robot-js-sdk",
+  "name": "@rallf/sdk",
   "version": "0.0.2",
   "description": "Toolset to create Robot Apps for RALLF based on Client for webdriver/selenium 2.",
   "bin": {
