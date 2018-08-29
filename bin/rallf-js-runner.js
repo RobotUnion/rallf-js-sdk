@@ -8,6 +8,15 @@ const IdeLogger = require('../src/Integration/IdeLogger');
 
 console.log("Args", argv);
 
+
+if (!argv.task_path) {
+  argv.task_path = process.cwd();
+}
+
+if (!argv.manifest_path) {
+  argv.manifest_path = path.join(process.cwd(), 'config', 'manifest.json');
+}
+
 if (!argv.task_path || !argv.manifest_path) {
   console.log('  ERROR: Args are required.');
   console.log(`  Usage: ${argv['$0']} --task_path=<path> --manifest_path=<path>`);
@@ -15,9 +24,10 @@ if (!argv.task_path || !argv.manifest_path) {
   return 1;
 }
 
-const task_path = path.resolve(argv.task_path);
-const manifest_path = path.resolve(argv.manifest_path);
-const manifest = JSON.parse(fs.readFileSync(manifest_path).toString());
+
+let task_path = path.resolve(argv.task_path);
+let manifest_path = path.resolve(argv.manifest_path);
+let manifest = JSON.parse(fs.readFileSync(manifest_path).toString());
 const robot = '{}';
 const input = '{}';
 const mainFile = manifest.main;
