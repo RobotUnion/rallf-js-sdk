@@ -3,11 +3,6 @@ class IdeLogger extends AbstractLogger {
   constructor(process) {
     super({
       notify: log => {
-        // let severity = this.getSeverity(log.severity);
-        // let msg = `[${(new Date(log.time)).toLocaleString()}] - ${severity} - ${log.message}`;
-        // if (log.data && !log.data.capture) {
-        //   msg += ` - ${JSON.stringify(log.data)}`;
-        // }
         process.stdout.write('task:log ' + JSON.stringify(log));
       }
     });
