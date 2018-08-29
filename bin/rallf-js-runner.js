@@ -15,8 +15,8 @@ if (!argv.task_path || !argv.manifest_path) {
   return 1;
 }
 
-const task_path = argv.task_path;
-const manifest_path = argv.manifest_path;
+const task_path = path.resolve(argv.task_path);
+const manifest_path = path.resolve(argv.manifest_path);
 const manifest = JSON.parse(fs.readFileSync(manifest_path).toString());
 const robot = '{}';
 const input = '{}';
