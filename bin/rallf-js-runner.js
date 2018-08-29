@@ -39,8 +39,8 @@ delete require.cache[taskPath];
 
 console.log('manifest', manifest);
 
-driver.on('error', (error) => {
-  console.log('ERROR Driver: ', error);
+driver.on('status', (data) => {
+  console.log('>>>>>> Status ' + data);
 });
 
 let Task;
@@ -56,7 +56,7 @@ try {
   task.name = manifest.name;
 
   driver.init(capabilities, (err, sess) => {
-    taskLogger.debug('init: ' + sess);
+    // taskLogger.debug('init: ' + sess);
     if (err) {
       driver.quit();
       process.stderr.write('error: ' + err);
@@ -66,16 +66,17 @@ try {
     task.setLogger(taskLogger);
     task.setRobot(JSON.parse(robot));
     task.setInput(JSON.parse(input));
-
     task.onFinish = function (x) {
       driver.quit();
       process.stdout.write('finished: ' + JSON.stringify(x));
       return process.exit(0);
     };
-    taskLogger.debug('running');
     task.run();
   });
 } catch (error) {
+  console.log('___________ASDASDASDASDSD', error);
+
+
   driver.quit().then();
   if (error.toString().includes('ECONNREFUSED')) {
     process.stderr.write('\nerror: Seem like you cant connect, please try again or contact us');
