@@ -9,7 +9,7 @@
   },
   "scripts": {
     "rr": "node bin/rr-2.js",
-    "run": "bin/runner.js"
+    "rallf-js-runner": "bin/rallf-js-runner.js"
   },
   "author": "RobotUnion",
   "license": "ISC",
