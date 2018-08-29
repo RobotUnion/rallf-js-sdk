@@ -1,4 +1,4 @@
-#!/usr/bin/env node --no-deprecation --no-warning
+#!/usr/bin/env node
 
 const argv = require('yargs').argv;
 const path = require('path');
