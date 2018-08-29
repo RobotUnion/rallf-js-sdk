@@ -37,14 +37,7 @@ const taskPath = path.resolve(task_path + '/' + mainFile);
 delete require.cache[taskPath];
 
 
-console.log('manifest', manifest);
-
-driver.on('status', (data) => {
-  console.log('>>>>>> Status ' + data);
-});
-
 let Task;
-console.log('loading from: ', path.join(task_path, mainFile));
 try {
   Task = require(path.join(task_path, mainFile));
 
@@ -74,17 +67,12 @@ try {
     task.run();
   });
 } catch (error) {
-  console.log('___________ASDASDASDASDSD', error);
-
-
-  driver.quit().then();
+  driver.quit();
   if (error.toString().includes('ECONNREFUSED')) {
     process.stderr.write('\nerror: Seem like you cant connect, please try again or contact us');
   }
   else if (!error.includes('DeprecationWarning:')) {
     process.stderr.write('\nerror: ' + JSON.stringify(error));
-  } else {
-    console.log("Catched the fcking deprecation wanr");
   }
   return process.exit(1);
 }
