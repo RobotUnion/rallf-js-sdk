@@ -31,26 +31,14 @@ class AbstractLogger {
 
   capture(device, severity = 7, channel = "") {
     return new Promise((resolve, reject) => {
-      device.takeScreenshot((err, resp) => {
-        if (err) {
-          this.error(
-            'error',
-            { "error": err },
-            null,
-            severity,
-            channel
-          );
-          reject({ "error": err })
+      device.takeScreenshot((error, capture) => {
+        if (error) {
+          this.error('error', { error });
+          reject({ error });
         }
         else {
-          this.debug(
-            'capture',
-            { "capture": resp },
-            null,
-            severity,
-            channel
-          );
-          resolve({ "capture": resp })
+          this.debug('capture', { capture });
+          resolve({ capture });
         }
       })
     })

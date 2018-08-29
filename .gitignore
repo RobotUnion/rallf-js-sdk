@@ -6,5 +6,7 @@
 /rr.log
 /example
 /.vscode
+/example_cfig
+IDEAS.md
 *.php
 *.png

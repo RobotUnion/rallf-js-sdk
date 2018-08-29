@@ -91,7 +91,7 @@ This will **run** the task as and log locally.
 ```
 $ rd 5.189.191.163 {} {} null test
 ```
-Usage: rd <selenium_url> <json_robot> <json_input> [<debug_id>] [<env>]
+Usage: rd **<selenium_url>** **<json_robot>** **<json_input>** _[<debug_id>] [<env>]_
 
 ### Package app
 This will **package** the task into the `out` folder.

@@ -120,7 +120,7 @@ function uniqid(pr, en) {
 
   if (en) result += (Math.random() * 10).toFixed(8).toString();
   return result;
-};
+}
 
 function isJsonString(str) {
   try {

@@ -1,6 +1,7 @@
 const csol = require('./console.js');
 const fs = require('fs');
 const logger = csol.logger;
+const log = csol.log;
 const manifestPath = `${process.cwd()}/config/manifest.json`;
 
 const ConsoleLogger = require('../src/RALLF/Integration/ConsoleLogger');
@@ -26,7 +27,13 @@ let [
 
 if (!env) env = 'real';
 
-
+// console.log(
+//   selenium_url,
+//   robot,
+//   input,
+//   debug_id,
+//   env
+// )
 
 !(function () {
 
@@ -48,23 +55,26 @@ if (!env) env = 'real';
   }
 
   const config = require(manifestPath);
-  let taskName = logger.info(`${config.name}@${config.version_name}`);
-  console.log(`\nRunning Task\n` +
-    `  Task:  ${taskName}\n` +
-    `  Host:  ${logger.info(selenium_url)}\n` +
-    `  Debug: ${logger.info(debug_id)}\n` +
-    `  Env:   ${logger.info(env)}\n`
+  let taskName = logger.success(`${config.name}@${config.version_name}`);
+  console.log(`\nRunning Task: ${taskName}\n` +
+    `  Host:   ${logger.info(selenium_url)}\n` +
+    `  Debug:  ${(debug_id)}\n` +
+    `  Input:  ${(input)}\n` +
+    `  Roboot: ${(robot)}\n` +
+    `  Env:    ${logger.warning(env)}\n`
   )
 
   const wdClient = require('wd');
-  const driver = wdClient.remote(selenium_url, 5555)//wdClient.remote(this.browsers[0]);
-  const Task = require(config.main);
+  const driver = wdClient.remote(selenium_url, 4444);
+  const Task = require('../' + config.main);
 
   let taskLogger;
 
-  if (debug_id != 'null') {
+  if (debug_id) {
+    console.log('rallf', debug_id);
     taskLogger = new RallfLogger();
   } else {
+    console.log('console');
     taskLogger = new ConsoleLogger();
   }
 
@@ -72,14 +82,15 @@ if (!env) env = 'real';
   let task = new Task()
   task.setDevice(driver);
   task.setLogger(taskLogger);
-  task.setRobot(robot);
-  task.setInput(input);
+  console.log(taskLogger);
+  task.setRobot(JSON.parse(robot));
+  task.setInput(JSON.parse(input));
 
   if (env === 'test') task.mock()
   if (env === 'real') task.run()
 
   task.onFinish = function () {
-    console.log('\n\n')
+    driver.quit();
     process.exit();
   };
 })()
