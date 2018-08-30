@@ -49,7 +49,6 @@ try {
   task.name = manifest.name;
 
   driver.init(capabilities, (err, sess) => {
-    // taskLogger.debug('init: ' + sess);
     if (err) {
       driver.quit();
       process.stderr.write('error: ' + err);
@@ -60,19 +59,21 @@ try {
     task.setRobot(JSON.parse(robot));
     task.setInput(JSON.parse(input));
     task.onFinish = function (x) {
-      driver.quit();
-      process.stdout.write('finished: ' + JSON.stringify(x));
-      return process.exit(0);
+      driver.quit(() => {
+        process.stdout.write('finished: ' + JSON.stringify(x));
+        process.exit(0);
+      });
     };
     task.run();
   });
 } catch (error) {
-  driver.quit();
-  if (error.toString().includes('ECONNREFUSED')) {
-    process.stderr.write('\nerror: Seem like you cant connect, please try again or contact us');
-  }
-  else if (!error.includes('DeprecationWarning:')) {
-    process.stderr.write('\nerror: ' + JSON.stringify(error));
-  }
-  return process.exit(1);
+  driver.quit(() => {
+    if (error.toString().includes('ECONNREFUSED')) {
+      process.stderr.write('\nerror: Seem like you cant connect, please try again or contact us');
+    }
+    else if (!error.includes('DeprecationWarning:')) {
+      process.stderr.write('\nerror: ' + JSON.stringify(error));
+    }
+    process.exit(1);
+  });
 }
