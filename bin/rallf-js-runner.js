@@ -28,8 +28,8 @@ if (!argv.task_path || !argv.manifest_path) {
 let task_path = path.resolve(argv.task_path);
 let manifest_path = path.resolve(argv.manifest_path);
 let manifest = JSON.parse(fs.readFileSync(manifest_path).toString());
-const robot = '{}';
-const input = '{}';
+const robot = JSON.parse(argv.robot || '{}');
+const input = JSON.parse(argv.input || '{}');
 const mainFile = manifest.main;
 const capabilities = manifest.capabilities;
 const driver = wdClient.remote('localhost', 4444);
