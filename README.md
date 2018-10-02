@@ -15,7 +15,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 * Run `npm install rallf-sdk --save` to install the sdk
 
 ### Create simple Robot Task
-  * Create the RobotApp manifest `manifest.json` within the `config` folder
+  * Create the [Task](https://github.com/RobotUnion/rallf-sdk/wiki/Task) manifest `manifest.json` within the `config` folder
 
     ```json
     {
