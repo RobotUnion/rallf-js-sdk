@@ -14,10 +14,13 @@ class Task {
   mock() { }
 
   onFinish(x) { }
+  
+  onBeforeStart(x) {}
 
   finish(x) {
     this.onFinish(x)
   }
+
 
   /**
    * @method setDevice

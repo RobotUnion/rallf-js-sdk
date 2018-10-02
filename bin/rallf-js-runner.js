@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const wdClient = require('wd');
 const IdeLogger = require('../src/Integration/IdeLogger');
+const { Builder, By, until } = require('selenium-webdriver');
 
 // console.log("Args", argv);
 
@@ -59,6 +60,7 @@ const runner = {
 
   },
   run() {
+    this.task.onBeforeStart();
     try {
       this.task.setDevice(this.driver);
       this.task.setRobot(runner.getRobot());
@@ -96,22 +98,37 @@ task.name = manifest.name;
 task.type = manifest.type;
 task.version = manifest.version;
 
+
 runner.task = task;
 
 // If its not standalone we need to launch webdriver
 if (!runner.isStandalone(task)) {
-  runner.driver = wdClient.remote('localhost', 4444);
-  runner.driver.init(capabilities, (err, sess) => {
-    taskLogger.debug('init: ' + sess);
+  // runner.driver = wdClient.remote('localhost', 4444);
+  // runner.driver.init(capabilities, (err, sess) => {
+  //   taskLogger.debug('init: ' + sess);
 
-    if (err) {
-      runner.driver.quit();
-      process.stderr.write('error: ' + err);
-      return process.exit(1);
-    }
+  //   if (err) {
+  //     runner.driver.quit();
+  //     process.stderr.write('error: ' + err);
+  //     return process.exit(1);
+  //   }
 
-    runner.run();
-  });
+  //   runner.run();
+  // });
+  new Builder()
+    .forBrowser('firefox')
+    .build()
+    .then(driver => {
+      runner.driver = driver;
+      runner.run();
+    })
+    .catch(e => {
+      if (e) {
+        runner.driver.quit();
+        process.stderr.write('error: ' + e);
+        return process.exit(1);
+      }
+    });
 } else {
   runner.run();
 }
