@@ -1,19 +1,20 @@
 # RobotUnion Node.js SDK (experimental)
-### ! NOT YET USABLE
 
 Toolset to create Robot Apps for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
+## Index
+* [Getting Started](https://github.com/RobotUnion/rallf-sdk/wiki/Getting-Started)
+* [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
+* [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
+* [Technical Docs](https://github.com/SeleniumHQ/selenium/wiki/WebDriverJs)
+
 
 ## First steps
 ### Installation
-* Create a new node project `npm init`
-* Run `npm install rallf-sdk` to install the sdk
-* Run `npm install rallf-sdk -g` to install the sdk
+* Run `npm install rallf-sdk --save` to install the sdk
 
 ### Create simple Robot Task
-  * ~~Use the included generator: `rallf-sdk init`~~
-    * ~~This will guide you through the process of creating a rallf task.~~
   * Create the RobotApp manifest `manifest.json` within the `config` folder
 
     ```json
