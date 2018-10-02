@@ -2,27 +2,18 @@
 ### ! NOT YET USABLE
 
 Toolset to create Robot Apps for [RALLF](https://ralf.robotunion.net)
-based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
+based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 
 ## First steps
 ### Installation
 * Create a new node project `npm init`
-* Add `RobotUnion/robot-js-sdk` as a dependecy to your `package.json`
-
-  ```json
-  {
-    "name": "robot-dev-example",
-    "version": "1.0.0",
-    "dependencies": {
-      "robot-js-sdk": "git://github.com/RobotUnion/robot-js-sdk.git"
-    }
-  }
-  ```
-* Run `npm install` to install the sdk
-* Run `npm install git://github.com/RobotUnion/robot-js-sdk.git -g` so you can have access to the debug commands
+* Run `npm install rallf-sdk` to install the sdk
+* Run `npm install rallf-sdk -g` to install the sdk
 
 ### Create simple Robot Task
+  * ~~Use the included generator: `rallf-sdk init`~~
+    * ~~This will guide you through the process of creating a rallf task.~~
   * Create the RobotApp manifest `manifest.json` within the `config` folder
 
     ```json
@@ -32,7 +23,12 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
       "main": "src/main.js",
       "version_name": "1.0.0",
       "key": "access_key",
-      "secret": "access_secret"
+      "secret": "access_secret",
+      "language": "nodejs|python",
+      "capabilities": {
+        "browserName": "firefox|chrome",
+        "headless": false
+      }
     }
     ```
       * The **name** of your task will be the one in `manifest.json`
@@ -51,25 +47,35 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
     const Task = require('../Execution/Task');
 
     class MyFirstTask extends Task {
-      constructor(){
+      constructor() {
         super();
       }
-      run(){
+
+      error(err) {
+        this.logger.error('There has been an error ' + err);
+        this.finish(1);
+      }
+
+      onFinish() {
+        this.logger.debug("On finish");
+      }
+
+      onBeforeStart() {
+        this.logger.debug("Before start");
+      }
+
+      run() {
         let device = this.device;
         let logger = this.logger;
+        let robot = this.robot;
+        let input = this.input;
 
-        logger.debug("Started");
+        logger.debug("Task Asdfsd started with robot: " + robot.self.alias);
 
-        device.init({ browserName: 'chrome '},
-          () => {
-            logger.debug("Initted");
-            device.get("https://github.com", _ => {
-              device.title((err, title) => {
-                logger.debug(title);
-                this.finish();
-              })
-            })
-          })
+        // Must return a promise
+        return device.get('https://github.com/')
+          .then(_ => device.getTitle())
+          .then(_ => logger.debug('title: ' + _));
       }
     }
     module.exports = MyFirstTask;
@@ -77,28 +83,12 @@ based on [Client for webdriver/selenium 2.](https://github.com/admc/wd)
     * First you need to require `Task` from `Execution/Task`
     * Now create a class to extend `Task` from
     * Finally create a `run` function, this funtion is going to run when the **RobotApp** runs
-    * When you want to finish the execution just call `this.finish()`
-    * Check wd api [here](https://github.com/admc/wd/blob/master/doc/api.md) for more documentation
-
-### Run On Rallf
-This will **package and upload** the task as a development to the account you select.
-```sh
-$ rr
-```
+    * Check the docs here: [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ### Run Locally
 This will **run** the task as and log locally.
 ```
-$ rd 5.189.191.163 {} {} null test
+$ node ./node_modules/rallf-sdk/bin/rallf-js-runner.js .
 ```
-Usage: rd **<selenium_url>** **<json_robot>** **<json_input>** _[<debug_id>] [<env>]_
+Usage: rallf-js-runner.js **<task_path>** **<json_robot>** **<json_input>**
 
-### Package app
-This will **package** the task into the `out` folder.
-```
-$ rpkg
-```
-If `-l` flag is passed it will log the output
-```
-$ rpkg -l
-```
