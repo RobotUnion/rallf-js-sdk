@@ -81,9 +81,9 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
     }
     module.exports = MyFirstTask;
     ```
-    * First you need to require `Task` from `Execution/Task`
+    * First you need to require `Task` from [`Execution/Task`](https://github.com/RobotUnion/rallf-sdk/wiki/Integration---Task)
     * Now create a class to extend `Task` from
-    * Finally create a `run` function, this funtion is going to run when the **RobotApp** runs
+    * Finally create a `run` function, this funtion is going to run when the Task is executed.
     * Check the docs here: [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ### Run Locally
