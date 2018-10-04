@@ -60,7 +60,7 @@ const runner = {
     return {
       self: {},
       kb: {},
-      ...robot
+      ...JSON.parse(robot)
     };
   },
   getInput() {
@@ -68,17 +68,16 @@ const runner = {
   },
   run() {
     this.task.onBeforeStart();
-    // try {
-    this.task.setDevice(this.driver);
-    this.task.setRobot(runner.getRobot());
-    this.task.setInput(runner.getInput());
+    this.task.device = this.driver;
+    this.task.robot = runner.getRobot();
+    this.task.input = runner.getInput();
     let self = this;
 
     this.task.persist = () => {
       return new Promise((resolve, reject) => {
         let robot = this.task.robot;
         try {
-          process.stdout.write('ROBOT:SAVE ' + robot);
+          process.stdout.write('ROBOT:SAVE ' + JSON.stringify(robot));
           resolve();
         } catch (error) {
           process.stderr.write('error: ' + error);
@@ -94,13 +93,13 @@ const runner = {
       this.finish(1);
     } else {
       prom.then(resp => {
-        process.stdout.write('On run promise');
+        // process.stdout.write('On run promise');
         setTimeout(() => {
-          this.task.finish();
+          this.task.onFinish();
           this.finish(1);
         }, 100);
       }).catch(e => {
-        process.stderr.write('On run error promise', error);
+        // process.stderr.write('On run error promise', error);
         process.stderr.write('error: ' + error);
         this.finish(1);
       });
@@ -120,12 +119,10 @@ const Task = require(taskPath);
 // Create task instance
 let task = new Task();
 
-task.setLogger(taskLogger);
-
+task.logger = taskLogger;
 task.name = manifest.name;
 task.type = manifest.type;
 task.version = manifest.version;
-
 
 runner.task = task;
 
