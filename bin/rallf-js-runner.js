@@ -19,6 +19,9 @@ const manifest = JSON.parse(fs.readFileSync(manifest_path).toString());
 const mainFile = manifest.main;
 const capabilities = manifest.capabilities;
 const type = manifest.type;
+const isLocal = argv.local;
+
+console.log('Is local: ' + isLocal);
 
 let taskLogger;
 taskLogger = new IdeLogger(process);
@@ -65,36 +68,42 @@ const runner = {
   },
   run() {
     this.task.onBeforeStart();
-    try {
-      this.task.setDevice(this.driver);
-      this.task.setRobot(runner.getRobot());
-      this.task.setInput(runner.getInput());
-      let self = this;
-      this.task.onFinish = (status_code) => {
-        self.finish(status_code);
-      };
+    // try {
+    this.task.setDevice(this.driver);
+    this.task.setRobot(runner.getRobot());
+    this.task.setInput(runner.getInput());
+    let self = this;
 
-      taskLogger.debug('running');
-
-      let prom = this.task.run();
-
-      if (!prom.then) {
-        process.stderr.write('error: Task.run must return a promise');
-        this.finish(1);
-      } else {
-        prom.then(resp => {
-          taskLogger.debug('On run promise');
-          this.task.finish();
-          this.finish(0);
-        }).catch(e => {
-          taskLogger.debug('On run error promise');
+    this.task.persist = () => {
+      return new Promise((resolve, reject) => {
+        let robot = this.task.robot;
+        try {
+          process.stdout.write('ROBOT:SAVE ' + robot);
+          resolve();
+        } catch (error) {
           process.stderr.write('error: ' + error);
-          this.finish(1);
-        });
-      }
-    } catch (error) {
-      process.stderr.write('error: ' + error);
+          reject();
+        }
+      });
+    };
+
+    let prom = this.task.run();
+
+    if (!prom.then) {
+      process.stderr.write('error: Task.run must return a promise');
       this.finish(1);
+    } else {
+      prom.then(resp => {
+        process.stdout.write('On run promise');
+        setTimeout(() => {
+          this.task.finish();
+          this.finish(1);
+        }, 100);
+      }).catch(e => {
+        process.stderr.write('On run error promise', error);
+        process.stderr.write('error: ' + error);
+        this.finish(1);
+      });
     }
   }
 };
@@ -129,10 +138,10 @@ if (!runner.isStandalone(task)) {
 
   let builder = new Builder().forBrowser(capabilities.browserName);
 
-  if (capabilities.browserName === 'firefox' && capabilities.headless) {
+  if (!isLocal || capabilities.browserName === 'firefox' && capabilities.headless) {
     builder.setFirefoxOptions(new firefox.Options().headless().windowSize(screen));
   }
-  if (capabilities.browserName === 'chrome' && capabilities.headless) {
+  else if (!isLocal || capabilities.browserName === 'chrome' && capabilities.headless) {
     builder.setFirefoxOptions(new chrome.Options().headless().windowSize(screen));
   }
 
