@@ -29,82 +29,141 @@ taskLogger.info('Setting up');
 
 
 const runner = {
-  driver: null,
-  task: null,
-  finish(status_code = 0) {
-    if (this.driver) {
-      this.driver.quit().then(
-        () => {
-          process.stdout.write('finished: with asd code ' + status_code);
-          return process.exit(status_code);
+    driver: null,
+    task: null,
+    persisting: false,
+
+    /* call task lifecycle hook securely */
+    callLifecycleHook(name, ...args) {
+        let lch = this.task[name];
+        if (this.task && typeof lch === 'function') {
+            return lch.bind(this.task)(...args);
         }
-      );
-    }
-    else {
-      process.stdout.write('finished: with code ' + status_code);
-      return process.exit(status_code);
-    }
-  },
-  isWeb(task) {
-    return task.type.includes('web');
-  },
-  isAndroid(task) {
-    return task.type.includes('android');
-  },
-  isStandalone(task) {
-    return task.type.includes('standalone');
-  },
-  getRobot() {
-    taskLogger.debug('robot: ' + robot);
+    },
 
-    return {
-      self: {},
-      kb: {},
-      ...JSON.parse(robot)
-    };
-  },
-  getInput() {
+    finish(status_code = 0) {
+        if (!this.persisting) {
+            if (this.driver) {
+                this.driver.quit().then(
+                    () => {
+                        process.stdout.write('finished: with asd code ' + status_code);
+                        return process.exit(status_code);
+                    }
+                );
+            }
+            else {
+                process.stdout.write('finished: with code ' + status_code);
+                return process.exit(status_code);
+            }
+        }
+    },
+    isWeb(task) {
+        return task.type.includes('web');
+    },
+    isAndroid(task) {
+        return task.type.includes('android');
+    },
+    isStandalone(task) {
+        return task.type.includes('standalone');
+    },
+    getRobot() {
+        taskLogger.debug('robot: ' + robot);
 
-  },
-  run() {
-    this.task.onBeforeStart();
-    this.task.device = this.driver;
-    this.task.robot = runner.getRobot();
-    this.task.input = runner.getInput();
-    let self = this;
+        return {
+            self: {},
+            kb: {},
+            ...JSON.parse(robot)
+        };
+    },
+    getInput() {
 
-    this.task.persist = () => {
-      return new Promise((resolve, reject) => {
-        let robot = this.task.robot;
+    },
+
+    safeJSONParse(str) {
+        let parsed;
         try {
-          process.stdout.write('ROBOT:SAVE ' + JSON.stringify(robot));
-          resolve();
-        } catch (error) {
-          process.stderr.write('error: ' + error);
-          reject();
+            parsed = JSON.parse(str);
+        } catch (e) {
+            parsed = JSON.parse(JSON.stringify(str));
         }
-      });
-    };
+        return parsed;
+    },
+    parseEvent(evtString) {
+        let [x, name, data] = evtString.match(/^event:(\w*) (.*)/);
 
-    let prom = this.task.run();
+        return {
+            data: this.safeJSONParse(data),
+            name: name
+        }
+    },
+    run() {
+        // this.task.onBeforeStart();
+        this.callLifecycleHook('onBeforeStart');
+        this.task.device = this.driver;
+        this.task.robot = runner.getRobot();
+        this.task.input = runner.getInput();
+        let self = this;
+        let pipePath = path.resolve(task_path) + '/event-pipe';
 
-    if (!prom.then) {
-      process.stderr.write('error: Task.run must return a promise');
-      this.finish(1);
-    } else {
-      prom.then(resp => {
-        // process.stdout.write('On run promise');
-        setTimeout(() => {
-          this.task.onFinish();
-          this.finish(1);
-        }, 100);
-      }).catch(e => {
-        // process.stderr.write('On run error promise', error);
-        process.stderr.write('error: ' + error);
-        this.finish(1);
-      });
+        fs.watchFile(pipePath, (curr, prev) => {
+            taskLogger.debug('File changed: ' + curr);
+            let data = fs.readFileSync(pipePath).toString();
+            if (data.includes('event:')) {
+                let parsed = this.parseEvent(data);
+                this.callLifecycleHook('onEvent', parsed);
+            }
+        });
+
+        this.task.persist = () => {
+            this.persisting = true;
+            return new Promise((resolve, reject) => {
+                let robot = this.task.robot;
+                try {
+                    process.stdout.write('ROBOT:SAVE ' + JSON.stringify(robot));
+                    process.stdin.once('data', (data) => {
+
+                        // taskLogger.debug('in stdin on data event');
+                        if (data.includes('persist-finished')) {
+                            // Here should call other lifecycle hook, persistFinished?
+                            // this.callLifecycleHook('persistFinished');
+                            this.persisting = false;
+                            resolve();
+                        }
+                    });
+                } catch (error) {
+                    process.stderr.write('error: ' + error);
+                    this.persisting = false;
+                    reject();
+                }
+            });
+        };
+
+        this.task.infinite = () => {
+            return new Promise((resolve, reject) => { });
+        };
+
+        this.task.quit = () => {
+            this.callLifecycleHook('onFinish');
+            this.finish(0);
+        };
+
+        let prom = this.task.run();
+
+        if (prom && prom.then) {
+            prom.then(resp => {
+                // process.stdout.write('On run promise: ' + resp + '\n');
+                setTimeout(() => {
+                    // this.task.onFinish();
+                    this.callLifecycleHook('onFinish');
+                    this.finish(0);
+                }, 100);
+            }).catch(e => {
+                this.persisting = false;
+                process.stderr.write('error: ' + new Error(e));
+                this.finish(1);
+            });
+        }
     }
-  }
 };
 
 // resolve task path
@@ -115,6 +174,12 @@ delete require.cache[taskPath];
 
 // Import task
 const Task = require(taskPath);
+
+const tmpRequire = require;
+require = (pckg_name) => {
+    // Only allow some packages to be required
+    if (pckg_name === '../Integration') return tmpRequire(pckg_name);
+}
 
 // Create task instance
 let task = new Task();
@@ -128,33 +193,33 @@ runner.task = task;
 
 // If its not standalone we need to launch webdriver
 if (!runner.isStandalone(task)) {
-  const screen = {
-    width: 640,
-    height: 480
-  };
+    const screen = {
+        width: 640,
+        height: 480
+    };
 
-  let builder = new Builder().forBrowser(capabilities.browserName);
+    let builder = new Builder().forBrowser(capabilities.browserName);
 
-  if (!isLocal || capabilities.browserName === 'firefox' && capabilities.headless) {
-    builder.setFirefoxOptions(new firefox.Options().headless().windowSize(screen));
-  }
-  else if (!isLocal || capabilities.browserName === 'chrome' && capabilities.headless) {
-    builder.setFirefoxOptions(new chrome.Options().headless().windowSize(screen));
-  }
+    if (!isLocal || capabilities.browserName === 'firefox' && capabilities.headless) {
+        builder.setFirefoxOptions(new firefox.Options().headless().windowSize(screen));
+    }
+    else if (!isLocal || capabilities.browserName === 'chrome' && capabilities.headless) {
+        builder.setFirefoxOptions(new chrome.Options().headless().windowSize(screen));
+    }
 
-  builder.build()
-    .then(driver => {
-      runner.driver = driver;
-      runner.run();
-    })
-    .catch(e => {
-      if (e) {
-        runner.driver.quit();
-        process.stderr.write('error: ' + e);
-        return process.exit(1);
-      }
-    });
+    builder.build()
+        .then(driver => {
+            runner.driver = driver;
+            runner.run();
+        })
+        .catch(e => {
+            if (e) {
+                runner.driver.quit();
+                process.stderr.write('error: ' + e);
+                return process.exit(1);
+            }
+        });
 } else {
-  runner.run();
+    runner.run();
 }
 
