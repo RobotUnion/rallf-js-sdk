@@ -30,7 +30,7 @@ console.log('Is local: ' + isLocal);
 
 
 let taskLogger;
-taskLogger = new IdeLogger(process);
+taskLogger = new IdeLogger(process, argv.pretty);
 taskLogger.info('Setting up');
 
 
@@ -50,16 +50,18 @@ const runner = {
 
   finish(status_code = 0) {
     if (!this.persisting) {
+      let pipePath = path.resolve(task_path) + '/event-pipe';
+      fs.unlinkSync(pipePath);
       if (this.driver) {
         this.driver.quit().then(
           () => {
-            process.stdout.write('finished: with asd code ' + status_code);
+            process.stdout.write('finished: with code ' + status_code + '\n');
             return process.exit(status_code);
           }
         );
       }
       else {
-        process.stdout.write('finished: with code ' + status_code);
+        process.stdout.write('finished: with code ' + status_code + '\n');
         return process.exit(status_code);
       }
     }
@@ -118,13 +120,19 @@ const runner = {
     let self = this;
     let pipePath = path.resolve(task_path) + '/event-pipe';
 
+
+    // Create pipe if not created
+    if (!fs.existsSync(pipePath)) {
+      fs.writeFileSync(pipePath, '');
+    }
+
     // Used for inwards events
     fs.watchFile(pipePath, (curr, prev) => {
-      taskLogger.debug('File changed: ' + curr);
-      let data = fs.readFileSync(pipePath).toString();
-      if (data.includes('event:')) {
-        let parsed = this.parseEvent(data);
-        this.callLifecycleHook('onEvent', parsed);
+      if (fs.existsSync(pipePath)) {
+        let data = fs.readFileSync(pipePath).toString();
+        if (data.includes('event:')) {
+          this.callLifecycleHook('onEvent', this.parseEvent(data));
+        }
       }
     });
 
@@ -134,13 +142,15 @@ const runner = {
       return new Promise((resolve, reject) => {
         let robot = this.task.robot;
         try {
-          process.stdout.write('ROBOT:SAVE ' + JSON.stringify(robot));
-          process.stdin.once('data', (data) => {
 
-            // taskLogger.debug('in stdin on data event');
+          // Send ROBOT:SAVE event
+          process.stdout.write('ROBOT:SAVE ' + JSON.stringify(robot));
+
+          // Set an event listener for 'data' 
+          // If it contains 'persist-finished' we can resolve the promise
+          process.stdin.on('data', (data) => {
             if (data.includes('persist-finished')) {
-              // Here should call other lifecycle hook, persistFinished?
-              // this.callLifecycleHook('persistFinished');
+              fs.unwatchFile(pipePath);
               this.persisting = false;
               resolve();
             }
