@@ -33,19 +33,19 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
     }
     ```
       * The **name** of your task will be the one in `manifest.json`
-      * You can get the access key and secret from [RALLF Panel](https://alpha.rallf.com/)
-      * `main`: should be the main file of the RobotApp `src/main.js`
+      * ~~You can get the access key and secret from [RALLF Panel](https://alpha.rallf.com/)~~
+      * `main`: should be the main file of the Task `src/main.js`
 
 
   * Create a `src` folder within your app folder
   * Now create the main file for your app `main.js` inside `src`
 
-  * RobotApp Example
+  * Task Example
     ```js
     /*
       File: 'src/main.js'
     */
-    const Task = require('../Execution/Task');
+    const Task = require('rallf-sdk');
 
     class MyFirstTask extends Task {
       constructor() {
