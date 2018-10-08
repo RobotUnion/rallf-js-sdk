@@ -142,7 +142,6 @@ const runner = {
       return new Promise((resolve, reject) => {
         let robot = this.task.robot;
         try {
-
           // Send ROBOT:SAVE event
           process.stdout.write('ROBOT:SAVE ' + JSON.stringify(robot));
 
