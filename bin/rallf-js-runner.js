@@ -36,7 +36,36 @@ taskLogger.info('Setting up');
 
 
 const runner = {
-    driver: null,
+    driver: {
+        async init() {
+            if (!runner.isStandalone(task)) {
+                const screen = {
+                    width: 640,
+                    height: 480
+                };
+
+                let builder = new Builder().forBrowser(capabilities.browserName);
+
+                if (!isLocal || (capabilities.browserName === 'firefox' && capabilities.headless)) {
+                    builder.setFirefoxOptions(new firefox.Options().headless().windowSize(screen));
+                }
+                else if (!isLocal || (capabilities.browserName === 'chrome' && capabilities.headless)) {
+                    builder.setFirefoxOptions(new chrome.Options().headless().windowSize(screen));
+                }
+
+                return builder.build()
+                    .then(driver => {
+                        runner.task.device = driver;
+                    })
+                    .catch(e => {
+                        if (e) {
+                            process.stderr.write('error: ' + e + '\n');
+                            return process.exit(1);
+                        }
+                    });
+            }
+        }
+    },
     task: null,
     persisting: false,
 
@@ -48,21 +77,23 @@ const runner = {
         }
     },
 
-    finish(status_code = 0) {
+    finish(msg) {
         if (!this.persisting) {
             let pipePath = path.resolve(task_path) + '/event-pipe';
-            fs.unlinkSync(pipePath);
-            if (this.driver) {
+            if (fs.existsSync(pipePath)) {
+                fs.unlinkSync(pipePath);
+            }
+            if (this.driver.quit) {
                 this.driver.quit().then(
                     () => {
-                        process.stdout.write('finished: with code ' + status_code + '\n');
-                        return process.exit(status_code);
+                        process.stdout.write('finished: ' + msg + '\n');
+                        return process.exit(msg);
                     }
                 );
             }
             else {
-                process.stdout.write('finished: with code ' + status_code + '\n');
-                return process.exit(status_code);
+                process.stdout.write('finished: ' + msg + '\n');
+                return process.exit(msg);
             }
         }
     },
@@ -90,7 +121,7 @@ const runner = {
     },
 
     getInput() {
-        return {};
+        return JSON.parse(input) || {};
     },
 
     safeJSONParse(str) {
@@ -179,12 +210,12 @@ const runner = {
             prom.then(resp => {
                 setTimeout(() => {
                     this.callLifecycleHook('onFinish');
-                    this.finish(0);
+                    this.finish(resp);
                 }, 100);
-            }).catch(e => {
+            }).catch(err => {
                 this.persisting = false;
-                process.stderr.write('error: ' + e);
-                this.finish(1);
+                process.stderr.write('error: ' + err.stack);
+                this.finish(err);
             });
         }
     }
@@ -223,42 +254,36 @@ task.version = manifest.version;
 
 runner.task = task;
 
+runner.run();
 
 // If its not standalone we need to launch webdriver
-if (!runner.isStandalone(task)) {
-    const screen = {
-        width: 640,
-        height: 480
-    };
+// if (!runner.isStandalone(task)) {
+//     const screen = {
+//         width: 640,
+//         height: 480
+//     };
 
-    let builder = new Builder().forBrowser(capabilities.browserName);
+//     let builder = new Builder().forBrowser(capabilities.browserName);
 
-    if (!isLocal || (capabilities.browserName === 'firefox' && capabilities.headless)) {
-        builder.setFirefoxOptions(new firefox.Options().headless().windowSize(screen));
-    }
-    else if (!isLocal || (capabilities.browserName === 'chrome' && capabilities.headless)) {
-        builder.setFirefoxOptions(new chrome.Options().headless().windowSize(screen));
-    }
+//     if (!isLocal || (capabilities.browserName === 'firefox' && capabilities.headless)) {
+//         builder.setFirefoxOptions(new firefox.Options().headless().windowSize(screen));
+//     }
+//     else if (!isLocal || (capabilities.browserName === 'chrome' && capabilities.headless)) {
+//         builder.setFirefoxOptions(new chrome.Options().headless().windowSize(screen));
+//     }
 
-    builder.build()
-        .then(driver => {
-            runner.driver = driver;
-            runner.run();
-        })
-        .catch(e => {
-            if (e) {
-                runner.driver.quit();
-                process.stderr.write('error: ' + e + '\n');
-                return process.exit(1);
-            }
-        });
-} else {
-    runner.run();
-}
-
-process.on('close', () => {
-    runner.finish();
-})
-
-
-
+//     builder.build()
+//         .then(driver => {
+//             runner.driver = driver;
+//             runner.run();
+//         })
+//         .catch(e => {
+//             if (e) {
+//                 runner.driver.quit();
+//                 process.stderr.write('error: ' + e + '\n');
+//                 return process.exit(1);
+//             }
+//         });
+// } else {
+//     runner.run();
+// }
