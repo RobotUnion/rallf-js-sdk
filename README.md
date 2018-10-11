@@ -1,4 +1,8 @@
-# RobotUnion Node.js SDK (experimental)
+# RALLF Node.js SDK (#unstable)
+
+[![GitHub](https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg)](https://github.com/RobotUnion/rallf-js-sdk)
+
+
 
 Toolset to create Robot Apps for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
