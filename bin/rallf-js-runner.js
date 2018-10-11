@@ -194,6 +194,9 @@ const runner = {
       if (fs.existsSync(pipePath)) {
         fs.unlinkSync(pipePath);
       }
+
+      // console.log(task.device);
+
       if (task.device.quit) {
         task.device.quit().then(
           () => {
@@ -337,13 +340,24 @@ const runner = {
     return data;
   },
 
-  delegateTask(task_identifier, method, data) {
+
+  /**
+   * @param {string} task_identifier         - can be the name or the id 
+   * @param {*} method                       - method to run
+   * @param {*} data                         - data to send to method
+   * @param {Object} options                 - Additional options
+   * @param {boolean} options.auto_terminate - if task should be terminated on delegateFinish
+   * 
+   */
+  delegateTask(task_identifier, method, data, options) {
+
     // console.log('delegateTask: ', task_identifier, method);
+    process.stderr.write(clc.info('INF') + ' Delegating to task: ' + clc.lgray(task_identifier + ': ' + method + '\n'));
     return new Promise((resolve, reject) => {
       // This should run method in task if it has permissions
       let projPath = process.env.HOME + '/RallfProjects';
       if (!fs.existsSync(projPath + '/' + task_identifier)) {
-        // console.log('!exists: ', projPath + '/' + task_identifier);
+        // process.stderr.write(clc.err('ERR') + ' Delegating to task: ' + clc.lgray(task_identifier + ': ' + method + '\n'));
         reject('That task does not exist: ' + task_identifier);
       }
 
@@ -357,10 +371,13 @@ const runner = {
 
       // console.log('ress: ' + ress);
       ress.then((data) => {
-        // console.log('data: ' + data);
+        process.stderr.write(clc.info('INF') + ' Delegate done \n');
+        if (options.auto_terminate && this.taskMap[task_identifier].device.quit) {
+          this.taskMap[task_identifier].device.quit();
+        }
         resolve();
       }).catch((err) => {
-        // console.log('err: ', new Error(err));
+        process.stderr.write(clc.error('ERR ') + err + ' \n');
         this.finish(new Error(err), this.taskMap[task_identifier]);
       });
     });
@@ -371,9 +388,6 @@ const runner = {
     let originalRobot = this.robotMap[robot.kb.id];
     let diference = addedDiff(originalRobot.kb, robot.kb);
 
-    // console.log("Original: ", originalRobot.kb);
-    // console.log("robot: ", robot.kb);
-    // console.log("Diference: ", diference);
     if (Object.keys(diference).length) {
       let paths = getPathsFromObject(diference);
       let data = {
@@ -469,24 +483,6 @@ const runner = {
           } catch (error) {
             reject(error);
           }
-          // try {
-          //   // Send ROBOT:SAVE event
-          //   process.stdout.write('ROBOT:SAVE ' + JSON.stringify(robot));
-
-          //   // Set an event listener for 'data' 
-          //   // If it contains 'persist-finished' we can resolve the promise
-          //   process.stdin.on('data', (data) => {
-          //     if (data.includes('persist-finished')) {
-          //       fs.unwatchFile(pipePath);
-          //       task.persisting = false;
-          //       resolve();
-          //     }
-          //   });
-          // } catch (error) {
-          //   process.stderr.write('error: ' + error + '\n');
-          //   task.persisting = false;
-          //   this.finish(error, task);
-          // }
         });
       };
 
@@ -494,19 +490,13 @@ const runner = {
         return new Promise((resolve, reject) => { });
       };
 
-      task.delegate = async (task_identifier, method, data) => {
-        // console.log('Task:     ', task_identifier);
-        // console.log('Method:   ', method);
-        // console.log('Manifest: ', manifest.permissions.tasks);
+      task.delegate = async (task_identifier, method, data, options) => {
         manifest = this.manifestMap[Task.name] || this.manifestMap.main;
 
         /* Check if main task has defined permission to the delegated task */
         if (!(task_identifier in manifest.permissions.tasks)) {
           return Promise.reject('Permission for task is not defined in manifest.');
         }
-
-        // console.log('Methods: ', manifest.permissions.tasks[task_identifier]);
-        // console.log('Index: ' + manifest.permissions.tasks[task_identifier].indexOf(method));
 
         /* Check if it has requested access to that method */
         if (manifest.permissions.tasks[task_identifier].indexOf(method) === -1) {
@@ -517,14 +507,12 @@ const runner = {
         let robotPerm = this.getRobot().permissions;
         let permKey = `accesses.tasks.${task_identifier}`;
 
-        // console.log('robotPerm: ', robotPerm);
-        // console.log('permKey: ', permKey);
         if (!(permKey in robotPerm)) {
           return Promise.reject('This robot does not allow accesing task ' + task_identifier);
         }
 
         /* If everything is okey we can proceed to run that method */
-        return this.delegateTask(task_identifier, method, data);
+        return this.delegateTask(task_identifier, method, data, options);
       };
 
       task.quit = () => {
@@ -538,7 +526,7 @@ const runner = {
     return task;
   },
 
-  async run(task_path, mainFile, method, method_data) {
+  async run(task_path, mainFile, method, method_data, auto_terminate) {
     let task = await this.setUpTask(task_path, mainFile);
 
     let prom;
@@ -547,7 +535,12 @@ const runner = {
         // console.log('Running method: ' + method);
         return new Promise((resolve, reject) => {
           task[method](method_data)
-            .then(resp => { resolve(resp) })
+            .then(resp => {
+              if (auto_terminate && task.device.quit) {
+                task.device.quit();
+              }
+              resolve(resp);
+            })
             .catch(err => { reject(err.stack) });
         });
       }

@@ -25,11 +25,14 @@ class Task {
   }
 
   /**
-   * @param {string} task_identifier - can be the name or the id 
-   * @param {*} method               - method to run
-   * @param {*} data                 - data to send to method
+   * @param {string} task_identifier         - can be the name or the id 
+   * @param {*} method                       - method to run
+   * @param {*} data                         - data to send to method
+   * @param {Object} options                 - Additional options
+   * @param {boolean} options.auto_terminate - if task should be terminated on delegateFinish
+   * 
    */
-  delegate(task_identifier, method, data) {
+  delegate(task_identifier, method, data, options) {
     return Promise.reject('Oopsy, it seems like delegate is not setup for this task');
   }
 
