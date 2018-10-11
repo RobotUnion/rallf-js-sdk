@@ -104,3 +104,11 @@ $ node ./node_modules/rallf-sdk/bin/rallf-js-runner.js --robot=test-robot
 ```
 Usage: `rallf-js-runner.js --robot=<(new|<str>)> [--task_path=<string>] [--robot_name=<string>]`
 
+## Found a Bug?
+If you have found a bug please leave us a issue.
+
+## Collaborating
+...
+
+
+
