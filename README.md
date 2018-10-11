@@ -25,7 +25,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 ### Create simple Robot Task
   1. Create a empty folder
   2. Initialize with `npm init rallf-task-js robot-dev-example`
-  * Edit the manifest [`manifest.json`](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) within the `config` folder to fit your needs:
+  3. Edit the manifest [`config/manifest.json`](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) to fit your needs:
 
     ```js
     {
@@ -48,49 +48,49 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
     }
     ```
       * `name`: this is the name of your task over at [alpha.rallf.com](https://alpha.rallf.com)
-      * `main`: should be the main file of the Task `src/main.js`
+      * `main`: the main file of the Task `src/main.js`
+      * `version`: version of your task
+      * `language`: this is just to tell the incubator what language the task is
+      * `devices`: list of devices this Task is going to use
+      * `permissions`: list of permissions the task requests
 
-  * Now you can also modify the main file of your task `main.js` inside `src`
-  * Task Example
-    ```js
-    /*
-      File: 'src/main.js'
-    */
-    const { Task }           = require('rallf-js-sdk');
-    const { By, Key, until } = require('selenium-webdriver');
+  4. Now you can also modify the main file of your task `src/main.js`:
+  
+```js
+  /* File: 'src/main.js' */
+  const rallf              = require('rallf-js-sdk');
+  const { By, Key, until } = require('selenium-webdriver');
 
-    class RobotDevExample extends Task {
-      constructor() {
-        super();
-        this.firefox = null;
-      }
-
-      /**
-       * 
-       */
-      async run() {
-       
-        // Initialize firefox and return instance of WebDriver
-        this.firefox = await this.device.get('firefox');
-
-        // You can log stuff via the available logger
-        this.logger.debug(`Task RobotDevExample started with robot: ${robot.kb.id}`);
-        
-        // Lets load github.com
-        await this.firefox.get('https://github.com');
-        
-        // Lets get the title
-        let title = await this.firefox.getTitle();
-        
-        return title;
-      }
+  class RobotDevExample extends rallf.Task {
+    constructor() {
+      super();
+      this.firefox = null;
     }
-    module.exports = MyFirstTask;
-    ```
-    * First you need to require `Task` from [`Execution/Task`](https://github.com/RobotUnion/rallf-sdk/wiki/Integration---Task)
-    * Now create a class to extend `Task` from
-    * Finally create a `run` function, this funtion is going to run when the Task is executed.
-    * Check the docs here: [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
+
+    /**
+     * This function will run once everything is properly loaded and set to go
+     */
+    async run() {
+
+      // Initialize firefox and return instance of WebDriver
+      this.firefox = await this.device.get('firefox');
+
+      // You can log stuff via the available logger
+      this.logger.debug(`Task RobotDevExample started with robot: ${robot.kb.id}`);
+
+      // Let's load github.com
+      await this.firefox.get('https://github.com');
+
+      // Let's get the title
+      let title = await this.firefox.getTitle();
+
+      return title;
+    }
+  }
+  module.exports = MyFirstTask;
+``` 
+  Okey let me explain the above:
+  1. First of all we import the `rallf-js-sdk` and the necesary `selenium-webdriver` imports.
 
 ### Run Locally
 This will **run** the task as and log locally.
