@@ -7,10 +7,11 @@
 
 
 
-Toolset to create Robot Apps for [RALLF](https://ralf.robotunion.net)
+Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
-## Index
+## Resources
+* [First steps](#first-steps)
 * [Getting Started](https://github.com/RobotUnion/rallf-sdk/wiki/Getting-Started)
 * [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
 * [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
