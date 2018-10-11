@@ -367,14 +367,11 @@ const runner = {
 
       let mani = this.manifestMap[task_identifier] = this.getManifest(projPath + '/' + task_identifier);
 
-      let ress = runner.run(projPath + '/' + task_identifier, mani.main, method, data)
+      let ress = runner.run(projPath + '/' + task_identifier, mani.main, method, data, options.auto_terminate)
 
       // console.log('ress: ' + ress);
       ress.then((data) => {
         process.stderr.write(clc.info('INF') + ' Delegate done \n');
-        if (options.auto_terminate && this.taskMap[task_identifier].device.quit) {
-          this.taskMap[task_identifier].device.quit();
-        }
         resolve();
       }).catch((err) => {
         process.stderr.write(clc.error('ERR ') + err + ' \n');
@@ -536,6 +533,8 @@ const runner = {
         return new Promise((resolve, reject) => {
           task[method](method_data)
             .then(resp => {
+              // console.log("Autoterminate: " + auto_terminate);
+              // console.log("task.device.quit: " + task.device.quit);
               if (auto_terminate && task.device.quit) {
                 task.device.quit();
               }
