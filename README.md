@@ -20,71 +20,69 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ## First steps
 ### Installation
-* Run `npm install rallf-sdk --save` to install the sdk
+* Run `npm install rallf-js-sdk --save` to install the sdk
 
 ### Create simple Robot Task
-  * Create the [Task](https://github.com/RobotUnion/rallf-sdk/wiki/Task) manifest `manifest.json` within the `config` folder
+  1. Create a empty folder
+  2. Initialize with `npm init rallf-task-js robot-dev-example`
+  * Edit the manifest [`manifest.json`](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) within the `config` folder to fit your needs:
 
-    ```json
+    ```js
     {
       "name": "robot-dev-example",
-      "type": "web",
       "main": "src/main.js",
-      "version_name": "1.0.0",
-      "key": "access_key",
-      "secret": "access_secret",
-      "language": "nodejs|python",
-      "capabilities": {
-        "browserName": "firefox|chrome",
-        "headless": false
+      "version": "1.0.0",
+      "language": "nodejs",
+      "devices": [
+        {
+          "name": "firefox",   // Check available devices here: <INSERT_LINK>
+          "headless": true,    // Only for development
+          "profile": "@robot", // Select a profile to be set when launching firefox
+        }
+      ],
+      "permissions": {
+        "browser": {
+          "firefox:profile": ["read"] // To use the profile above you must also ask for read permission
+        }
       }
     }
     ```
-      * The **name** of your task will be the one in `manifest.json`
-      * ~~You can get the access key and secret from [RALLF Panel](https://alpha.rallf.com/)~~
+      * `name`: this is the name of your task over at [alpha.rallf.com](https://alpha.rallf.com)
       * `main`: should be the main file of the Task `src/main.js`
 
-
-  * Create a `src` folder within your app folder
-  * Now create the main file for your app `main.js` inside `src`
-
+  * Now you can also modify the main file of your task `main.js` inside `src`
   * Task Example
     ```js
     /*
       File: 'src/main.js'
     */
-    const Task = require('rallf-sdk');
+    const { Task }           = require('rallf-js-sdk');
+    const { By, Key, until } = require('selenium-webdriver');
 
-    class MyFirstTask extends Task {
+    class RobotDevExample extends Task {
       constructor() {
         super();
+        this.firefox = null;
       }
 
-      error(err) {
-        this.logger.error('There has been an error ' + err);
-        this.finish(1);
-      }
+      /**
+       * 
+       */
+      async run() {
+       
+        // Initialize firefox and return instance of WebDriver
+        this.firefox = await this.device.get('firefox');
 
-      onFinish() {
-        this.logger.debug("On finish");
-      }
-
-      onBeforeStart() {
-        this.logger.debug("Before start");
-      }
-
-      run() {
-        let device = this.device;
-        let logger = this.logger;
-        let robot = this.robot;
-        let input = this.input;
-
-        logger.debug("Task Asdfsd started with robot: " + robot.self.alias);
-
-        // Must return a promise
-        return device.get('https://github.com/')
-          .then(_ => device.getTitle())
-          .then(_ => logger.debug('title: ' + _));
+        // You can log stuff via the available logger
+        this.logger.debug(`Task RobotDevExample started with robot: ${robot.kb.id}`);
+        
+        // Lets load github.com
+        await this.firefox.get('https://github.com');
+        
+        // Lets get the title
+        let title = await this.firefox.getTitle();
+        
+        return title;
       }
     }
     module.exports = MyFirstTask;
