@@ -23,7 +23,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 * Run `npm install rallf-js-sdk --save` to install the sdk
 
 ### Create simple Robot Task
-  1. Create a empty folder
+  1. Create an empty folder
   2. Initialize with `npm init rallf-task-js robot-dev-example`
   3. Edit the manifest [`config/manifest.json`](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) to fit your needs:
 
@@ -58,7 +58,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
   
 ```js
   /* File: 'src/main.js' */
-  const rallf              = require('rallf-js-sdk');
+  const rallf = require('rallf-js-sdk');
 
   class RobotDevExample extends rallf.Task {
     constructor() {
@@ -102,5 +102,5 @@ This will **run** the task in [development mode]() and log locally.
 ```
 $ node ./node_modules/rallf-sdk/bin/rallf-js-runner.js --robot=test-robot
 ```
-Usage: rallf-js-runner.js --robot=<(new|<str>)> [--task_path=<string>] [--robot_name=<string>]
+Usage: `rallf-js-runner.js --robot=<(new|<str>)> [--task_path=<string>] [--robot_name=<string>]`
 
