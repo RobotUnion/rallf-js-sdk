@@ -3,9 +3,12 @@
 class Task {
   constructor(logger) {
     this.logger = logger;
-    this.device;
+    this.device = {
+      init: (device) => { }
+    };
     this.robot;
     this.input;
+    this.persisting = false;
   }
 
 
@@ -14,43 +17,27 @@ class Task {
   mock() { }
 
   onFinish(x) { }
-  
-  onBeforeStart(x) {}
+
+  onBeforeStart(x) { }
 
   finish(x) {
     this.onFinish(x)
   }
 
-
   /**
-   * @method setDevice
-   * @param { JSON } device 
+   * @param {string} task_identifier - can be the name or the id 
+   * @param {*} method               - method to run
+   * @param {*} data                 - data to send to method
    */
-  setDevice(device) { this.device = device }
-
-  /**
-   * @method setRobot
-   * @param { JSON } robot 
-   */
-  setRobot(robot) { this.robot = robot }
-
-  /**
-   * @method setInput
-   * @param { JSON } input 
-   */
-  setInput(input) { this.input = input }
-
-  /**
-   * @method setLogger
-   * @param { RallfLogger | ConsoleLogger } logger 
-   */
-  setLogger(logger) { this.logger = logger }
-
+  delegate(task_identifier, method, data) {
+    return Promise.reject('Oopsy, it seems like delegate is not setup for this task');
+  }
 
   /**
    * Checks and saves robot
+   * @return {Promise<any>}
    */
-  persist(){
+  persist() {
 
   }
 }

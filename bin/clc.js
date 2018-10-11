@@ -1,15 +1,18 @@
 const clc = require('cli-color');
-let log     = process.stdout;
-let lgray   = clc.xterm(59).bold;
-let info    = clc.xterm(23);
-let error     = clc.xterm(9);
-let warning = clc.xterm(3);
-let success = clc.xterm(28);
+
+const padd = (str) => ` ${str} `;
+
+let log = process.stdout;
+let lgray = clc.xterm(59).bold;
+let info = x => clc.bgBlueBright(padd(x));
+let error = x => clc.bgRedBright(padd(x));
+let warning = x => clc.bgYellowBright.black(padd(x));
+let success = x => clc.bgGreenBright(padd(x));
 let errorcl = clc.xterm(1);
-let readline  = require('readline');
+let readline = require('readline');
 let rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
+  input: process.stdin,
+  output: process.stdout
 });
 
 /*
