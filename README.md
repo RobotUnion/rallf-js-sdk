@@ -24,8 +24,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ### Create simple Robot Task
   1. Create an empty folder
-  2. Initialize with `npm init rallf-task-js robot-dev-example`
-  3. Edit the manifest [`config/manifest.json`](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) to fit your needs:
+  2. Create the manifest [`config/manifest.json`](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) to fit your needs:
 
 ```js
 {
@@ -54,7 +53,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
   * `devices`: list of devices this Task is going to use
   * `permissions`: list of permissions the task requests
 
-  4. Now you can also modify the main file of your task `src/main.js`:
+  3. Now you can also create the main file of your task `src/main.js`:
   
 ```js
   /* File: 'src/main.js' */
