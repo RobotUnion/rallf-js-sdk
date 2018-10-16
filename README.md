@@ -11,10 +11,10 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ## Resources
 * [First steps](#first-steps)
-* 🕮 [Getting Started](https://github.com/RobotUnion/rallf-sdk/wiki/Getting-Started)
-* 🕮 [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
-* 🕮 [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
-* 🕮 [Technical Docs](https://github.com/RobotUnion/rallf-sdk/wiki/Technical-Docs)
+* [Getting Started](https://github.com/RobotUnion/rallf-sdk/wiki/Getting-Started)
+* [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
+* [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
+* [Technical Docs](https://github.com/RobotUnion/rallf-sdk/wiki/Technical-Docs)
 
 
 ## First steps
