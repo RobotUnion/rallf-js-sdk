@@ -1,0 +1,43 @@
+{
+  "id": "RALLF-MANIFEST",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 2,
+      "pattern": "^[\\w\\d-_.@$]*$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(-(0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(\\.(0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\\+[0-9a-zA-Z-]+(\\.[0-9a-zA-Z-]+)*)?$"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^nodejs|python$"
+    },
+    "devices": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "headless": {
+            "type": "boolean"
+          },
+          "profile": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "main": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "main"
+  ]
+}

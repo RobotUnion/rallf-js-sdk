@@ -1,0 +1,37 @@
+{
+  "name": "rallf-sdk",
+  "version": "0.0.1",
+  "description": "Toolset to create Tasks for RALLF based on selenium-webdrver",
+  "main": "index.js",
+  "author": "RobotUnion",
+  "license": "MIT",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/RobotUnion/rallf-js-sdk"
+  },
+  "bin": {
+    "rallf-runner": "bin/runner.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:w": "jest --watchAll"
+  },
+  "dependencies": {
+    "cli-color": "^1.2.0",
+    "commander": "^2.19.0",
+    "deep-object-diff": "^1.1.0",
+    "dot-prop": "^4.2.0",
+    "fs-extra": "^7.0.0",
+    "jest": "^23.6.0",
+    "jsonschema": "^1.2.4",
+    "selenium-webdriver": "^3.6.0",
+    "yargs": "^12.0.2"
+  },
+  "devDependencies": {},
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/examples"
+    ]
+  }
+}
