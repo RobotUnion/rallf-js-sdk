@@ -35,7 +35,7 @@ class Runner {
     let taskInstance = /** @type {UserTask} */ new UserTask();
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
-    taskInstance.robot = this.getRobot(mock.robot.cwd || null);
+    taskInstance.robot = this.getRobot(task_path + '/' + mock.robot.cwd || null);
     taskInstance.input = input;
 
     taskInstance.devices._setDevices(mock.devices || []);
@@ -149,7 +149,7 @@ class Runner {
     }
 
     // First setup task
-    task.emit('execution:started', {});
+    task.emit('setup:start', {});
     task.delegateLocal = (...args) => {
       return new Promise((resolve, reject) => {
         this.delegateTask(task, ...args)
@@ -163,12 +163,13 @@ class Runner {
 
 
     // Run hooks
-    task.emit('setup', {});
+    task.emit('setup:end', {});
 
     // Start
-    task.emit('before-start', {});
     task.emit('start', {});
     let result = await task.start();
+
+    task.emit('finish', {});
 
     if (task.type !== 'skill') {
       await task.devices.quitAll();

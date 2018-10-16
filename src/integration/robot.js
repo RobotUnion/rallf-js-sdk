@@ -5,81 +5,59 @@ const dotProp = require('dot-prop');
 const dataSymbol = Symbol('_data');
 const permissionsSymbol = Symbol('_permissions');
 
+const fs = require('fs-extra');
+const path = require('path');
+
 class Robot {
-  constructor(task_identifier) {
-    this[dataSymbol] = /** @type {Object} */ ({});
-    this[permissionsSymbol] = /** @type {Object} */ ({});
-    this.task_identifier = /** @type {string} */ (task_identifier);
+  constructor(cwd) {
+    this._cwd = path.resolve(cwd) || null;
   }
 
   /**
-   * Get an entry from the robot
-   * @param {string} path - path to json entry
-   * @returns {any}
+   * Save a JSON object to a file
+   * @param {string} filepath 
+   * @param {object} data 
    */
-  get(path) {
-    if (!this.hasPath(path)) throw new Error('Path is not available in this robot');
-    if (!this.hasPermission(path, 'read')) throw new Error('You dont have permission to read that path');
-
-    return dotProp.get(this[dataSymbol], path);
-  }
-
-  /**
-   * Set a value in the robot
-   * @param {string} path 
-   * @param {any} value 
-   */
-  set(path, value) {
-    if (!this.hasPermission(path, 'read')) throw new Error('You dont have permission to read that path');
-
-    return dotProp.set(this[dataSymbol], path, value);
-  }
-
-  /**
-   * Does the robot contain that entry
-   * @param {string} path 
-   * @returns {boolean}
-   */
-  hasPath(path) {
-    return dotProp.has(this[dataSymbol], path);
-  }
-
-  /**
-   * Does the task have permission for that the path
-   * @param {string} path 
-   * @param {string} permission 
-   * @returns {boolean}
-   */
-  hasPermission(path, permissionType) {
-    let permissions = this[permissionsSymbol];
-
-    if (!/^kb\./.test(path)) {
-      path = 'kb.' + path;
+  saveJSON(filepath, data) {
+    if (!fs.existsSync(this._cwd)) {
+      throw new Error('Oopsy, the robot cwd does not exist: ' + this._cwd);
     }
 
-    const checkPermStr = (pathStr) => {
-      // Check if permission is defined
-      if (!(pathStr in permissions)) {
-        let rpath = pathStr.replace(/(\.[\w\d]*)$/, '');
-        if (rpath != pathStr) return checkPermStr(rpath);
-        else return false;
-      } else {
-        return pathStr;
-      }
+    filepath = path.join(this._cwd, filepath);
+    fs.writeJsonSync(filepath, data);
+  }
+
+  /**
+   * Read JSON from file
+   * @param {string} filepath
+   * @return {object} 
+  */
+  readJSON(filepath) {
+    if (!fs.existsSync(this._cwd)) {
+      throw new Error('Oopsy, the robot cwd does not exist: ' + this._cwd);
     }
 
-    let ppath = checkPermStr(path);
-    let permission = permissions[ppath];
+    filepath = path.join(this._cwd, filepath);
+    return fs.readJsonSync(filepath);
+  }
 
-    if (!permission) return false;
+  /**
+   * Check if a file or directory exists synchronously
+   * @param {string} filepath 
+   */
+  existsSync(filepath) {
+    filepath = path.join(this._cwd, filepath);
+    return fs.existsSync(filepath);
+  }
 
-    for (let perm of permission) {
-      /* Data can pass either if its set to read, or its set to a task id and set to read */
-      if (perm === permissionType || perm.includes(this.task_identifier) && perm.includes(permissionType)) {
-        return true;
-      }
-    }
-    return false;
+  /**
+   * Check if a file or directory exists asynchronously
+   * @param {string} filepath 
+   * @param {function (boolean)} callback
+   */
+  exists(filepath, callback) {
+    filepath = path.join(this._cwd, filepath);
+    return fs.exists(filepath, callback);
   }
 }
 

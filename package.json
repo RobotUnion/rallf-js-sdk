@@ -31,7 +31,7 @@
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/examples"
+      "/examples/"
     ]
   }
 }
