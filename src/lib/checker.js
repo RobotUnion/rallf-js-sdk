@@ -54,5 +54,12 @@ module.exports = {
     if (!isTaskInstance) {
       throw new Error(`ERROR: Exported function in task ${manifest.name} is not extending Task`);
     }
+  },
+
+  isPromise(el) {
+    
   }
+
+
+
 };

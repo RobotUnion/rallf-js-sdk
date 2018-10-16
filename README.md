@@ -21,3 +21,16 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 
 ### Create task
+* Create a directory: `mkdir test-tast`
+* Init npm project: `npm init`
+* Install the sdk: `npm install rallf-js-sdk --save`
+* Create the following files:
+  * `config/manifest.json` - [Example](./examples/basic-example/config/manifest.json)
+  * `src/main.js` - [Example](./examples/basic-example/src/main.js)
+* Now create a mock file:
+  * `mocks/test.mock.js` [Example](./examples/basic-example/mocks/test.mock.js)
+* Create a robot if needed:
+  * `robots/robot-test` [Example](./examples/basic-example/robots/robot-test)
+* Now lets test if it works: 
+  * `node ./node_modules/.bin/rallf-runner --mock test --input {}`
+  * The runner will let you know if it has been successfull

@@ -15,6 +15,7 @@ class AbstractLogger {
     this.LOG_SEVERITY_NOTICE = 5;
     this.LOG_SEVERITY_INFO = 6;
     this.LOG_SEVERITY_DEBUG = 7;
+    this.task_name = null;
   }
 
   /**

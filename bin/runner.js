@@ -15,13 +15,13 @@ const rallfRunner = new Runner();
 
 let cwd = process.cwd();
 
-try {
-  let latestVersion = child_process.execSync(`npm show ${package.name} version`);
+// try {
+//   let latestVersion = child_process.execSync(`npm show ${package.name} version`);
 
-  if (latestVersion !== package.version) {
-    logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-  }
-} catch (error) { }
+//   if (latestVersion !== package.version) {
+//     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
+//   }
+// } catch (error) { }
 
 
 program
@@ -33,12 +33,7 @@ program
     logging.log('info', 'running command: run');
 
     let taskPath = cmd.task || cwd;
-
-    logging.log('info', 'task path is: ' + taskPath);
-
     let manifest = rallfRunner.getManifest(taskPath);
-
-    logging.log('info', 'manifest is: ', manifest);
 
     let mock = null;
     if (cmd.mock) {
@@ -49,14 +44,18 @@ program
     }
 
     let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
+    let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
 
-    logging.log('info', 'created task: ' + task.getName() + '@' + task.getVersion());
+    logging.log('success', 'Running task: ' + taskLbl);
+    logging.log('info', 'Created task');
+    logging.log('info', 'Executing task');
 
-    rallfRunner.runTask(task);
+    rallfRunner.runTask(task)
+      .then(resp => logging.log('success', 'Finished task OK', resp))
+      .catch(err => logging.log('error', 'Finished task with ERROR', err));
   });
 
+
 program.parse(process.argv);
-
-
-
+// if (program.args.length <= 1) program.outputHelp();
 

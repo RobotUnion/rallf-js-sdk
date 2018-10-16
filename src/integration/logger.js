@@ -18,7 +18,7 @@ class Logger extends AbstractLogger {
     super({
       notify: log => {
         if (pretty) {
-          process.stdout.write(`${clc.cyan('LOG')} [${new Date(log.time).toLocaleString()}] - ${this.getString(log.severity)} - ${log.message} - ${JSON.stringify(log.data)}\n`);
+          process.stdout.write(`${clc.bgCyan(' LOG ')} - (${clc.blackBright(this.task_name)}) - [${new Date(log.time).toLocaleString()}] - ${this.getString(log.severity)} - ${log.message} - ${JSON.stringify(log.data)}\n`);
         }
         else process.stdout.write('\ntask:log ' + JSON.stringify(log) + '\n');
       }

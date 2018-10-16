@@ -4,9 +4,14 @@ const fs = require('fs-extra');
 const path = require('path');
 const { Task, Robot } = require('../integration');
 const checker = require('./checker');
+const examples = require('./examples');
 
 
 class Runner {
+
+  constructor() {
+    this._taskMap = {};
+  }
 
   /**
    * Create a task for execution
@@ -27,7 +32,7 @@ class Runner {
 
     checker.checkExportToBeTask(UserTask, manifest);
 
-    let taskInstance = new UserTask();
+    let taskInstance = /** @type {UserTask} */ new UserTask();
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
     taskInstance.robot = this.getRobot(mock.robot.cwd || null);
@@ -35,6 +40,7 @@ class Runner {
 
     taskInstance.devices._setDevices(mock.devices || []);
 
+    this._taskMap[taskInstance.getName()] = { instance: taskInstance, mock, manifest };
     return taskInstance;
   }
 
@@ -56,6 +62,7 @@ class Runner {
     let mockPath = path.join(path.resolve(task_path), 'mocks', name + '.mock.js');
     if (fs.existsSync(mockPath)) {
       const mock = require(mockPath);
+      mock.name = name;
       return mock;
     }
     return null;
@@ -68,7 +75,7 @@ class Runner {
   getManifest(task_path) {
     let validTask = checker.isValidTaskProject(task_path);
     if (validTask.error) {
-      throw new Error(`ERROR: ${validTask.error}`);
+      throw new Error(`ERROR: ` + validTask.error);
     }
 
     let manifestPath = path.join(task_path, 'config', 'manifest.json');
@@ -84,6 +91,53 @@ class Runner {
     return manifest;
   }
 
+
+  checkAccessToSkill(manifest, skill_name, skill_method) {
+    if (
+      manifest.skills
+      && manifest.skills[skill_name]
+      && manifest.skills[skill_name].indexOf(skill_method) !== -1
+    ) return true;
+    return false;
+  }
+
+  /**
+   * Delegate in a skill
+   * @param {Task} task
+   * @param {*} skill_name 
+   * @param {*} skill_method 
+   * @param {*} data 
+   * @param {*} options 
+   */
+  async delegateTask(task, skill_name, skill_method, data, options) {
+    let task_ = this._taskMap[task.getName()];
+    let manifest = task_.manifest;
+    let mock = task_.mock;
+
+    let hasAccessToSkill = this.checkAccessToSkill(manifest, skill_name, skill_method);
+
+    if (!hasAccessToSkill) {
+      return Promise.reject({ error: "You havent required access to that skill. Please add to manifest:" + examples.skills });
+    }
+
+    if (!mock.skills) {
+      return Promise.reject({ error: `Oopsy, mock "${mock.name}" does not export any skills but you are requesting skill (${skill_name})` + examples.skills });
+    }
+
+    if (!(skill_name in mock.skills)) {
+      return Promise.reject({ error: `Oopsy, skill "${skill_name}" is not exported in mock: ${mock.name}` + examples.skills });
+    }
+
+    let skill = mock.skills[skill_name];
+    if (!(skill_method in skill.methods)) {
+      return Promise.reject({ error: `Oopsy, skill method "${skill_method}" is not exported by mock: ${mock.name}` + examples.skills });
+    }
+
+    let method = skill.methods[skill_method];
+
+    return Promise.resolve(method.callback(data, task_));
+  }
+
   /**
    * 
    * @param {Task} task 
@@ -96,6 +150,17 @@ class Runner {
 
     // First setup task
     task.emit('execution:started', {});
+    task.delegateLocal = (...args) => {
+      return new Promise((resolve, reject) => {
+        this.delegateTask(task, ...args)
+          .then(resp => {
+            resolve(resp);
+          })
+          .catch(error => reject(error));
+      });
+    };
+    task.logger.task_name = task.getName();
+
 
     // Run hooks
     task.emit('setup', {});
@@ -104,8 +169,6 @@ class Runner {
     task.emit('before-start', {});
     task.emit('start', {});
     let result = await task.start();
-
-    console.log("After run")
 
     if (task.type !== 'skill') {
       await task.devices.quitAll();
