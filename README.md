@@ -65,6 +65,9 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
       // Initialize firefox and return instance of WebDriver
       this.firefox = await this.devices.get('firefox');
+      
+      // You can log stuff via the available logger
+      this.logger.debug(`Task RobotDevExample started`);
 
       // Let's load github.com
       await this.firefox.get('https://github.com');
