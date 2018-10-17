@@ -21,7 +21,7 @@ class Runner {
    * @param {string} robot_id 
    * @returns {Task}
    */
-  createTask(task_path, manifest, input, mock) {
+  createTask(task_path, manifest, input, mock = {}) {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
@@ -40,6 +40,15 @@ class Runner {
     let taskInstance = /** @type {UserTask} */ new UserTask();
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
+
+    if (!mock) mock = {};
+
+    if (!mock.robot) {
+      mock.robot = {
+        cwd: 'default-robot'
+      }
+    }
+
     taskInstance.robot = this.getRobot(task_path + '/' + mock.robot.cwd || null);
     taskInstance.input = input;
 
