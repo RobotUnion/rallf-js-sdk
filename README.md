@@ -18,6 +18,10 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 
 ## First steps
+
+### Dependencies
+You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npmjs.com/get-npm) installed.
+
 ### Installation
 * Run `npm install rallf-js-sdk --save` to install the sdk
 
