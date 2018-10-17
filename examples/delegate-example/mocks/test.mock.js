@@ -19,8 +19,10 @@ module.exports = {
             });
           }
         },
-        getFollows: (data, task) => {
-          return [/* List of follows */];
+        getFollows: {
+          callback: (data, task) => {
+            return [/* List of follows */];
+          }
         }
       }
     }
