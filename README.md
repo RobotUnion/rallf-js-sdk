@@ -1,4 +1,4 @@
-# RALLF Node.js SDK (#unstable)
+# RALLF Node.js SDK
 
 [![GitHub](https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
 [![npm](https://img.shields.io/npm/v/rallf-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-sdk)
@@ -96,7 +96,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
   * `robots/robot-test` [Example](./examples/basic-example/robots/robot-test)
 
 ## Running 
-`node ./node_modules/.bin/rallf-runner --mock test --input {}`
+`node ./node_modules/.bin/rallf-runner --mock test --input {}`  
 You will now if everything went OK
 
 Now you can have fun! 🤖
