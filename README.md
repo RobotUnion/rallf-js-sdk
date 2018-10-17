@@ -78,7 +78,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
       return title;
     }
   }
-  module.exports = MyFirstTask;
+  module.exports = RobotDevExample;
 ``` 
   Okey let me explain the above:  
   1. First of all we import the `rallf-js-sdk`.  
@@ -96,7 +96,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
   * `robots/robot-test` [Example](./examples/basic-example/robots/robot-test)
 
 ## Running 
-`node ./node_modules/.bin/rallf-runner --mock test --input {}`  
+`./node_modules/.bin/rallf-runner run --mock test --input {}`  
 You will now if everything went OK
 
 Now you can have fun! 🤖
