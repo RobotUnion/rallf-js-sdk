@@ -9,6 +9,7 @@
     "type": "github",
     "url": "https://github.com/RobotUnion/rallf-js-sdk"
   },
+  "issues": {},
   "bin": {
     "rallf-runner": "bin/runner.js"
   },

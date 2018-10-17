@@ -15,13 +15,13 @@ const rallfRunner = new Runner();
 
 let cwd = process.cwd();
 
-// try {
-//   let latestVersion = child_process.execSync(`npm show ${package.name} version`);
+try {
+  let latestVersion = child_process.execSync(`npm show ${package.name} version`);
 
-//   if (latestVersion !== package.version) {
-//     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-//   }
-// } catch (error) { }
+  if (latestVersion !== package.version) {
+    logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
+  }
+} catch (error) { }
 
 
 program
