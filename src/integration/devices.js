@@ -15,6 +15,7 @@ class Devices {
   /**
    * Request access to a device. 
    * @arg {String} device_name
+   * @returns {WebDriver}
    */
   async get(device_name) {
     if (!this.devices.some(el => el.name === device_name)) {
@@ -34,7 +35,7 @@ class Devices {
 
     let deviceInstance = await builder.build();
     this.instances.push({ device_name: device_name, device: deviceInstance });
-    return device;
+    return deviceInstance;
   }
 
   _getOptions(device) {

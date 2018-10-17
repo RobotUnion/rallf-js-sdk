@@ -51,8 +51,14 @@ program
     logging.log('info', 'Executing task');
 
     rallfRunner.runTask(task)
-      .then(resp => logging.log('success', 'Finished task OK', resp))
-      .catch(err => logging.log('error', 'Finished task with ERROR', err));
+      .then(resp => {
+        logging.log('success', 'Finished task OK', resp);
+        process.exit(0);
+      })
+      .catch(err => {
+        logging.log('error', 'Finished task with ERROR', err);
+        process.exit(1);
+      });
   });
 
 

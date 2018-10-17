@@ -3,6 +3,9 @@ const { Task } = require('../../../');
 class BasicExample extends Task {
   constructor() {
     super();
+    this.on('event:external', (data) => {
+      this.logger.debug('event:external', data);
+    });
   }
 
   async start() {

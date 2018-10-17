@@ -21,7 +21,7 @@ class PubSub {
       throw new Error('Callback argument must be type "function" given: ' + (typeof callback));
     }
 
-    if (this[subSymbol][event].callbacks) {
+    if (this[subSymbol][event] && this[subSymbol][event].callbacks) {
       this[subSymbol][event].callbacks.push(callback);
     } else {
       this[subSymbol][event] = {

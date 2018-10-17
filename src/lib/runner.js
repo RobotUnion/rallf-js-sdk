@@ -40,8 +40,47 @@ class Runner {
 
     taskInstance.devices._setDevices(mock.devices || []);
 
+    let pipePath = task_path + '/.rallf'
+    if (!fs.existsSync(pipePath)) {
+      fs.mkdirpSync(pipePath);
+      fs.writeFileSync(pipePath + '/event-pipe', '');
+    }
+
+    fs.watchFile(pipePath + '/event-pipe', (prev, curr) => {
+      if (curr !== prev) {
+        let data = fs.readFileSync(pipePath + '/event-pipe').toString().trim();
+        if (/^([\w\d]*):([\w\d]*) (.*)$/.test(data)) {
+          let parsed = this.parseEvent(data);
+          taskInstance.emit(parsed.event_name + ':' + parsed.event_type, parsed.data);
+        }
+      }
+    });
     this._taskMap[taskInstance.getName()] = { instance: taskInstance, mock, manifest };
     return taskInstance;
+  }
+
+  safeJSONParse(str) {
+    let parsed;
+    try {
+      parsed = JSON.parse(str);
+    } catch (e) {
+      parsed = JSON.parse(JSON.stringify(str));
+    }
+    return parsed;
+  }
+
+  /**
+   * String format: <event_type>:<event_name> <{data}>
+   * @param {string} str 
+   * @return {{event_name:string, event_type:string, data: any}}
+   */
+  parseEvent(str) {
+    let parts = str.match(/^([\w\d]*):([\w\d]*) (.*)$/);
+    return {
+      event_name: parts[1],
+      event_type: parts[2],
+      data: this.safeJSONParse(parts[3])
+    };
   }
 
 
@@ -143,7 +182,6 @@ class Runner {
    * @param {Task} task 
    */
   async runTask(task) {
-
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
       throw { error: "Exported function must extend from \"Task\"" };
     }
