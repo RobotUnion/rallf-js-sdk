@@ -96,8 +96,8 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
   * `robots/robot-test` [Example](./examples/basic-example/robots/robot-test)
 
 ## Running 
-You will now if everything went OK
 `node ./node_modules/.bin/rallf-runner --mock test --input {}`
+You will now if everything went OK
 
 Now you can have fun! 🤖
 

@@ -4,8 +4,6 @@
   "version": "1.0.0",
   "language": "nodejs",
   "type": "task",
-  "skills": {
-
-  },
+  "skills": {},
   "permissions": {}
 }
