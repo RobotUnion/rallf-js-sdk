@@ -61,7 +61,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
     /**
      * This function will run once everything is properly loaded and set to go
      */
-    async run() {
+    async start() {
 
       // Initialize firefox and return instance of WebDriver
       this.firefox = await this.devices.get('firefox');
