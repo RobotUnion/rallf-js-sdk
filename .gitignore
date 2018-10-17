@@ -11,3 +11,5 @@
 IDEAS.md
 *.php
 *.png
+/node_modules
+Ideas.md

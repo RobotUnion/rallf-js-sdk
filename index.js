@@ -1,3 +1,3 @@
 module.exports = {
-  integration: require('./src/Integration')
-}
+  Task: require('./src/integration').Task
+};

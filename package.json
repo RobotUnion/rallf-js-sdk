@@ -1,30 +1,37 @@
 {
-  "name": "rallf-sdk",
-  "version": "0.2.0",
-  "description": "Toolset to create Robot Apps for RALLF based on Client for webdriver/selenium 2.",
+  "name": "rallf-js-sdk",
+  "version": "0.0.1",
+  "description": "Toolset to create Tasks for RALLF based on selenium-webdrver",
+  "main": "index.js",
+  "author": "RobotUnion",
+  "license": "MIT",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/RobotUnion/rallf-js-sdk"
+  },
   "bin": {
-    "rr": "bin/rr.js",
-    "rpkg": "bin/rpkg.js",
-    "init": "bin/init.js",
-    "rallf-js-runner": "bin/rallf-js-runner.js"
+    "rallf-runner": "bin/runner.js"
   },
   "scripts": {
-    "rr": "node bin/rr-2.js",
-    "rallf-js-runner": "node bin/rallf-js-runner.js",
-    "run": "node bin/rallf-js-runner.js"
+    "test": "jest",
+    "test:w": "jest --watchAll"
   },
-  "author": "RobotUnion",
-  "main": "index.js",
-  "license": "ISC",
   "dependencies": {
     "cli-color": "^1.2.0",
-    "deep-diff": "^1.0.2",
+    "commander": "^2.19.0",
     "deep-object-diff": "^1.1.0",
+    "dot-prop": "^4.2.0",
     "fs-extra": "^7.0.0",
-    "jszip": "^3.1.3",
-    "request": "^2.81.0",
+    "jest": "^23.6.0",
+    "jsonschema": "^1.2.4",
     "selenium-webdriver": "^3.6.0",
     "yargs": "^12.0.2"
   },
-  "base_url": "api.alpha.rallf.com"
+  "devDependencies": {},
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/examples/"
+    ]
+  }
 }

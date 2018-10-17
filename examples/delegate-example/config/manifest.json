@@ -1,0 +1,12 @@
+{
+  "name": "delegate-example",
+  "main": "src/main.js",
+  "version": "1.0.0",
+  "language": "nodejs",
+  "type": "task",
+  "skills": {
+    "Facebook": [
+      "like"
+    ]
+  }
+}
