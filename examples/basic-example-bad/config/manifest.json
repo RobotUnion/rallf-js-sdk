@@ -1,6 +1,6 @@
 {
   "name": "basic-example",
-  "main": "src/main.jas",
+  "main": "src/main.js",
   "version": "1.0.0",
   "language": "nodejs",
   "type": "task",

@@ -41,12 +41,16 @@ class Runner {
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
 
-    if (!mock) mock = {};
 
+    if (!mock) mock = {};
     if (!mock.robot) {
       mock.robot = {
         cwd: 'default-robot'
       }
+    }
+
+    if (!fs.existsSync(task_path + '/' + mock.robot.cwd)) {
+      fs.mkdirpSync(task_path + '/' + mock.robot.cwd);
     }
 
     taskInstance.robot = this.getRobot(task_path + '/' + mock.robot.cwd || null);

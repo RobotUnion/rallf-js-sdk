@@ -49,7 +49,6 @@ program
     try {
       let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
 
-
       let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
 
       logging.log('success', 'Running task: ' + taskLbl);
