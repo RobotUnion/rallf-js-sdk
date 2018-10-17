@@ -102,6 +102,6 @@ Now you can have fun! 🤖
 
 ## Found a bug?
 If you found a bug please leave us an issue.
-* Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/v2/.github/CONTRIBUTING.md) before.
+* Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/master/.github/CONTRIBUTING.md) before.
 * Make sure that issue has not been reported
 
