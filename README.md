@@ -5,6 +5,7 @@
 [![David](https://img.shields.io/david/RobotUnion/rallf-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
 [![node](https://img.shields.io/node/v/rallf-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-sdk)
 
+
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
@@ -28,14 +29,14 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ```js
 {
-  "name": "robot-dev-example",
+  "name": "test-task",
   "main": "src/main.js",
   "version": "1.0.0",
   "language": "nodejs",
   "skills": {
-    "Facebook": {
+    "Facebook": [
       "like"
-    }
+    ]
   }
 }
 ```
@@ -63,7 +64,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
     async run() {
 
       // Initialize firefox and return instance of WebDriver
-      this.firefox = await this.device.get('firefox');
+      this.firefox = await this.devices.get('firefox');
 
       // You can log stuff via the available logger
       this.logger.debug(`Task RobotDevExample started with robot: ${robot.kb.id}`);
@@ -102,6 +103,6 @@ Now you can have fun! 🤖
 
 ## Found a bug?
 If you found a bug please leave us an issue.
-* Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/master/.github/CONTRIBUTING.md) before.
+* Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/v2/.github/CONTRIBUTING.md) before.
 * Make sure that issue has not been reported
 

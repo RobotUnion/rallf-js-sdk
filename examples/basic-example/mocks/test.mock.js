@@ -10,18 +10,6 @@ module.exports = {
               }
             });
           }
-        },
-        follow: {
-          callback: (data, task) => {
-            task.emit('facebook followed', {
-              data: {
-                resp: 'Followed user'
-              }
-            });
-          }
-        },
-        getFollows: (data, task) => {
-          return [/* List of follows */];
         }
       }
     }
