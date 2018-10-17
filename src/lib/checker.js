@@ -20,7 +20,7 @@ module.exports = {
     let manifestPath = path.join(task_path, 'config', 'manifest.json');
     if (!fs.existsSync(manifestPath)) {
       return {
-        error: `Task "${task_path}" does not seem to be a rallf Task`
+        error: `Task "${task_path}" does not seem to be a rallf Task: 'config/manifest.json' is missing`
       };
     }
 

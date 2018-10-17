@@ -25,7 +25,7 @@ fdescribe('Runner', () => {
   });
 
   it(`should throw error if path is not a task`, () => {
-    expect(() => runner.getManifest('ads')).toThrowError();
+    expect(() => runner.getManifest('ads').error).toBeDefined();
   });
 
   it(`should not throw error if path is a task`, () => {

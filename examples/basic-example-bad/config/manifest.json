@@ -1,0 +1,9 @@
+{
+  "name": "basic-example",
+  "main": "src/main.jas",
+  "version": "1.0.0",
+  "language": "nodejs",
+  "type": "task",
+  "skills": {},
+  "permissions": {}
+}

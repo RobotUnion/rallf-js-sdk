@@ -28,6 +28,11 @@ class Runner {
 
     let mainFile = manifest.main;
     let taskPath = path.join(path.resolve(task_path), mainFile);
+
+    if (!fs.existsSync(taskPath)) {
+      throw new Error(`It seams main file defined in manfest.json does not exist`);
+    }
+
     let UserTask = /** @type {Task} */ (require(taskPath));
 
     checker.checkExportToBeTask(UserTask, manifest);
@@ -114,7 +119,7 @@ class Runner {
   getManifest(task_path) {
     let validTask = checker.isValidTaskProject(task_path);
     if (validTask.error) {
-      throw new Error(`ERROR: ` + validTask.error);
+      return { error: validTask.error };
     }
 
     let manifestPath = path.join(task_path, 'config', 'manifest.json');
@@ -122,9 +127,9 @@ class Runner {
 
     let validManifest = checker.validManifest(manifest);
     if (validManifest.errors) {
-      validManifest.errors.forEach(element => {
-        throw new Error(`ERROR: Task ${task_path} manifest is invalid: \n ${element.stack}`);
-      });
+      for (let error of validManifest.errors) {
+        return { error: `Task ${task_path} manifest is invalid: \n ${error.stack}` };
+      }
     }
 
     return manifest;

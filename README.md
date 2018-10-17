@@ -52,7 +52,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
   /* File: 'src/main.js' */
   const rallf = require('rallf-js-sdk');
 
-  class RobotDevExample extends rallf.Task {
+  class TestTask extends rallf.Task {
     constructor() {
       super();
       this.firefox = null;
@@ -65,9 +65,9 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
       // Initialize firefox and return instance of WebDriver
       this.firefox = await this.devices.get('firefox');
-      
+
       // You can log stuff via the available logger
-      this.logger.debug(`Task RobotDevExample started`);
+      this.logger.debug(`Task TestTask started`);
 
       // Let's load github.com
       await this.firefox.get('https://github.com');
@@ -78,7 +78,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
       return title;
     }
   }
-  module.exports = RobotDevExample;
+  module.exports = TestTask;
 ``` 
   Okey let me explain the above:  
   1. First of all we import the `rallf-js-sdk`.  

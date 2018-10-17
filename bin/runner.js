@@ -34,6 +34,9 @@ program
 
     let taskPath = cmd.task || cwd;
     let manifest = rallfRunner.getManifest(taskPath);
+    if (manifest.error) {
+      return logging.log('error', manifest.error);
+    }
 
     let mock = null;
     if (cmd.mock) {
@@ -43,7 +46,12 @@ program
       }
     }
 
-    let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
+    try {
+      let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
+    } catch (error) {
+      return logging.log('error', error);
+    }
+
     let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
 
     logging.log('success', 'Running task: ' + taskLbl);
