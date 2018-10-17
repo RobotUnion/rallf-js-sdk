@@ -1,0 +1,11 @@
+{
+  "name": "test-task",
+  "main": "src/main.js",
+  "version": "1.0.0",
+  "language": "nodejs",
+  "skills": {
+    "Facebook": [
+      "like"
+    ]
+  }
+}
