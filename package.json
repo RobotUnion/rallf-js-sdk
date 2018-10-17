@@ -1,5 +1,5 @@
 {
-  "name": "rallf-sdk",
+  "name": "rallf-js-sdk",
   "version": "0.0.1",
   "description": "Toolset to create Tasks for RALLF based on selenium-webdrver",
   "main": "index.js",
