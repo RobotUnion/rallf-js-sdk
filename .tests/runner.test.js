@@ -2,7 +2,7 @@ const { Runner } = require('../src/lib');
 const { Task } = require('../src/integration');
 const fs = require('fs-extra');
 
-jest.setTimeout(20e3);
+jest.setTimeout(30e3);
 
 fdescribe('Runner', () => {
   it(`should be defined`, () => {
