@@ -1,5 +1,5 @@
 # RALLF Task
-> This project was generated with [rallf-js-sdk]()
+> This project was generated with `rallf-js-sdk@<sdk_version>`
 
 ### Getting started
 

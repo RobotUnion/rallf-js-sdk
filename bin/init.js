@@ -94,6 +94,10 @@ function copyTemplate() {
       vars: manifestTemplate
     },
     {
+      path: 'README.md',
+      vars: manifestTemplate
+    },
+    {
       path: 'src/main.js.tmpl',
       vars: { ...manifestTemplate, name: toPascalCase(manifestTemplate.name) }
     },
