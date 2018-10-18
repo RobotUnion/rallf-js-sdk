@@ -11,11 +11,13 @@
   },
   "issues": {},
   "bin": {
-    "rallf-runner": "bin/runner.js"
+    "rallf-runner": "bin/runner.js",
+    "rallf-init": "bin/init.js"
   },
   "scripts": {
     "test": "jest",
-    "test:w": "jest --watchAll"
+    "test:w": "jest --watchAll",
+    "init": "node ./bin/init.js"
   },
   "dependencies": {
     "cli-color": "^1.2.0",

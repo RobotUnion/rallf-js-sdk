@@ -1,21 +1,21 @@
 module.exports = {
-  skills: {
-    Facebook: {
-      methods: {
-        like: {
-          callback: (data, task) => {
-            task.emit('facebook liked', {
-              data: {
-                resp: 'Liked task'
-              }
-            });
+  robot: {
+    cwd: './robots/robot-test',
+    skills: {
+      Facebook: {
+        methods: {
+          like: {
+            callback: (data, task) => {
+              task.emit('facebook liked', {
+                data: {
+                  resp: 'Liked task'
+                }
+              });
+            }
           }
         }
       }
-    }
-  },
-  robot: {
-    cwd: './robots/robot-test'
+    },
   },
   devices: [
     {

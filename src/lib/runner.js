@@ -45,7 +45,8 @@ class Runner {
     if (!mock) mock = {};
     if (!mock.robot) {
       mock.robot = {
-        cwd: 'default-robot'
+        cwd: 'default-robot',
+        skills: {}
       }
     }
 
@@ -172,20 +173,21 @@ class Runner {
     let mock = task_.mock;
 
     let hasAccessToSkill = this.checkAccessToSkill(manifest, skill_name, skill_method);
+    let skills = mock.robot.skills;
 
     if (!hasAccessToSkill) {
       return Promise.reject({ error: "You havent required access to that skill. Please add to manifest:" + examples.skills });
     }
 
-    if (!mock.skills) {
+    if (!skills) {
       return Promise.reject({ error: `Oopsy, mock "${mock.name}" does not export any skills but you are requesting skill (${skill_name})` + examples.skills });
     }
 
-    if (!(skill_name in mock.skills)) {
+    if (!(skill_name in skills)) {
       return Promise.reject({ error: `Oopsy, skill "${skill_name}" is not exported in mock: ${mock.name}` + examples.skills });
     }
 
-    let skill = mock.skills[skill_name];
+    let skill = skills[skill_name];
     if (!(skill_method in skill.methods)) {
       return Promise.reject({ error: `Oopsy, skill method "${skill_method}" is not exported by mock: ${mock.name}` + examples.skills });
     }
@@ -217,8 +219,6 @@ class Runner {
     };
     task.logger.task_name = task.getName();
 
-
-    // Run hooks
     task.emit('setup:end', {});
 
     // Start

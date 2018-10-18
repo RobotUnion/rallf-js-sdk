@@ -1,7 +1,7 @@
 /* File: 'src/main.js' */
 const { Task } = require('../../../');
 
-class RobotDevExample extends Task {
+class <name> extends Task {
   constructor() {
     super();
     this.firefox = null;
@@ -17,7 +17,7 @@ class RobotDevExample extends Task {
       this.firefox = await this.devices.get('firefox');
 
       // You can log stuff via the available logger
-      this.logger.debug(`Task RobotDevExample started`);
+      this.logger.debug(`Task <name> started`);
 
       // Let's load github.com
       await this.firefox.get('https://github.com');
@@ -31,4 +31,4 @@ class RobotDevExample extends Task {
     }
   }
 }
-module.exports = RobotDevExample;
+module.exports = <name>;

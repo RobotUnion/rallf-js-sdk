@@ -19,17 +19,15 @@ module.exports = {
 
     let manifestPath = path.join(task_path, 'config', 'manifest.json');
     if (!fs.existsSync(manifestPath)) {
-      return {
-        error: `Task "${task_path}" does not seem to be a rallf Task: 'config/manifest.json' is missing`
-      };
+      throw new Error(`Task "${task_path}" does not seem to be a rallf Task: 'config/manifest.json' is missing`);
     }
 
 
     let validManifest = this.validManifest(manifest);
     if (validManifest.errors) {
-      validManifest.errors.forEach(element => {
-        throw new Error(`ERROR: Task ${task_path} manifest is invalid: \n ${element.message}`);
-      });
+      for (let error of validManifest.errors) {
+        throw new Error(`Task ${task_path} manifest is invalid: \n ${error.stack}`);
+      }
     }
 
     return true;
@@ -57,7 +55,7 @@ module.exports = {
   },
 
   isPromise(el) {
-    
+
   }
 
 

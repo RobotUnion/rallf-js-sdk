@@ -46,6 +46,7 @@ program
       }
     }
 
+
     try {
       let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
 

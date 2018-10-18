@@ -2,6 +2,8 @@
   "name": "delegate-example",
   "main": "src/main.js",
   "version": "1.0.0",
+  "sdk_version": "@latest",
+  "fqtn": "com.example.basic",
   "language": "nodejs",
   "type": "task",
   "skills": {

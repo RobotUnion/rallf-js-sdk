@@ -1,7 +1,9 @@
 {
-  "name": "test-task",
+  "name": "<name>",
   "main": "src/main.js",
   "version": "1.0.0",
+  "sdk_version": "<sdk_version>",
+  "fqtn": "<fqtn>",
   "language": "nodejs",
   "skills": {
     "Facebook": [
