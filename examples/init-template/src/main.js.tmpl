@@ -1,5 +1,5 @@
 /* File: 'src/main.js' */
-const { Task } = require('../../../');
+const { Task } = require('rallf-js-sdk');
 
 class <name> extends Task {
   constructor() {
@@ -13,7 +13,7 @@ class <name> extends Task {
   async start() {
 
     try {
-      // Initialize firefox and return instance of WebDriver
+      // Initialize firefox and get instance of WebDriver
       this.firefox = await this.devices.get('firefox');
 
       // You can log stuff via the available logger

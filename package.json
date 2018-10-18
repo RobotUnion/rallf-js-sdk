@@ -18,7 +18,7 @@
     "test": "jest",
     "test:w": "jest --watchAll",
     "init": "node ./bin/init.js",
-    "publish": "npm version patch && npm publish"
+    "npm:publish": "npm version patch && npm publish"
   },
   "dependencies": {
     "cli-color": "^1.2.0",
@@ -26,13 +26,14 @@
     "deep-object-diff": "^1.1.0",
     "dot-prop": "^4.2.0",
     "fs-extra": "^7.0.0",
-    "jest": "^23.6.0",
     "jsonschema": "^1.2.4",
-    "pre-commit": "^1.2.2",
     "selenium-webdriver": "^3.6.0",
     "yargs": "^12.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "pre-commit": "^1.2.2",
+    "jest": "^23.6.0"
+  },
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",

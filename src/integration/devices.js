@@ -33,9 +33,13 @@ class Devices {
       builder.setChromeOptions(options);
     }
 
-    let deviceInstance = await builder.build();
-    this.instances.push({ device_name: device_name, device: deviceInstance });
-    return deviceInstance;
+    try {
+      let deviceInstance = await builder.build();
+      this.instances.push({ device_name: device_name, device: deviceInstance });
+      return deviceInstance;
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 
   _getOptions(device) {
