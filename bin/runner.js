@@ -17,13 +17,10 @@ let cwd = process.cwd();
 
 try {
   let latestVersion = child_process.execSync(`npm show ${package.name} version`);
-  console.log('Latest: ' + latestVersion);
-  console.log('Actual: ' + package.version);
-  if (latestVersion !== package.version) {
+  if (latestVersion.toString() !== package.version) {
     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
   }
 } catch (error) { }
-
 
 program
   .command('run')
@@ -47,31 +44,23 @@ program
       }
     }
 
+    let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
+    let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
 
-    // try {
-      let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
+    logging.log('success', 'Running task: ' + taskLbl);
+    logging.log('info', 'Created task');
+    logging.log('info', 'Executing task');
 
-      let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
-
-      logging.log('success', 'Running task: ' + taskLbl);
-      logging.log('info', 'Created task');
-      logging.log('info', 'Executing task');
-
-      rallfRunner.runTask(task)
-        .then(resp => {
-          logging.log('success', 'Finished task OK', resp);
-          process.exit(0);
-        })
-        .catch(err => {
-          logging.log('error', 'Finished task with ERROR', err);
-          process.exit(1);
-        });
-    // } catch (error) {
-    //   return logging.log('error', error.trace);
-    // }
+    rallfRunner.runTask(task)
+      .then(resp => {
+        logging.log('success', 'Finished task OK', resp);
+        process.exit(0);
+      })
+      .catch(err => {
+        logging.log('error', 'Finished task with ERROR', err);
+        process.exit(1);
+      });
   });
 
 
 program.parse(process.argv);
-// if (program.args.length <= 1) program.outputHelp();
-

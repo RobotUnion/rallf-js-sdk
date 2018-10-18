@@ -109,16 +109,11 @@ function copyTemplate() {
     copyFile(path.join(templatePath, file), path.join(cwd, file), vars);
   }
 
-  logging.log('info', 'Installing dependencies, please wait...', cwd);
+  logging.log('info', 'Installing dependencies, please wait...');
 
   let p = child_process.exec(`cd ${cwd} && npm install`);
   p.stdout.pipe(process.stdout);
   p.stderr.pipe(process.stderr);
-  // let p = child_process.spawn(`npm`, [`--prefix ${cwd}`, 'install', cwd], { stdio: [process.stdin, process.stdout, process.stderr] });
-  // p.on('error', (error) => {
-  //   logging.log('error', error);
-  //   logging.log('error', `npm install failed, please try doing it yourself...`);
-  // });
   p.on('exit', (exit_code) => {
     if (exit_code === 0) logging.log('info', `To run the task you can do: npm start`);
   });
