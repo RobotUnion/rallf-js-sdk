@@ -17,7 +17,8 @@
   "scripts": {
     "test": "jest",
     "test:w": "jest --watchAll",
-    "init": "node ./bin/init.js"
+    "init": "node ./bin/init.js",
+    "publish": "npm version patch && npm publish"
   },
   "dependencies": {
     "cli-color": "^1.2.0",

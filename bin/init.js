@@ -53,7 +53,7 @@ function replaceVars(str, vars) {
   str = String(str);
   for (let key in vars) {
     let var_ = vars[key];
-    logging.log('info', `Replacing: <${key}> with value: ${var_} from: ${typeof str}`);
+    // logging.log('info', `Replacing: <${key}> with value: ${var_} from: ${typeof str}`);
     str = str.replace(new RegExp(`<${key}>`, 'g'), var_);
   }
   return str;
