@@ -19,7 +19,7 @@ class Devices {
    */
   async get(device_name) {
     if (!this.devices.some(el => el.name === device_name)) {
-      return Promise.reject('Devices not found: ' + device_name);
+      return Promise.reject('Device not found: ' + device_name + ` - Either no mock was passed, or you have not included that devices in your mock.`);
     }
 
     let device = this.devices.find(el => el.name === device_name);
