@@ -53,6 +53,6 @@ fdescribe('Runner', () => {
     let mock = runner.getMock('./examples/basic-example', 'test');
     let task = runner.createTask('./examples/basic-example', manifest, {}, mock);
     let res = await runner.runTask(task);
-    expect(res).toEqual('finished');
+    expect(res.result).toEqual('finished');
   });
 });

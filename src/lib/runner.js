@@ -201,8 +201,12 @@ class Runner {
   /**
    * 
    * @param {Task} task 
+   * @returns {Promise<{result:any, execution_time: number}>}
    */
   async runTask(task) {
+
+    let start = Date.now();
+
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
       throw { error: "Exported function must extend from \"Task\"" };
     }
@@ -232,7 +236,11 @@ class Runner {
       await task.devices.quitAll();
     }
 
-    return result;
+    let finish = Date.now();
+
+    let execTimeSeconds = (finish - start) / 1000;
+
+    return { result, execution_time: execTimeSeconds };
   }
 }
 

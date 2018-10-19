@@ -53,7 +53,12 @@ program
 
     rallfRunner.runTask(task)
       .then(resp => {
-        logging.log('success', 'Finished task OK', resp);
+
+        let execTimeLbl = clc.bgWhite.blackBright(' execution time ') + clc.bgGreen(` ${resp.execution_time} `);
+
+        logging.log('success', 'Finished task OK');
+        logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
+        logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
         process.exit(0);
       })
       .catch(err => {
