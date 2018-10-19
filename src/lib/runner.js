@@ -229,23 +229,27 @@ class Runner {
 
     // Start
     task.emit('start', {});
-    let result = await task.start();
+    return await task.start()
+      .then(async result => {
+        if (task.cooldown && typeof task.cooldown === 'function') {
+          await Promise.resolve(task.cooldown());
+        }
 
-    if (task.cooldown && typeof task.cooldown === 'function') {
-      await Promise.resolve(task.cooldown());
-    }
+        task.emit('finish', {});
 
-    task.emit('finish', {});
+        if (task.type !== 'skill') {
+          await task.devices.quitAll();
+        }
 
-    if (task.type !== 'skill') {
-      await task.devices.quitAll();
-    }
+        let finish = Date.now();
 
-    let finish = Date.now();
-
-    let execTimeSeconds = (finish - start) / 1000;
-
-    return { result, execution_time: execTimeSeconds };
+        let execTimeSeconds = (finish - start) / 1000;
+        return { result, execution_time: execTimeSeconds };
+      })
+      // .catch(async err => {
+      //   await task.devices.quitAll();
+      //   throw new Error(err);
+      // });
   }
 }
 

@@ -58,7 +58,7 @@ program
         logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
         process.exit(0);
       })
-      .catch(err => {
+      .catch(async err => {
         logging.log('error', 'Finished task with ERROR', err);
         process.exit(1);
       });

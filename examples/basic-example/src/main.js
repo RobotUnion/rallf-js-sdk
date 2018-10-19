@@ -17,6 +17,9 @@ class BasicExample extends Task {
 
   async start(input) {
     this.logger.debug('BasicExample started');
+
+    // await this.firefox.get('https://github.com');
+
     this.robot.saveJSON('data.json', { test: 'asdads' });
     let data = this.robot.readJSON('data.json');
     this.logger.debug('Data saved: ', data);
