@@ -83,6 +83,7 @@ function toPascalCase(str) {
 }
 
 function copyTemplate() {
+  logging.log('info', 'Generating rallf-sdk-project ' + clc.blueBright('@' + package.version));
   let templatePath = __dirname.replace('bin', '') + '/examples/init-template';
   let templateFiles = [
     {
