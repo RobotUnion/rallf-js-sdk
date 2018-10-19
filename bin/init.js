@@ -9,13 +9,13 @@ const package = require('../package.json');
 const readline = require('readline');
 const child_process = require('child_process');
 
-// try {
-//   let latestVersion = child_process.execSync(`npm show ${package.name} version`);
+try {
+  let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 });
 
-//   if (latestVersion !== package.version) {
-//     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-//   }
-// } catch (error) { }
+  if (latestVersion.toString() !== package.version) {
+    logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
+  }
+} catch (error) { }
 
 let cwd = process.cwd();
 let folderName = path.parse(cwd).base;
@@ -120,7 +120,9 @@ function copyTemplate() {
   p.stdout.pipe(process.stdout);
   p.stderr.pipe(process.stderr);
   p.on('exit', (exit_code) => {
-    if (exit_code === 0) logging.log('info', `To run the task you can do: npm start`);
+    if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright('npm start')}`);
+    if (exit_code === 0) logging.log('info', `Readme available at: "${clc.blackBright.underline('./README.md')}"`);
+    if (exit_code === 0) logging.log('info', `Documentation at: ${clc.blackBright.underline('https://github.com/RobotUnion/rallf-js-sdk/wiki')}`);
   });
 }
 

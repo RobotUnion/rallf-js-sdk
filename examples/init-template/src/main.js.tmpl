@@ -30,23 +30,19 @@ class <name> extends Task {
    * @param {any} input - this is the input of your task, provided by the consumer
    */
   async start(input) {
-    try {
-      // Initialize firefox and get instance of WebDriver
-      this.firefox = await this.devices.get('firefox');
+    // Initialize firefox and get instance of WebDriver
+    this.firefox = await this.devices.get('firefox');
 
-      // You can log stuff via the available logger
-      this.logger.debug(`Task <name> started`);
+    // You can log stuff via the available logger
+    this.logger.debug(`Task <name> started`);
 
-      // Let's load github.com
-      await this.firefox.get('https://github.com');
+    // Let's load github.com
+    await this.firefox.get('https://github.com');
 
-      // Let's get the title
-      let title = await this.firefox.getTitle();
+    // Let's get the title
+    let title = await this.firefox.getTitle();
 
-      return title;
-    } catch (error) {
-      console.log(error);
-    }
+    return title;
   }
 
  
