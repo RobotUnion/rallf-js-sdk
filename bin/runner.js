@@ -15,19 +15,19 @@ const rallfRunner = new Runner();
 
 let cwd = process.cwd();
 
-try {
-  let latestVersion = child_process.execSync(`npm show ${package.name} version`);
-  if (latestVersion.toString() !== package.version) {
-    logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-  }
-} catch (error) { }
+// try {
+//   let latestVersion = child_process.execSync(`npm show ${package.name} version`);
+//   if (latestVersion.toString() !== package.version) {
+//     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
+//   }
+// } catch (error) { }
 
 program
   .command('run')
   .option('-t --task <task>', 'path task, default to cwd')
   .option('-m --mock <mock>', 'what mock to be used')
   .option('-i --input <input>', 'tasks input')
-  .action(function (cmd) {
+  .action((cmd) => {
     logging.log('info', 'running command: run');
 
     let taskPath = cmd.task || cwd;
@@ -62,5 +62,21 @@ program
       });
   });
 
+program
+  .command('send-event <name> <type> [data]')
+  .option('-t --task <task>', 'path task, default to cwd')
+  .action((name, type, data = {}, cmd) => {
+    logging.log('info', 'running command: send-event ', { name, type, data });
+    let taskPath = cmd.task || cwd;
+    let pipePath = path.join(taskPath, '.rallf', 'event-pipe');
+    logging.log('info', 'pipe path', pipePath);
+    if (!fs.existsSync(pipePath)) {
+      return logging.log('error', 'Oopsy, it seams task is not running... or pipe is not available');
+    }
+    else {
+      fs.writeFileSync(pipePath, `${name}:${type} ${JSON.stringify(data)}`);
+      return logging.log('info', 'Sent event');
+    }
+  });
 
 program.parse(process.argv);

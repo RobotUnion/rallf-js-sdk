@@ -1,5 +1,5 @@
 'use strict';
-const { Builder } = require('selenium-webdriver')
+const { Builder, WebDriver } = require('selenium-webdriver')
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
 
@@ -15,7 +15,8 @@ class Devices {
   /**
    * Request access to a device. 
    * @arg {String} device_name
-   * @returns {WebDriver}
+   * @returns {Promise<WebDriver>}
+   * @rejects if device is not found or if build failed
    */
   async get(device_name) {
     if (!this.devices.some(el => el.name === device_name)) {
@@ -68,6 +69,17 @@ class Devices {
     this.devices = devices;
   }
 
+  /**
+   * Close a device
+   * @param {WebDriver} device 
+   */
+  async quit(device) {
+    return await this.instances[i].device.quit();
+  }
+
+  /**
+   * Quit all opened devices
+   */
   async quitAll() {
     if (this.instances.length) {
       let promises = [];

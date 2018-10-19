@@ -44,6 +44,7 @@ class Robot {
   /**
    * Check if a file or directory exists synchronously
    * @param {string} filepath 
+   * @return {boolean}
    */
   existsSync(filepath) {
     filepath = path.join(this._cwd, filepath);
@@ -54,10 +55,11 @@ class Robot {
    * Check if a file or directory exists asynchronously
    * @param {string} filepath 
    * @param {function (boolean)} callback
+   * @return {void}
    */
   exists(filepath, callback) {
     filepath = path.join(this._cwd, filepath);
-    return fs.exists(filepath, callback);
+    fs.exists(filepath, callback);
   }
 }
 
