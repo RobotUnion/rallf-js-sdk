@@ -15,12 +15,12 @@ module.exports = {
           }
         }
       }
-    }
-  },
-  devices: [
-    {
-      name: "firefox",
-      profile: 'C:\\Users\\keff\\Desktop\\cosas\\RobotData\\firefox-profile'
-    }
-  ]
+    },
+    devices: [
+      {
+        name: "firefox",
+        profile: 'C:\\Users\\keff\\Desktop\\cosas\\RobotData\\firefox-profile'
+      }
+    ]
+  }
 };

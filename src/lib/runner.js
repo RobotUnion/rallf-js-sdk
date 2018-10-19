@@ -46,7 +46,8 @@ class Runner {
     if (!mock.robot) {
       mock.robot = {
         cwd: 'default-robot',
-        skills: {}
+        skills: {},
+        devices: []
       }
     }
 
@@ -57,7 +58,7 @@ class Runner {
     taskInstance.robot = this.getRobot(task_path + '/' + mock.robot.cwd || null);
     taskInstance.input = input;
 
-    taskInstance.devices._setDevices(mock.devices || []);
+    taskInstance.devices._setDevices(mock.robot.devices || []);
 
     let pipePath = task_path + '/.rallf'
     if (!fs.existsSync(pipePath)) {
