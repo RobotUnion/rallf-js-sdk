@@ -5,7 +5,7 @@
 [![David](https://img.shields.io/david/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
 [![node](https://img.shields.io/node/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
 [![wiki](https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
-)]()
+)](https://github.com/RobotUnion/rallf-js-sdk/wiki)
 
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
