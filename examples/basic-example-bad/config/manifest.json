@@ -2,7 +2,7 @@
   "name": "basic-example",
   "main": "src/main.js",
   "version": "1.0.0",
-  "sdk_version": "@latest",
+  "sdk_version": "0.0.12",
   "fqtn": "com.example.basic",
   "language": "nodejs",
   "type": "task",
