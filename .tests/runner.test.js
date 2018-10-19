@@ -38,20 +38,20 @@ fdescribe('Runner', () => {
   });
 
   it(`.getTask should throw error if bad task passed`, () => {
-    expect(() => runner.createTask('./examples/non-existing', {}, {})).toThrowError();
+    expect(() => runner.createTask('./examples/non-existing', {})).toThrowError();
   });
 
   it(`.getTask should return a task`, () => {
     let manifest = runner.getManifest('./examples/basic-example');
     let mock = runner.getMock('./examples/basic-example', 'test');
-    let task = runner.createTask('./examples/basic-example', manifest, {}, mock);
+    let task = runner.createTask('./examples/basic-example', manifest, mock);
     expect(task.__proto__.constructor.__proto__.name).toEqual('Task');
   });
 
   it(`should run "basic task" and return 'finished'`, async () => {
     let manifest = runner.getManifest('./examples/basic-example');
     let mock = runner.getMock('./examples/basic-example', 'test');
-    let task = runner.createTask('./examples/basic-example', manifest, {}, mock);
+    let task = runner.createTask('./examples/basic-example', manifest, mock);
     let res = await runner.runTask(task);
     expect(res.result).toEqual('finished');
   });

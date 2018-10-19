@@ -8,10 +8,23 @@ class <name> extends Task {
   }
 
   /**
-   * This function will run once everything is properly loaded and set to go
+   * This function will happen once you have access to robot, before run happens.
+   * You dont know how much time before, but it will be before... 
    */
-  async start() {
+  async warmup() {
+    this.logger.debug('warmup');
+    this.firefox = await this.devices.get('firefox');
 
+    this.on('event:external', (data) => {
+      this.logger.debug('event:external', data);
+    });
+  }
+
+  /**
+   * This function will run once everything is properly loaded and set to go
+   * @param {any} input - this is the input of your task, provided by the consumer
+   */
+  async start(input) {
     try {
       // Initialize firefox and get instance of WebDriver
       this.firefox = await this.devices.get('firefox');
@@ -29,6 +42,16 @@ class <name> extends Task {
     } catch (error) {
       console.log(error);
     }
+  }
+
+ 
+  /**
+   * This function will happen once start finishes, and before killing execution
+   * You can get rid of devices by yourself here, or they will be closed after
+   */
+  async cooldown() {
+    this.logger.debug('cooldown');
+    await this.devices.quit(this.firefox);
   }
 }
 module.exports = <name>;

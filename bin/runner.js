@@ -44,18 +44,15 @@ program
       }
     }
 
-    let task = rallfRunner.createTask(taskPath, manifest, cmd.input, mock);
+    let task = rallfRunner.createTask(taskPath, manifest, mock);
     let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
 
     logging.log('success', 'Running task: ' + taskLbl);
     logging.log('info', 'Created task');
     logging.log('info', 'Executing task');
 
-    rallfRunner.runTask(task)
+    rallfRunner.runTask(task, cmd.input)
       .then(resp => {
-
-        let execTimeLbl = clc.bgWhite.blackBright(' execution time ') + clc.bgGreen(` ${resp.execution_time} `);
-
         logging.log('success', 'Finished task OK');
         logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
         logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);

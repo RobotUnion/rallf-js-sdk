@@ -21,7 +21,7 @@ class Runner {
    * @param {string} robot_id 
    * @returns {Task}
    */
-  createTask(task_path, manifest, input, mock = {}) {
+  createTask(task_path, manifest, mock = {}) {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
@@ -56,8 +56,6 @@ class Runner {
     }
 
     taskInstance.robot = this.getRobot(task_path + '/' + mock.robot.cwd || null);
-    taskInstance.input = input;
-
     taskInstance.devices._setDevices(mock.robot.devices || []);
 
     let pipePath = task_path + '/.rallf'
@@ -223,12 +221,19 @@ class Runner {
       });
     };
     task.logger.task_name = task.getName();
-
     task.emit('setup:end', {});
+
+    if (task.warmup && typeof task.warmup === 'function') {
+      await Promise.resolve(task.warmup());
+    }
 
     // Start
     task.emit('start', {});
     let result = await task.start();
+
+    if (task.cooldown && typeof task.cooldown === 'function') {
+      await Promise.resolve(task.cooldown());
+    }
 
     task.emit('finish', {});
 

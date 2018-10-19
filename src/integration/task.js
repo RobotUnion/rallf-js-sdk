@@ -15,7 +15,6 @@ class Task extends PubSub {
     this.logger = /** @type {Logger} */ (new Logger(process, true));
     this.devices = /** @type {Devices} */ (new Devices());
     this.robot =  /** @param {Robot|null} */ (null);
-    this.input =  /** @param {any|null} */ (null);
     this._persisting =  /** @param {Boolean} */ (false);
     this._manifest =  /** @param {Manifest|null} */ (null);
     this.id = null;
@@ -24,9 +23,10 @@ class Task extends PubSub {
   /**
    * Start method of the task.
    * This is the one that will be called when running.
+   * @param {any} input - this is the input of your task, provided by the consumer
    * @return {Promise<any>}
    */
-  start() {
+  start(input) {
     return Promise.resolve('Task has not implemented start method');
   }
 

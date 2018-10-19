@@ -74,7 +74,7 @@ class Devices {
    * @param {WebDriver} device 
    */
   async quit(device) {
-    return await this.instances[i].device.quit();
+    return await device.quit();
   }
 
   /**
