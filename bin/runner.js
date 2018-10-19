@@ -16,12 +16,11 @@ const rallfRunner = new Runner();
 let cwd = process.cwd();
 
 try {
-  let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 });
-  if (latestVersion.toString() !== package.version) {
+  let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
+  if (latestVersion.toString() !== package.version.trim()) {
     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
   }
 } catch (error) { }
-
 program
   .command('run')
   .option('-t --task <task>', 'path task, default to cwd')

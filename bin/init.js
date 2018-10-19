@@ -10,9 +10,8 @@ const readline = require('readline');
 const child_process = require('child_process');
 
 try {
-  let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 });
-
-  if (latestVersion.toString() !== package.version) {
+  let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
+  if (latestVersion.toString() !== package.version.trim()) {
     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
   }
 } catch (error) { }
@@ -160,11 +159,12 @@ function isTask() {
   return fs.existsSync(path.join(cwd, 'config/manifest.json'));
 }
 
-if (isTask()) {
+
+let force = process.argv.includes('--force');
+if (!force || isTask()) {
   logging.log('warn', `Folder ./${folderName} is already a rallf-task project`);
   process.exit();
 }
-
 
 logging.log('info', 'running command: init');
 logging.log('info', 'Answer the following questions to initialize rallf-task project\n');
