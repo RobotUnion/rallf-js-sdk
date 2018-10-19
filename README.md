@@ -45,7 +45,7 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 \-- README.md
 ```
   * `config/manifest.json` - The [Manifest]() holds information about your Task, e.g: name, version, fqtn
-  * `mocks/test.mock.js` - [Mocks]() are just the way of testing your tasks locally, without a [Incubator]()
+  * `mocks/test.mock.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
   * `robots/test-robot` - [Robots]() TODO...
   * `src/main.js` - This is the main file of the task, the one that will get executed
 
