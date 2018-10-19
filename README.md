@@ -4,7 +4,8 @@
 [![npm](https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
 [![David](https://img.shields.io/david/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
 [![node](https://img.shields.io/node/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
-
+[![wiki](https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
+)](https://github.com/RobotUnion/rallf-js-sdk/wiki)
 
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
@@ -45,7 +46,7 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 \-- README.md
 ```
   * `config/manifest.json` - The [Manifest]() holds information about your Task, e.g: name, version, fqtn
-  * `mocks/test.mock.js` - [Mocks]() are just the way of testing your tasks locally, without a [Incubator]()
+  * `mocks/test.mock.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
   * `robots/test-robot` - [Robots]() TODO...
   * `src/main.js` - This is the main file of the task, the one that will get executed
 
