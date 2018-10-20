@@ -23,7 +23,7 @@ module.exports = {
       '(' + clc.blackBright('runner') + ')',
       (msg),
       data ? this.getClFromType()(JSON.stringify(data, null, 2)) : null,
-    ].filter(x => x);
+    ].filter((x) => x);
     let str = segments.join(' - ');
     console.log(str);
   }

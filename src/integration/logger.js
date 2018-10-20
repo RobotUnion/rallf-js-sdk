@@ -16,11 +16,10 @@ class Logger extends AbstractLogger {
    */
   constructor(process, pretty) {
     super({
-      notify: log => {
+      notify: (log) => {
         if (pretty) {
           process.stdout.write(`${clc.bgCyan(' LOG ')} - (${clc.blackBright(this.task_name)}) - [${new Date(log.time).toLocaleString()}] - ${this.getString(log.severity)} - ${log.message} - ${JSON.stringify(log.data)}\n`);
-        }
-        else process.stdout.write('\ntask:log ' + JSON.stringify(log) + '\n');
+        } else process.stdout.write('\ntask:log ' + JSON.stringify(log) + '\n');
       }
     });
   }
@@ -40,7 +39,7 @@ class Logger extends AbstractLogger {
       'NOTICE',
       'INFO',
       'DEBUG',
-    ][severity]
+    ][severity];
   }
 
   /**
@@ -63,8 +62,8 @@ class Logger extends AbstractLogger {
           this.debug('capture: ' + fname, { capture });
           resolve({ capture });
         }
-      })
-    })
+      });
+    });
   }
 }
 

@@ -27,6 +27,10 @@ class Robot {
     fs.writeJsonSync(filepath, data);
   }
 
+  saveFile(filepath, buffer) {
+    
+  }
+
   /**
    * Read JSON from file
    * @param {string} filepath

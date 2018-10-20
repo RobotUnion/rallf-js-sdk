@@ -42,7 +42,9 @@ class Runner {
     taskInstance.id = manifest.name;
 
 
-    if (!mock) mock = {};
+    if (!mock) {
+      mock = {};
+    }
     if (!mock.robot) {
       mock.robot = {
         cwd: 'default-robot',
@@ -245,11 +247,11 @@ class Runner {
 
         let execTimeSeconds = (finish - start) / 1000;
         return { result, execution_time: execTimeSeconds };
-      })
-      // .catch(async err => {
-      //   await task.devices.quitAll();
-      //   throw new Error(err);
-      // });
+      });
+    // .catch(async err => {
+    //   await task.devices.quitAll();
+    //   throw new Error(err);
+    // });
   }
 }
 

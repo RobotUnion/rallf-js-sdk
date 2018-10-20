@@ -25,15 +25,14 @@ class AbstractLogger {
    * @param string channel
    */
   log(message, data = null, severity = 7, channel = "") {
-    let log =
-    {
-      'time': Date.now(),
-      'severity': severity,
-      'channel': channel,
-      'message': message,
-      'data': data
-    }
-    this.notifier.notify(log)
+    let log = {
+      time: Date.now(),
+      severity,
+      channel,
+      message,
+      data
+    };
+    this.notifier.notify(log);
   }
 
   capture(device, severity = 7, channel = "") {
@@ -47,8 +46,8 @@ class AbstractLogger {
           this.debug('capture', { capture });
           resolve({ capture });
         }
-      })
-    })
+      });
+    });
   }
 
   /**

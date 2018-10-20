@@ -19,11 +19,11 @@ class Devices {
    * @rejects if device is not found or if build failed
    */
   async get(device_name) {
-    if (!this.devices.some(el => el.name === device_name)) {
+    if (!this.devices.some((el) => el.name === device_name)) {
       return Promise.reject('Device not found: ' + device_name + ` - Either no mock was passed, or you have not included that devices in your mock.`);
     }
 
-    let device = this.devices.find(el => el.name === device_name);
+    let device = this.devices.find((el) => el.name === device_name);
     let builder = new Builder().forBrowser(device.name);
     let options = this._getOptions(device);
 
@@ -86,7 +86,7 @@ class Devices {
       for (let i = 0; i < this.instances.length; i++) {
         promises.push(this.instances[i].device.quit());
       }
-      await Promise.all(promises).then().catch(err => { });
+      await Promise.all(promises).then((res) => res).catch((err) => { });
     }
   }
 }
