@@ -1,0 +1,58 @@
+/* File: 'src/main.js' */
+const { Task } = require('rallf-js-sdk');
+
+
+/**
+ * TestTaskInit task opens github and returns the title of the page upon it is loaded.
+ * To learn more about javascript selenium api, see https://seleniumhq.github.io/selenium/docs/api/javascript/index.html
+ */
+class <name> extends Task {
+  constructor() {
+    super();
+    this.firefox = null;
+  }
+
+  /**
+   * This function will happen once you have access to robot, before run happens.
+   * You dont know how much time before, but it will be before... 
+   */
+  async warmup() {
+    this.logger.debug('warmup');
+    this.firefox = await this.devices.get('firefox');
+
+    this.on('event:external', (data) => {
+      this.logger.debug('event:external', data);
+    });
+  }
+
+  /**
+   * This function will run once everything is properly loaded and set to go
+   * @param {any} input - this is the input of your task, provided by the consumer
+   */
+  async start(input) {
+    // Initialize firefox and get instance of WebDriver
+    this.firefox = await this.devices.get('firefox');
+
+    // You can log stuff via the available logger
+    this.logger.debug(`Task <name> started`);
+
+    // Let's load github.com
+    await this.firefox.get('https://github.com');
+
+    // Let's get the title
+    let title = await this.firefox.getTitle();
+
+    return title;
+  }
+
+ 
+  /**
+   * This function will happen once start finishes, and before killing execution
+   * You can get rid of devices by yourself here, or they will be closed after
+   */
+  async cooldown() {
+    this.logger.debug('cooldown');
+    await this.devices.quit(this.firefox);
+  }
+}
+module.exports = <name>;

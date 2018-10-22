@@ -54,10 +54,12 @@ module.exports = {
     }
   },
 
-  isPromise(el) {
-
+  hasMethod(object, method_name) {
+    return (
+      object
+      && method_name in object
+      && typeof object[method_name] === 'function'
+    );
   }
-
-
 
 };
