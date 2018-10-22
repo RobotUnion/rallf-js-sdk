@@ -121,7 +121,7 @@ function copyTemplate() {
   p.stdout.pipe(process.stdout);
   p.stderr.pipe(process.stderr);
   p.on('exit', (exit_code) => {
-    if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run:getTitle': 'npm start')}`);
+    if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle': 'npm start')}`);
     if (exit_code === 0) logging.log('info', `Readme available at: ${clc.blackBright.underline('./README.md')}`);
     if (exit_code === 0) logging.log('info', `Documentation at: ${clc.blackBright.underline('https://github.com/RobotUnion/rallf-js-sdk/wiki')}`);
   });
