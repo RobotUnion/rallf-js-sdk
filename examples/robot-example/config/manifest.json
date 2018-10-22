@@ -1,0 +1,10 @@
+{
+  "name": "robot-example",
+  "main": "src/main.js",
+  "version": "1.0.0",
+  "sdk_version": "0.0.12",
+  "fqtn": "com.example.robot",
+  "language": "nodejs",
+  "type": "task",
+  "skills": {}
+}

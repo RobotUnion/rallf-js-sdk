@@ -9,7 +9,7 @@ const chrome = require('selenium-webdriver/chrome');
 class Devices {
   constructor() {
     this.devices = /** @type {any][]} */ ([]);
-    this.instances = /** @type {WebDriver[]} */ ([]);
+    this._instances = /** @type {WebDriver[]} */ ([]);
   }
 
   /**
@@ -36,12 +36,34 @@ class Devices {
 
     try {
       let deviceInstance = await builder.build();
-      this.instances.push({ device_name: device_name, device: deviceInstance });
+      this._instances.push({ device_name: device_name, device: deviceInstance });
       return deviceInstance;
     } catch (error) {
       return Promise.reject(error);
     }
   }
+
+  /**
+   * Close a device
+   * @param {WebDriver} device 
+   */
+  async quit(device) {
+    return await device.quit();
+  }
+
+  /**
+   * Quit all opened devices
+   */
+  async quitAll() {
+    if (this._instances.length) {
+      let promises = [];
+      for (let i = 0; i < this._instances.length; i++) {
+        promises.push(this._instances[i].device.quit());
+      }
+      await Promise.all(promises).then((res) => res).catch((err) => { });
+    }
+  }
+
 
   _getOptions(device) {
     let opts;
@@ -67,27 +89,6 @@ class Devices {
 
   _setDevices(devices) {
     this.devices = devices;
-  }
-
-  /**
-   * Close a device
-   * @param {WebDriver} device 
-   */
-  async quit(device) {
-    return await device.quit();
-  }
-
-  /**
-   * Quit all opened devices
-   */
-  async quitAll() {
-    if (this.instances.length) {
-      let promises = [];
-      for (let i = 0; i < this.instances.length; i++) {
-        promises.push(this.instances[i].device.quit());
-      }
-      await Promise.all(promises).then((res) => res).catch((err) => { });
-    }
   }
 }
 

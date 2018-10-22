@@ -14,7 +14,7 @@ class Task extends PubSub {
 
     this.logger = /** @type {Logger} */ (new Logger(process, true));
     this.devices = /** @type {Devices} */ (new Devices());
-    this.robot =  /** @param {Robot|null} */ (null);
+    this.robot =  /** @param {Robot} */ (new Robot());
     this._persisting =  /** @param {Boolean} */ (false);
     this._manifest =  /** @param {Manifest|null} */ (null);
     this.id = null;
