@@ -10,6 +10,9 @@
     "url": "https://github.com/RobotUnion/rallf-js-sdk"
   },
   "issues": {},
+  "engines": {
+    "node": ">= 8.9.0"
+  },
   "bin": {
     "rallf-runner": "bin/runner.js",
     "rallf-init": "bin/init.js"
