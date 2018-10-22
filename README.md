@@ -29,8 +29,8 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 
 ### Create simple Task
   1. Create an empty folder: `mkdir test-task && cd test-task`
-  2. Init a task project with: `rallf-init`
-    1. Init will ask some questions
+  2. Init a task project with: `rallf-init`  
+     2.1. Init will ask some questions
   3. **init** will generate the following file structure (_explained below_)
 ```
 |-- config
