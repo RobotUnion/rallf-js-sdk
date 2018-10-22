@@ -48,6 +48,8 @@ let manifestTemplate = {
 
 program.version(package.version);
 
+let init_template_name = 'init-template';
+
 function replaceVars(str, vars) {
   str = String(str);
   for (let key in vars) {
@@ -83,7 +85,7 @@ function toPascalCase(str) {
 
 function copyTemplate() {
   logging.log('info', 'Generating rallf-sdk-project ' + clc.blueBright('@' + package.version));
-  let templatePath = __dirname.replace('bin', '') + '/examples/init-template';
+  let templatePath = __dirname.replace('bin', '') + `/examples/${init_template_name}`;
   let templateFiles = [
     {
       path: 'config/manifest.json',
@@ -119,8 +121,8 @@ function copyTemplate() {
   p.stdout.pipe(process.stdout);
   p.stderr.pipe(process.stderr);
   p.on('exit', (exit_code) => {
-    if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright('npm start')}`);
-    if (exit_code === 0) logging.log('info', `Readme available at: "${clc.blackBright.underline('./README.md')}"`);
+    if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle': 'npm start')}`);
+    if (exit_code === 0) logging.log('info', `Readme available at: ${clc.blackBright.underline('./README.md')}`);
     if (exit_code === 0) logging.log('info', `Documentation at: ${clc.blackBright.underline('https://github.com/RobotUnion/rallf-js-sdk/wiki')}`);
   });
 }
@@ -161,7 +163,13 @@ function isTask() {
 
 
 let force = process.argv.includes('--force');
-if (!force || isTask()) {
+let isSkill = process.argv.includes('--skill');
+
+if (isSkill) {
+  init_template_name = 'init-skill-template';
+}
+
+if (!force && isTask()) {
   logging.log('warn', `Folder ./${folderName} is already a rallf-task project`);
   process.exit();
 }
@@ -172,4 +180,6 @@ logging.log('info', 'Answer the following questions to initialize rallf-task pro
 
 askForData(initQuestions);
 
+program.option('-s, --skill');
+program.option('-f, --force');
 program.parse(process.argv);

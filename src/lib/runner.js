@@ -201,14 +201,27 @@ class Runner {
   /**
    * 
    * @param {Task} task 
+   * @param {any} input 
    * @returns {Promise<{result:any, execution_time: number}>}
    */
-  async runTask(task) {
+  async runTask(task, input = {}) {
+    return await this.runMethod(task, 'start', input);
+  }
 
+  /**
+   * 
+   * @param {Task} task 
+   * @param {string} method_name 
+   * @param {any} input 
+   */
+  async runMethod(task, method_name, input) {
     let start = Date.now();
-
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
-      throw { error: "Exported function must extend from \"Task\"" };
+      throw { error: `Exported class must extend from \"Task\"` };
+    }
+
+    if (!checker.hasMethod(task, method_name)) {
+      throw { error: `Method (${method_name}) was not found in Skill: ${task.getName()}` };
     }
 
     // First setup task
@@ -231,8 +244,9 @@ class Runner {
     }
 
     // Start
+    let method = task[method_name].bind(task);
     task.emit('start', {});
-    return await task.start()
+    return await method(input)
       .then(async result => {
         if (task.cooldown && typeof task.cooldown === 'function') {
           await Promise.resolve(task.cooldown());
@@ -249,10 +263,6 @@ class Runner {
         let execTimeSeconds = (finish - start) / 1000;
         return { result, execution_time: execTimeSeconds };
       });
-    // .catch(async err => {
-    //   await task.devices.quitAll();
-    //   throw new Error(err);
-    // });
   }
 }
 

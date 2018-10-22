@@ -1,6 +1,5 @@
 {
   "name": "<name>",
-  "description": "Example task created with rallf-init",
   "main": "src/main.js",
   "version": "1.0.0",
   "sdk_version": "<sdk_version>",
