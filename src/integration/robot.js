@@ -9,8 +9,6 @@ class Robot extends RallfFS {
     super(cwd);
   }
 
-
-
   /**
    * Delegate a task locally
    * @param {string} task_identifier         - can be the name or the id 
@@ -23,7 +21,6 @@ class Robot extends RallfFS {
   delegateLocal(task_identifier, method, data, options) {
     return Promise.reject('Oopsy, it seems like delegate is not setup for this task');
   }
-
 
   /**
    * Delegate a task in other incubator
