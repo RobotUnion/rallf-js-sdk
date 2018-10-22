@@ -26,6 +26,7 @@ program
   .option('-t --task <task>', 'path task, default to cwd')
   .option('-m --mock <mock>', 'what mock to be used')
   .option('-i --input <input>', 'tasks input')
+  .option('-f --method <method>', 'run method in skill')
   .action((cmd) => {
     logging.log('info', 'running command: run');
 
@@ -50,14 +51,28 @@ program
     logging.log('info', 'Created task');
     logging.log('info', 'Executing task');
 
-    rallfRunner.runTask(task, cmd.input)
+    if (cmd.method) {
+      return rallfRunner.runMethod(task, cmd.method, cmd.input)
+        .then(resp => {
+          logging.log('success', `Method ${clc.blackBright(cmd.method)} OK`);
+          logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
+          logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
+          process.exit(0);
+        })
+        .catch(async err => {
+          logging.log('error', `Finished run method ${cmd.method} with ERROR`, err);
+          process.exit(1);
+        });
+    }
+
+    return rallfRunner.runTask(task, cmd.input)
       .then(resp => {
         logging.log('success', 'Finished task OK');
         logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
         logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
         process.exit(0);
       })
-      .catch(async err => {
+      .catch(err => {
         logging.log('error', 'Finished task with ERROR', err);
         process.exit(1);
       });

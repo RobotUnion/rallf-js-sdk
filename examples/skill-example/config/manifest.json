@@ -1,0 +1,9 @@
+{
+  "name": "skill-example",
+  "main": "src/main.js",
+  "version": "1.0.0",
+  "sdk_version": "0.0.12",
+  "fqtn": "com.example.skill",
+  "language": "nodejs",
+  "type": "skill"
+}

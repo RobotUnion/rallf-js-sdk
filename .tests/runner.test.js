@@ -19,7 +19,7 @@ fdescribe('Runner', () => {
       await runner.runTask(null);
     } catch (e) {
       expect(e).toEqual({
-        error: 'Exported function must extend from \"Task\"'
+        error: 'Exported class must extend from \"Task\"'
       });
     }
   });

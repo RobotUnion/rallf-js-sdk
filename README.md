@@ -12,6 +12,8 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ## Resources
 * [First steps](#first-steps)
+  * [Create simple Task](#create-simple-task)
+  * [Create simple Skill](#create-simple-skill)
 * [Getting Started](https://github.com/RobotUnion/rallf-sdk/wiki/Getting-Started)
 * [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
 * [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
@@ -32,29 +34,41 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
   2. Init a task project with: `rallf-init`  
      2.1. Init will ask some questions
   3. **init** will generate the following file structure (_explained below_)
-```
-|-- config
-   `-- manifest.json
-|-- mocks
-   `-- test.mock.js
-|-- robots
-   `-- test-robot
-      `-- data.json
-|-- src
-   `-- main.js
-|-- package.json
-\-- README.md
-```
+  ```
+  |-- config
+    `-- manifest.json
+  |-- mocks
+    `-- test.mock.js
+  |-- robots
+    `-- test-robot
+        `-- data.json
+  |-- src
+    `-- main.js
+  |-- package.json
+  \-- README.md
+  ```
   * `config/manifest.json` - The [Manifest](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) holds information about your Task, e.g: name, version, fqtn
   * `mocks/test.mock.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
   * `robots/test-robot` - [Robots]() TODO...
   * `src/main.js` - This is the main file of the task, the one that will get executed
 
 
+### Create simple Skill
+1. Follow the steps above until 2.
+2. In step 2 pass `--skill` option, this will generate a skill template for you
+3. It will create the same structure as above.
+
 ## Running 
-* `npm start`
-* `rallf-runner run --task /path/to/task --mock test --input {}`    
-  
+### Running a task
+  * `npm start`
+  * `rallf-runner run --mock test --input {}`    
+    
+### Running a Skill
+  * `npm run run:getTitle`
+  * `rallf-runner run --mock test --input {} --method getTitle`    
+      * If method is passed it will asume it is a skill and will run that method
+
+
 You will now if everything went OK  
 Now you can have fun! 🤖
 
