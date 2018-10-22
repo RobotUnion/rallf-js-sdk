@@ -213,15 +213,16 @@ class Runner {
 
     // First setup task
     task.emit('setup:start', {});
-    task.delegateLocal = (...args) => {
-      return new Promise((resolve, reject) => {
-        this.delegateTask(task, ...args)
-          .then(resp => {
-            resolve(resp);
-          })
-          .catch(error => reject(error));
-      });
-    };
+    task.robot.delegateLocal =
+      task.robot.delegateRemote = (...args) => {
+        return new Promise((resolve, reject) => {
+          this.delegateTask(task, ...args)
+            .then(resp => {
+              resolve(resp);
+            })
+            .catch(error => reject(error));
+        });
+      };
     task.logger.task_name = task.getName();
     task.emit('setup:end', {});
 

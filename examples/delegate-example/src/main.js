@@ -7,9 +7,9 @@ class DelegateExample extends Task {
 
   async start(input) {
     this.logger.debug('DelegateExample started');
-    let res = await this.delegateLocal('Facebook', 'like', { post: 'some post' }, {});
+    let res = await this.robot.delegateLocal('Facebook', 'like', { post: 'some post' }, {});
     if (!res.error) {
-
+      this.logger.error(res.error);
     }
     return res;
   }
