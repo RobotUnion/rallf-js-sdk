@@ -1,7 +1,4 @@
 'use strict';
-
-const fs = require('fs-extra');
-const path = require('path');
 const RallfFS = require('../lib/rallf-fs');
 
 class Robot extends RallfFS {
