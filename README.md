@@ -4,7 +4,6 @@
 [![GitHub](https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
 [![npm](https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
 [![David](https://img.shields.io/david/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
-[![node](https://img.shields.io/node/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
 [![wiki](https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
 )](https://github.com/RobotUnion/rallf-js-sdk/wiki)
 
