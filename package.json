@@ -9,7 +9,6 @@
     "type": "github",
     "url": "https://github.com/RobotUnion/rallf-js-sdk"
   },
-  "issues": {},
   "engines": {
     "node": ">= 8.9.0"
   },
