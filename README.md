@@ -24,7 +24,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ### Dependencies
 You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npmjs.com/get-npm) installed.
-> Recomended to have Firefox installed as well as [geckodriver](https://github.com/mozilla/geckodriver/releases)
+> !! It is necesary to have Firefox installed as well as [geckodriver](https://github.com/mozilla/geckodriver/releases), so example is successfull !!
 
 ### Installation
 * Run `npm install rallf-js-sdk -g` to install the sdk and have access to global [commands]()
