@@ -42,7 +42,7 @@
     ]
   },
   "pre-commit": [
-    "test",
+    // "test",
     "teste2e"
   ]
 }

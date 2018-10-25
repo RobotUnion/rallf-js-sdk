@@ -7,4 +7,4 @@ let p = child_process.spawn('node', ['bin/runner.js', 'run', '-ts', 'examples/ba
 p.stdout.pipe(process.stdout);
 p.stderr.pipe(process.stderr);
 
-
+p.on('error', process.exit.bind(1));
