@@ -73,7 +73,7 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
       * If method is passed it will asume it is a skill and will run that method
 
 
-You will now if everything went OK  
+You will know if everything went OK  
 Now you can have fun! 🤖
 
 ## Found a bug?
