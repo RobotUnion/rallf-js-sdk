@@ -18,10 +18,10 @@ class Runner {
    * @param {string} task_path 
    * @param {any} manifest
    * @param {any} input 
-   * @param {string} robot_id 
+   * @param {string} robot 
    * @returns {Task}
    */
-  createTask(task_path, manifest, mock = {}) {
+  createTask(task_path, manifest, robot) {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
@@ -41,24 +41,26 @@ class Runner {
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
 
-
-    if (!mock) {
-      mock = {};
-    }
-    if (!mock.robot) {
-      mock.robot = {
-        cwd: 'default-robot',
-        skills: {},
-        devices: []
-      }
+    let robot_path = this.locateRobot(robot);
+    if (!robot) {
+      robot_path = '/robots/nullrobot';
     }
 
-    if (!fs.existsSync(task_path + '/' + mock.robot.cwd)) {
-      fs.mkdirpSync(task_path + '/' + mock.robot.cwd);
+    robot_path = task_path + robot_path;
+
+    // console.log('robot_path: ', robot_path);
+
+    if (!fs.existsSync(robot_path)) {
+      // fs.mkdirpSync(robot_path);
+      this.generateDefaultRobot(robot_path, manifest.fqtn);
     }
 
-    taskInstance.robot = this.getRobot(task_path + '/' + mock.robot.cwd || null);
-    taskInstance.devices._setDevices(mock.robot.devices || []);
+    let devices = this.getDevices(robot_path);
+    let skills = this.getSkills(robot_path);
+
+    taskInstance.robot = this.getRobot((robot_path + '/data/' + manifest.fqtn) || null);
+    taskInstance.devices._setDevices(devices || []);
+    taskInstance.robot.skills = skills;
 
     let pipePath = task_path + '/.rallf'
     if (!fs.existsSync(pipePath)) {
@@ -75,8 +77,18 @@ class Runner {
         }
       }
     });
-    this._taskMap[taskInstance.getName()] = { instance: taskInstance, mock, manifest };
+    this._taskMap[taskInstance.getName()] = { instance: taskInstance, robot, manifest, path: task_path };
     return taskInstance;
+  }
+
+  generateDefaultRobot(path_, fqtn) {
+    fs.ensureFileSync(path.join(path_, 'devices.json'));
+    fs.writeJsonSync(path.join(path_, 'devices.json'), {});
+
+    fs.ensureFileSync(path.join(path_, 'skills.json'));
+    fs.writeJsonSync(path.join(path_, 'skills.json'), {});
+
+    fs.ensureDirSync(path.join(path_, 'data', fqtn));
   }
 
   safeJSONParse(str) {
@@ -103,6 +115,32 @@ class Runner {
     };
   }
 
+  /**
+   * 
+   * @param {string} nameOrPath - name or path 
+   */
+  locateRobot(nameOrPath) {
+    let path_ = nameOrPath;
+    if (/[\\/]/g.test(nameOrPath)) {
+      path_ = nameOrPath;
+    } else {
+      path_ = `/robots/${nameOrPath}`;
+    }
+    return path_;
+  }
+
+
+  getDevices(path_) {
+    path_ = path.join(path_, 'devices.json');
+    let devices = fs.readJsonSync(path_);
+    return devices;
+  }
+
+  getSkills(path_) {
+    path_ = path.join(path_, 'skills.json');
+    let skills = fs.readJsonSync(path_);
+    return skills;
+  }
 
   /**
    * @param {string} cwd - robot cwd 
@@ -118,7 +156,7 @@ class Runner {
    * @param {string} name 
    */
   getMock(task_path, name) {
-    let mockPath = path.join(path.resolve(task_path), 'mocks', name + '.mock.js');
+    let mockPath = path.join(path.resolve(task_path), 'mocks', name, 'index.js');
     if (fs.existsSync(mockPath)) {
       const mock = require(mockPath);
       mock.name = name;
@@ -160,6 +198,18 @@ class Runner {
     return false;
   }
 
+  checkAccessToTask(manifest, task_name, task_method) {
+    if (
+      manifest.tasks
+      && manifest.tasks[task_name]
+      && manifest.tasks[task_name].indexOf(task_method) !== -1
+    ) return true;
+    return false;
+  }
+
+
+
+  // TODO: refactor below fnctions are almost the same
   /**
    * Delegate in a skill
    * @param {Task} task
@@ -168,13 +218,15 @@ class Runner {
    * @param {*} data 
    * @param {*} options 
    */
-  async delegateTask(task, skill_name, skill_method, data, options) {
+  async delegateTaskLocal(task, skill_name, skill_method, data, options) {
+
     let task_ = this._taskMap[task.getName()];
+    // let mock = this.getMock(task_.path, skill_name);
     let manifest = task_.manifest;
-    let mock = task_.mock;
+    // console.log(mock);
 
     let hasAccessToSkill = this.checkAccessToSkill(manifest, skill_name, skill_method);
-    let skills = mock.robot.skills;
+    let skills = task.robot.skills;
 
     if (!hasAccessToSkill) {
       return Promise.reject({ error: "You havent required access to that skill. Please add to manifest:" + examples.skills });
@@ -189,13 +241,45 @@ class Runner {
     }
 
     let skill = skills[skill_name];
+
+    if (!skill.methods) {
+      return Promise.reject({ error: `Oopsy, skill "${skill_name}" has no methods exported` + examples.skills });
+    }
+
     if (!(skill_method in skill.methods)) {
       return Promise.reject({ error: `Oopsy, skill method "${skill_method}" is not exported by mock: ${mock.name}` + examples.skills });
     }
 
     let method = skill.methods[skill_method];
+    return Promise.resolve(method.return || 'no-response');
+  }
 
-    return Promise.resolve(method.callback(data, task_));
+  async delegateTaskRemote(task, task_name, task_method, data, options) {
+
+    let task_ = this._taskMap[task.getName()];
+    let mock = this.getMock(task_.path, task_name);
+    let hasAccessToSkill = this.checkAccessToTask(task_.manifest, task_name, task_method);
+
+    if (!hasAccessToSkill) {
+      return Promise.reject({ error: "You havent required access to that task. Please add to manifest:" + examples.tasks });
+    }
+
+    if (!mock) {
+      return Promise.reject({ error: `Oopsy, mock "${task_name}" was not found!` });
+    }
+
+    
+    if (!mock.methods) {
+      return Promise.reject({ error: `Oopsy, mock "${task_name}" has no methods exported` + examples.tasks });
+    }
+
+    if (!(task_method in mock.methods)) {
+      return Promise.reject({ error: `Oopsy, mock method "${task_method}" is not exported by mock: ${skill_name}` });
+    }
+    
+
+    let method = mock.methods[task_method];
+    return Promise.resolve(method.callback());
   }
 
   /**
@@ -205,7 +289,7 @@ class Runner {
    * @returns {Promise<{result:any, execution_time: number}>}
    */
   async runTask(task, input = {}) {
-    return await this.runMethod(task, 'start', input);
+    return this.runMethod(task, 'start', input);
   }
 
   /**
@@ -226,16 +310,28 @@ class Runner {
 
     // First setup task
     task.emit('setup:start', {});
-    task.robot.delegateLocal =
-      task.robot.delegateRemote = (...args) => {
-        return new Promise((resolve, reject) => {
-          this.delegateTask(task, ...args)
-            .then(resp => {
-              resolve(resp);
-            })
-            .catch(error => reject(error));
-        });
-      };
+
+    // TODO: refactor delegating
+    task.robot.delegateLocal = (...args) => {
+      return new Promise((resolve, reject) => {
+        this.delegateTaskLocal(task, ...args)
+          .then(resp => {
+            resolve(resp);
+          })
+          .catch(error => reject(error));
+      });
+    };
+
+    task.robot.delegateRemote = (...args) => {
+      return new Promise((resolve, reject) => {
+        this.delegateTaskRemote(task, ...args)
+          .then(resp => {
+            resolve(resp);
+          })
+          .catch(error => reject(error));
+      });
+    };
+
     task.logger.task_name = task.getName();
     task.emit('setup:end', {});
 

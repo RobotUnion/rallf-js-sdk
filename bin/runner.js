@@ -24,8 +24,9 @@ let cwd = process.cwd();
 program
   .command('run')
   .option('-t --task <task>', 'path task, default to cwd')
-  .option('-m --mock <mock>', 'what mock to be used')
+  .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
   .option('-i --input <input>', 'tasks input')
+  .option('-m --mocks <mocks>', 'mocks folder')
   .option('-f --method <method>', 'run method in skill')
   .action((cmd) => {
     logging.log('info', 'running command: run');
@@ -36,15 +37,15 @@ program
       return logging.log('error', manifest.error);
     }
 
-    let mock = null;
-    if (cmd.mock) {
-      mock = rallfRunner.getMock(taskPath, cmd.mock);
-      if (mock === null) {
-        return logging.log('error', `Could not find mock "${cmd.mock}", please make sure it exists at: ${taskPath}/mocks/${cmd.mock}.mock.js`);
-      }
-    }
+    // let mock = null;
+    // if (cmd.mock) {
+    //   mock = rallfRunner.getMock(taskPath, cmd.mock);
+    //   if (mock === null) {
+    //     return logging.log('error', `Could not find mock "${cmd.mock}", please make sure it exists at: ${taskPath}/mocks/${cmd.mock}.mock.js`);
+    //   }
+    // }
 
-    let task = rallfRunner.createTask(taskPath, manifest, mock);
+    let task = rallfRunner.createTask(taskPath, manifest, cmd.robot);
     let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
 
     logging.log('success', 'Running task: ' + taskLbl);

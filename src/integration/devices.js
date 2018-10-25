@@ -19,8 +19,8 @@ class Devices {
    * @rejects if device is not found or if build failed
    */
   async get(device_name) {
-    if (!this.devices.some((el) => el.name === device_name)) {
-      return Promise.reject('Device not found: ' + device_name + ` - Either no mock was passed, or you have not included that devices in your mock.`);
+    if (!this.devices || !this.devices.length || !this.devices.some((el) => el.name === device_name)) {
+      return Promise.reject('Device not found: ' + device_name + ` - robot does not have that devices defined`);
     }
 
     let device = this.devices.find((el) => el.name === device_name);

@@ -13,6 +13,7 @@ class BasicExample extends rallf.Task {
     this.on('event:external', (data) => {
       this.logger.debug('event:external', data);
     });
+
   }
 
   async start(input) {
