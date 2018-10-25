@@ -20,7 +20,8 @@
     "test": "jest",
     "test:w": "jest --watchAll",
     "init": "node ./bin/init.js",
-    "npm:publish": "npm version patch && npm publish"
+    "npm:publish": "npm version patch && npm publish",
+    "teste2e": "node ./.tests/e2etest.js"
   },
   "dependencies": {
     "cli-color": "^1.2.0",
@@ -39,5 +40,9 @@
       "/node_modules/",
       "/examples/"
     ]
-  }
+  },
+  "pre-commit": [
+    "test",
+    "teste2e"
+  ]
 }
