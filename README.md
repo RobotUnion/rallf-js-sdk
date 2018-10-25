@@ -36,19 +36,23 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
   3. **init** will generate the following file structure (_explained below_)
   ```
   |-- config
-    `-- manifest.json
+  |  `-- manifest.json
   |-- mocks
-    `-- test.mock.js
+  |  `-- com.test.task
+  |    `-- index.js
   |-- robots
-    `-- test-robot
-        `-- data.json
+  |  `-- test-robot
+  |      `-- data
+  |        `-- com.test.task
+  |      `-- devices.json
+  |      `-- skills.json
   |-- src
-    `-- main.js
+  |  `-- main.js
   |-- package.json
   \-- README.md
   ```
   * `config/manifest.json` - The [Manifest](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) holds information about your Task, e.g: name, version, fqtn
-  * `mocks/test.mock.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
+  * `mocks/com.test.task/index.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
   * `robots/test-robot` - [Robots]() TODO...
   * `src/main.js` - This is the main file of the task, the one that will get executed
 
@@ -61,15 +65,15 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 ## Running 
 ### Running a task
   * `npm start`
-  * `rallf-runner run --mock test --input {}`    
+  * `rallf-runner run --robot test-robot --input {}`    
     
 ### Running a Skill
   * `npm run run:getTitle`
-  * `rallf-runner run --mock test --input {} --method getTitle`    
+  * `rallf-runner run --robot test-robot --input {} --method getTitle`    
       * If method is passed it will asume it is a skill and will run that method
 
 
-You will now if everything went OK  
+You will know if everything went OK  
 Now you can have fun! 🤖
 
 ## Found a bug?
