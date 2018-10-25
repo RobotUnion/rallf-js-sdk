@@ -147,6 +147,10 @@ class Runner {
    * @return {Robot}
    */
   getRobot(cwd) {
+    if (!fs.existsSync(cwd)) {
+      fs.mkdirpSync(cwd);
+    }
+
     return new Robot(cwd);
   }
 
@@ -268,7 +272,7 @@ class Runner {
       return Promise.reject({ error: `Oopsy, mock "${task_name}" was not found!` });
     }
 
-    
+
     if (!mock.methods) {
       return Promise.reject({ error: `Oopsy, mock "${task_name}" has no methods exported` + examples.tasks });
     }
@@ -276,7 +280,7 @@ class Runner {
     if (!(task_method in mock.methods)) {
       return Promise.reject({ error: `Oopsy, mock method "${task_method}" is not exported by mock: ${skill_name}` });
     }
-    
+
 
     let method = mock.methods[task_method];
     return Promise.resolve(method.callback());
