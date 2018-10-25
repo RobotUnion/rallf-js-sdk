@@ -65,15 +65,15 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 ## Running 
 ### Running a task
   * `npm start`
-  * `rallf-runner run --robot test-robot --input {}`    
+  * `rallf-runner run -r test-robot --input {}`    
     
 ### Running a Skill
   * `npm run run:getTitle`
-  * `rallf-runner run --robot test-robot --input {} --method getTitle`    
+  * `rallf-runner run -r test-robot --input {} -m getTitle`    
       * If method is passed it will asume it is a skill and will run that method
 
 
-You will know if everything went OK  
+You will know if everything went OK  .
 Now you can have fun! 🤖
 
 ## Found a bug?
