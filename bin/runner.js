@@ -37,15 +37,7 @@ program
       return logging.log('error', manifest.error);
     }
 
-    // let mock = null;
-    // if (cmd.mock) {
-    //   mock = rallfRunner.getMock(taskPath, cmd.mock);
-    //   if (mock === null) {
-    //     return logging.log('error', `Could not find mock "${cmd.mock}", please make sure it exists at: ${taskPath}/mocks/${cmd.mock}.mock.js`);
-    //   }
-    // }
-
-    let task = rallfRunner.createTask(taskPath, manifest, cmd.robot);
+    let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks);
     let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
 
     logging.log('success', 'Running task: ' + taskLbl);

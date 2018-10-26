@@ -21,7 +21,7 @@ class Runner {
    * @param {string} robot 
    * @returns {Task}
    */
-  createTask(task_path, manifest, robot) {
+  createTask(task_path, manifest, robot, mocks_folder) {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
@@ -48,10 +48,7 @@ class Runner {
 
     robot_path = task_path + robot_path;
 
-    // console.log('robot_path: ', robot_path);
-
     if (!fs.existsSync(robot_path)) {
-      // fs.mkdirpSync(robot_path);
       this.generateDefaultRobot(robot_path, manifest.fqtn);
     }
 
@@ -77,7 +74,7 @@ class Runner {
         }
       }
     });
-    this._taskMap[taskInstance.getName()] = { instance: taskInstance, robot, manifest, path: task_path };
+    this._taskMap[taskInstance.getName()] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
     return taskInstance;
   }
 
@@ -261,7 +258,7 @@ class Runner {
   async delegateTaskRemote(task, task_name, task_method, data, options) {
 
     let task_ = this._taskMap[task.getName()];
-    let mock = this.getMock(task_.path, task_name);
+    let mock = this.getMock(task.mocks_folder || task_.path, task_name);
     let hasAccessToSkill = this.checkAccessToTask(task_.manifest, task_name, task_method);
 
     if (!hasAccessToSkill) {
