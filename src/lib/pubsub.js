@@ -1,7 +1,7 @@
 'use strict';
 
 
-let subSymbol = Symbol('subscriptions');
+let subSymbol = '__subscriptions';
 
 /**
  * A little pub sub class

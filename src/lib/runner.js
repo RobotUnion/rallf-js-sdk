@@ -298,9 +298,42 @@ class Runner {
    * @param {Task} task 
    * @param {string} method_name 
    * @param {any} input 
+   * @returns {{result: any, execution_time: number, subroutines: any[]}}
    */
   async runMethod(task, method_name, input) {
-    let start = Date.now();
+
+    const subroutines = [];
+
+    const handler = {
+      get(target, propKey, receiver) {
+        const origMethod = target[propKey];
+        let start = Date.now();
+
+        if (typeof origMethod === 'function') {
+          return function (...args) {
+            return Promise.resolve(origMethod.apply(this, args)).then(result => {
+              let end = Date.now();
+              let execTime = (end - start);
+
+              subroutines.push({
+                method: propKey,
+                args: args,
+                result: result,
+                exec_time: execTime
+              });
+
+              // console.log(`run fn ${propKey} with args ${JSON.stringify(args)} \n  > result in ${JSON.stringify(result)}  \n  > time: ${(execTime / 1000) + 's'}`);
+              return result;
+            });
+          };
+        }
+
+        return origMethod;
+      }
+    };
+
+    const taskProxy = new Proxy(task, handler);
+
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
       throw { error: `Exported class must extend from \"Task\"` };
     }
@@ -310,12 +343,12 @@ class Runner {
     }
 
     // First setup task
-    task.emit('setup:start', {});
+    taskProxy.emit('setup:start', {});
 
     // TODO: refactor delegating
-    task.robot.delegateLocal = (...args) => {
+    taskProxy.robot.delegateLocal = (...args) => {
       return new Promise((resolve, reject) => {
-        this.delegateTaskLocal(task, ...args)
+        this.delegateTaskLocal(taskProxy, ...args)
           .then(resp => {
             resolve(resp);
           })
@@ -323,9 +356,9 @@ class Runner {
       });
     };
 
-    task.robot.delegateRemote = (...args) => {
+    taskProxy.robot.delegateRemote = (...args) => {
       return new Promise((resolve, reject) => {
-        this.delegateTaskRemote(task, ...args)
+        this.delegateTaskRemote(taskProxy, ...args)
           .then(resp => {
             resolve(resp);
           })
@@ -333,32 +366,30 @@ class Runner {
       });
     };
 
-    task.logger.task_name = task.getName();
-    task.emit('setup:end', {});
+    taskProxy.logger.task_name = task.getName();
+    taskProxy.emit('setup:end', {});
 
-    if (task.warmup && typeof task.warmup === 'function') {
-      await Promise.resolve(task.warmup());
+    if (taskProxy.warmup && typeof taskProxy.warmup === 'function') {
+      await Promise.resolve(taskProxy.warmup());
     }
 
     // Start
-    let method = task[method_name].bind(task);
-    task.emit('start', {});
-    return await method(input)
+    // let method = taskProxy[method_name].bind(taskProxy);
+    taskProxy.emit('start', {});
+    return await taskProxy[method_name](input)
       .then(async result => {
-        if (task.cooldown && typeof task.cooldown === 'function') {
-          await Promise.resolve(task.cooldown());
+        if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
+          await Promise.resolve(taskProxy.cooldown());
         }
 
-        task.emit('finish', {});
+        taskProxy.emit('finish', {});
 
-        if (task.type !== 'skill') {
-          await task.devices.quitAll();
+        if (taskProxy.type !== 'skill') {
+          await taskProxy.devices.quitAll();
         }
 
-        let finish = Date.now();
-
-        let execTimeSeconds = (finish - start) / 1000;
-        return { result, execution_time: execTimeSeconds };
+        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time })).exec_time / 1000;
+        return { result, execution_time, subroutines };
       });
   }
 }

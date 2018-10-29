@@ -16,7 +16,7 @@ fdescribe('Runner', () => {
   const runner = new Runner();
   it(`should throw error if anything but a task is passed to: runTask`, async () => {
     try {
-      await runner.runTask(null);
+      await runner.runTask({});
     } catch (e) {
       expect(e).toEqual({
         error: 'Exported class must extend from \"Task\"'

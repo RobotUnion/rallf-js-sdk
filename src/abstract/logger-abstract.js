@@ -17,6 +17,7 @@ class AbstractLogger {
     this.LOG_SEVERITY_DEBUG = 7;
     this.task_name = null;
   }
+  
 
   /**
    * @param string message

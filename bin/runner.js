@@ -28,6 +28,7 @@ program
   .option('-i --input <input>', 'tasks input')
   .option('-m --mocks <mocks>', 'mocks folder')
   .option('-f --method <method>', 'run method in skill')
+  .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
   .action((cmd) => {
     logging.log('info', 'running command: run');
 
@@ -50,6 +51,7 @@ program
           logging.log('success', `Method ${clc.blackBright(cmd.method)} OK`);
           logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
           logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
+          // logging.log('success', `Subroutines:   ${clc.blueBright(resp.subroutines.length)}`, resp.subroutines);
           process.exit(0);
         })
         .catch(async err => {
@@ -63,6 +65,14 @@ program
         logging.log('success', 'Finished task OK');
         logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
         logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
+
+        if (resp.subroutines && cmd.subroutines) {
+          logging.log('info', `Runned ${clc.blueBright(resp.subroutines.length)} subroutines: `);
+          resp.subroutines.forEach(el => {
+            logging.log('info', `${el.method}() -> ${clc.blueBright(el.result || 'void')} ${clc.green('@' + (el.exec_time / 1000) + 's')}`);
+          });
+        }
+
         process.exit(0);
       })
       .catch(err => {
