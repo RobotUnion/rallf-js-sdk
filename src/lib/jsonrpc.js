@@ -64,7 +64,7 @@ const jsonrpc = {
 
       let timeOut = setTimeout(() => {
         reject(jsonrpc.response(request.method, request.id, null, {
-          code: -32603,
+          code: this.TIMED_OUT,
           message: 'request timed out',
           data: {}
         }));
@@ -73,30 +73,46 @@ const jsonrpc = {
       process.stdin.on('message', (response) => {
         try {
           response = JSON.parse(response);
+          let validResponse = this.isValidResponse(response);
+          let idsMatch = request.id === response.id;
+
           if (
-            this.isValidResponse(response) &&
-            request.id === response.id
+            validResponse &&
+            idsMatch
           ) {
             clearTimeout(timeOut);
-            resolve(jsonrpc.response(request.method, request.id, null,
-              {
-                code: -32603,
-                message: 'request timed out',
-                data: {}
-              }
-            ));
+            resolve(response);
+          }
+          else if (response.error) {
+            reject(jsonrpc.response(request.method, request.id, null, response.error));
+          }
+          else if (!idsMatch) {
+            reject(jsonrpc.response(request.method, request.id, null, {
+              code: this.INTERNAL_ERROR,
+              message: 'id\'s do not match',
+              data: error
+            }));
           }
         } catch (error) {
           clearTimeout(timeOut);
           reject(jsonrpc.response(request.method, request.id, null, {
-            code: -32603,
+            code: this.INTERNAL_ERROR,
             message: 'there has been an error',
             data: error
           }));
         }
       });
     });
-  }
+  },
+
+
+
+  INTERNAL_ERROR: -32603,
+  INVALID_PARAMS: -32602,
+  METHOD_NOT_FOUND: -32601,
+  INVALID_REQUEST: -32600,
+  PARSE_ERROR: -32700,
+  TIMED_OUT: -32001
 };
 
 

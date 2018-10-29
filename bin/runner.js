@@ -38,9 +38,9 @@ program
   .option('-m --mocks <mocks>', 'mocks folder')
   .option('-f --method <method>', 'run method in skill')
   .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
-  .option('-n --no_tty', 'shows output as is, without formatting')
+  .option('-n --no-tty', 'shows output as is, without formatting')
   .action((cmd) => {
-    let isTTY = process.stdin.isTTY && !cmd.no_tty;
+    let isTTY = process.stdin.isTTY && cmd.tty;
 
     if (isTTY) {
       logging.logger = logging.prettyLogger;
@@ -67,7 +67,7 @@ program
     logging.log('info', 'Created task');
     logging.log('info', 'Executing task');
 
-    if (process.stdin.isTTY && !cmd.no_tty) {
+    if (isTTY) {
       task.logger.pretty = true;
     } else {
       task.logger.pretty = false;
