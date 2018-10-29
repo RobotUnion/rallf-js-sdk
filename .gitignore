@@ -3,6 +3,7 @@
 /node_modules
 /doc
 /out
+/tests
 /rr.log
 # /example
 /.vscode

@@ -5,6 +5,7 @@ const path = require('path');
 const { Task, Robot } = require('../integration');
 const checker = require('./checker');
 const examples = require('./examples');
+const jsonrpc = require('./jsonrpc');
 
 
 class Runner {
@@ -19,9 +20,11 @@ class Runner {
    * @param {any} manifest
    * @param {any} input 
    * @param {string} robot 
+   * @param {string} mocks_folder 
+   * @param {boolean} isTTY 
    * @returns {Task}
    */
-  createTask(task_path, manifest, robot, mocks_folder) {
+  createTask(task_path, manifest, robot, mocks_folder, isTTY) {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
@@ -257,7 +260,7 @@ class Runner {
 
   async delegateTaskRemote(task, task_name, task_method, data, options) {
 
-    let task_ = this._taskMap[task.getName()];
+    let task_ = this._taskMap[await task.getName()];
     let mock = this.getMock(task.mocks_folder || task_.path, task_name);
     let hasAccessToSkill = this.checkAccessToTask(task_.manifest, task_name, task_method);
 
@@ -287,10 +290,11 @@ class Runner {
    * 
    * @param {Task} task 
    * @param {any} input 
+   * @param {boolean} isTTY 
    * @returns {Promise<{result:any, execution_time: number}>}
    */
-  async runTask(task, input = {}) {
-    return this.runMethod(task, 'start', input);
+  async runTask(task, input = {}, isTTY = false) {
+    return this.runMethod(task, 'start', input, isTTY);
   }
 
   /**
@@ -298,9 +302,10 @@ class Runner {
    * @param {Task} task 
    * @param {string} method_name 
    * @param {any} input 
+   * @param {boolean} isTTY 
    * @returns {{result: any, execution_time: number, subroutines: any[]}}
    */
-  async runMethod(task, method_name, input) {
+  async runMethod(task, method_name, input, isTTY) {
 
     const subroutines = [];
 
@@ -347,6 +352,11 @@ class Runner {
 
     // TODO: refactor delegating
     taskProxy.robot.delegateLocal = (...args) => {
+
+      if (!isTTY) {
+        return Promise.resolve(jsonrpc.request('delegate-local', args));
+      }
+
       return new Promise((resolve, reject) => {
         this.delegateTaskLocal(taskProxy, ...args)
           .then(resp => {
@@ -357,13 +367,18 @@ class Runner {
     };
 
     taskProxy.robot.delegateRemote = (...args) => {
-      return new Promise((resolve, reject) => {
-        this.delegateTaskRemote(taskProxy, ...args)
-          .then(resp => {
-            resolve(resp);
-          })
-          .catch(error => reject(error));
-      });
+      if (!isTTY) {
+        return jsonrpc.sendAndAwaitForResponse(jsonrpc.request('delegate-remote', args));
+        // Promise.resolve(jsonrpc.request('delegate-remote', args));
+      } else {
+        return new Promise((resolve, reject) => {
+          this.delegateTaskRemote(taskProxy, ...args)
+            .then(resp => {
+              resolve(resp);
+            })
+            .catch(error => reject(error));
+        });
+      }
     };
 
     taskProxy.logger.task_name = task.getName();

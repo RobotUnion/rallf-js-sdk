@@ -2,6 +2,7 @@
 
 const AbstractLogger = require('../abstract/logger-abstract');
 const clc = require('cli-color');
+const jsonrpc = require('../lib/jsonrpc');
 
 /**
  * Used for logging
@@ -17,11 +18,14 @@ class Logger extends AbstractLogger {
   constructor(process, pretty) {
     super({
       notify: (log) => {
-        if (pretty) {
+        if (this.pretty) {
           process.stdout.write(`${clc.bgCyan(' LOG ')} - (${clc.blackBright(this.task_name)}) - [${new Date(log.time).toLocaleString()}] - ${this.getString(log.severity)} - ${log.message} - ${JSON.stringify(log.data)}\n`);
-        } else process.stdout.write('\ntask:log ' + JSON.stringify(log) + '\n');
+        } else {
+          process.stdout.write(jsonrpc.request('log', log) + '\n');
+        }
       }
     });
+    this.pretty = pretty;
   }
 
   /**

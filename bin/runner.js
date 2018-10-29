@@ -14,6 +14,15 @@ const Runner = require('../src/lib/runner');
 const rallfRunner = new Runner();
 
 let cwd = process.cwd();
+function color(colorEnabled, str, colorName) {
+  if (colorEnabled) {
+    try {
+      str = clc[colorName](str);
+    } catch (error) { }
+  }
+  return str;
+}
+
 
 // try {
 //   let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
@@ -29,7 +38,20 @@ program
   .option('-m --mocks <mocks>', 'mocks folder')
   .option('-f --method <method>', 'run method in skill')
   .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
+  .option('-n --no_tty', 'shows output as is, without formatting')
   .action((cmd) => {
+    let isTTY = process.stdin.isTTY && !cmd.no_tty;
+
+    if (isTTY) {
+      logging.logger = logging.prettyLogger;
+      logging.color = true;
+      color = color.bind(color, true);
+    } else {
+      logging.logger = logging.rpcLogger;
+      logging.color = false;
+      color = color.bind(color, false);
+    }
+
     logging.log('info', 'running command: run');
 
     let taskPath = cmd.task || cwd;
@@ -38,20 +60,26 @@ program
       return logging.log('error', manifest.error);
     }
 
-    let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks);
-    let taskLbl = clc.green(task.getName() + '@' + task.getVersion());
+    let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
+    let taskLbl = color(task.getName() + '@' + task.getVersion(), 'green');
 
     logging.log('success', 'Running task: ' + taskLbl);
     logging.log('info', 'Created task');
     logging.log('info', 'Executing task');
 
+    if (process.stdin.isTTY && !cmd.no_tty) {
+      task.logger.pretty = true;
+    } else {
+      task.logger.pretty = false;
+    }
+
     if (cmd.method) {
-      return rallfRunner.runMethod(task, cmd.method, cmd.input)
+      return rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
         .then(resp => {
-          logging.log('success', `Method ${clc.blackBright(cmd.method)} OK`);
-          logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
-          logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
-          // logging.log('success', `Subroutines:   ${clc.blueBright(resp.subroutines.length)}`, resp.subroutines);
+          logging.log('success', `Method ${color(cmd.method, 'blackBright')} OK`);
+          logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
+          logging.log('success', `Time:   ${color(resp.execution_time + 's')}`);
+          // logging.log('success', `Subroutines:   ${color(resp.subroutines.length)}`, resp.subroutines);
           process.exit(0);
         })
         .catch(async err => {
@@ -60,16 +88,16 @@ program
         });
     }
 
-    return rallfRunner.runTask(task, cmd.input)
+    return rallfRunner.runTask(task, cmd.input, isTTY)
       .then(resp => {
         logging.log('success', 'Finished task OK');
-        logging.log('success', `Result: ${clc.blackBright(resp.result)}`);
-        logging.log('success', `Time:   ${clc.blueBright(resp.execution_time + 's')}`);
+        logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
+        logging.log('success', `Time:   ${color(resp.execution_time + 's', 'blueBright')}`);
 
         if (resp.subroutines && cmd.subroutines) {
-          logging.log('info', `Runned ${clc.blueBright(resp.subroutines.length)} subroutines: `);
+          logging.log('info', `Runned ${color(resp.subroutines.length, 'blueBright')} subroutines: `);
           resp.subroutines.forEach(el => {
-            logging.log('info', `${el.method}() -> ${clc.blueBright(el.result || 'void')} ${clc.green('@' + (el.exec_time / 1000) + 's')}`);
+            logging.log('info', `${el.method}() -> ${color(el.result || 'void', 'blueBright')} ${clc.green('@' + (el.exec_time / 1000) + 's')}`);
           });
         }
 

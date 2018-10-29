@@ -38,7 +38,8 @@
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/examples/"
+      "/examples/",
+      "/tests"
     ]
   },
   "pre-commit": [

@@ -1,11 +1,25 @@
 'use strict';
 const clc = require('cli-color');
+const jsonrpc = require('./jsonrpc');
 
 module.exports = {
+  color: true,
+  prettyLogger(str) {
+    process.stdout.write(str + '\n');
+  },
+  rpcLogger(str) {
+    let request = jsonrpc.request('log', { log: str });
+    process.stdout.write(request.toString() + '\n');
+  },
+  logger(str) {
+    process.stdout.write(str + '\n');
+  },
+
   padd(str) {
     return ` ${str} `;
   },
   getClFromType(type) {
+    if (!this.color) return (str) => str;
     switch (type) {
       case 'error': return clc.bgRedBright;
       case 'info': return clc.bgBlueBright;
@@ -20,11 +34,11 @@ module.exports = {
     let cl = this.getClFromType(type);
     let segments = [
       cl(this.padd(type.toUpperCase().substr(0, 3))),
-      '(' + clc.blackBright('runner') + ')',
+      '(' + this.getClFromType()('runner') + ')',
       (msg),
       data ? this.getClFromType()(JSON.stringify(data, null, 2)) : null,
     ].filter((x) => x);
     let str = segments.join(' - ');
-    console.log(str);
+    this.logger(str);
   }
 };
