@@ -21,6 +21,7 @@ class Logger extends AbstractLogger {
         if (this.pretty) {
           process.stdout.write(`${clc.bgCyan(' LOG ')} - (${clc.blackBright(this.task_name)}) - [${new Date(log.time).toLocaleString()}] - ${this.getString(log.severity)} - ${log.message} - ${JSON.stringify(log.data)}\n`);
         } else {
+          log.channel = this.task_name;
           process.stdout.write(jsonrpc.request('log', log) + '\n');
         }
       }
