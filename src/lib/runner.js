@@ -386,8 +386,6 @@ class Runner {
           throw new Error('Error running method: ' + method);
         }
       }, {});
-    } else {
-      console.log("Is not a skill");
     }
 
     // Start
