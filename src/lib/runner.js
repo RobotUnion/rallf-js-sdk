@@ -43,6 +43,7 @@ class Runner {
     let taskInstance = /** @type {UserTask} */ new UserTask();
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
+    taskInstance.type = manifest.type;
 
     let robot_path = this.locateRobot(robot);
     if (!robot) {
@@ -102,20 +103,6 @@ class Runner {
   }
 
   /**
-   * String format: <event_type>:<event_name> <{data}>
-   * @param {string} str 
-   * @return {{event_name:string, event_type:string, data: any}}
-   */
-  parseEvent(str) {
-    let parts = str.match(/^([\w\d]*):([\w\d]*) (.*)$/);
-    return {
-      event_name: parts[1],
-      event_type: parts[2],
-      data: this.safeJSONParse(parts[3])
-    };
-  }
-
-  /**
    * 
    * @param {string} nameOrPath - name or path 
    */
@@ -128,7 +115,6 @@ class Runner {
     }
     return path_;
   }
-
 
   getDevices(path_) {
     path_ = path.join(path_, 'devices.json');
@@ -211,9 +197,6 @@ class Runner {
     return false;
   }
 
-
-
-  // TODO: refactor below fnctions are almost the same
   /**
    * Delegate in a skill
    * @param {Task} task
@@ -350,18 +333,14 @@ class Runner {
     // First setup task
     taskProxy.emit('setup:start', {});
 
-    // TODO: refactor delegating
     taskProxy.robot.delegateLocal = (...args) => {
-
       if (!isTTY) {
-        return Promise.resolve(jsonrpc.request('delegate-local', args));
+        return jsonrpc.sendAndAwaitForResponse(jsonrpc.request('delegate-local', args));
       }
 
       return new Promise((resolve, reject) => {
         this.delegateTaskLocal(taskProxy, ...args)
-          .then(resp => {
-            resolve(resp);
-          })
+          .then(resp => resolve(resp))
           .catch(error => reject(error));
       });
     };
@@ -369,29 +348,51 @@ class Runner {
     taskProxy.robot.delegateRemote = (...args) => {
       if (!isTTY) {
         return jsonrpc.sendAndAwaitForResponse(jsonrpc.request('delegate-remote', args));
-        // Promise.resolve(jsonrpc.request('delegate-remote', args));
-      } else {
-        return new Promise((resolve, reject) => {
-          this.delegateTaskRemote(taskProxy, ...args)
-            .then(resp => {
-              resolve(resp);
-            })
-            .catch(error => reject(error));
-        });
       }
+
+      return new Promise((resolve, reject) => {
+        this.delegateTaskRemote(taskProxy, ...args)
+          .then(resp => resolve(resp))
+          .catch(error => reject(error));
+      });
     };
 
     taskProxy.logger.task_name = task.getName();
     taskProxy.emit('setup:end', {});
 
     if (taskProxy.warmup && typeof taskProxy.warmup === 'function') {
+      task.emit('wamup:start', {});
       await Promise.resolve(taskProxy.warmup());
+      task.emit('wamup:end', {});
+    }
+
+    // Listen for events if task its a skill
+
+    if (task.isSkill()) {
+      // console.log("Is skill listening for requests");
+      jsonrpc.onAny(async (request, error) => {
+        if (request.method === 'run-method' && request.params && request.params.method) {
+          let params = { ...request.params };
+          let method = params.method;
+          delete params.method;
+
+          await this.runSkillMethod(taskProxy, method, params)
+            .then(resp => {
+              console.log(`\n run ${method}(${JSON.stringify(params)}) -> ${resp}`);
+            }).catch(err => {
+              throw new Error(err);
+            });
+        } else {
+          throw new Error('Error running method: ' + method);
+        }
+      }, {});
+    } else {
+      console.log("Is not a skill");
     }
 
     // Start
-    // let method = taskProxy[method_name].bind(taskProxy);
     taskProxy.emit('start', {});
-    return await taskProxy[method_name](input)
+    let result = await taskProxy[method_name](input)
       .then(async result => {
         if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
           await Promise.resolve(taskProxy.cooldown());
@@ -406,6 +407,32 @@ class Runner {
         let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time })).exec_time / 1000;
         return { result, execution_time, subroutines };
       });
+
+    if (task.isSkill()) {
+      await new Promise(() => { });
+    } else {
+      return result;
+    }
+  }
+
+
+  runSkillMethod(task, method, params) {
+    // console.log(`Running method ${method} with params ${JSON.stringify(params)} in task ${task.constructor.name}`);
+    return new Promise((resolve, reject) => {
+      if (!method in task) {
+        reject({ message: 'method-not-exist', code: jsonrpc.METHOD_NOT_FOUND, data: {} });
+      }
+      else {
+        let resolvesMethod = Promise.resolve(task[method](params));
+        resolvesMethod
+          .then(resp => {
+            resolve(resp);
+          })
+          .catch(err => {
+            reject({ message: 'internal-error', code: jsonrpc.INTERNAL_ERROR, data: err });
+          });
+      }
+    });
   }
 }
 

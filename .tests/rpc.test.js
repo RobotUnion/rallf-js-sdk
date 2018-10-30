@@ -5,6 +5,14 @@ describe('jsonrpc should', () => {
     expect(jsonrpc).toBeDefined();
   });
 
+  function validResponse(response) {
+    expect(response.jsonrpc).toEqual('2.0');
+    expect(response.method).toEqual('test');
+    expect(response.result).toEqual({});
+    expect(response.error).toBeFalsy();
+  }
+
+
   it('should generate a valid request', () => {
     let request = jsonrpc.request('test', {}, 'id');
     expect(request.jsonrpc).toEqual('2.0');
@@ -15,10 +23,7 @@ describe('jsonrpc should', () => {
 
   it('should generate a valid response without error', () => {
     let response = jsonrpc.response('test', 'id', {}, null);
-    expect(response.jsonrpc).toEqual('2.0');
-    expect(response.method).toEqual('test');
-    expect(response.result).toEqual({});
-    expect(response.error).toBeFalsy();
+    validResponse(response);
   });
 
   it('should generate a valid response with error', () => {
@@ -27,6 +32,12 @@ describe('jsonrpc should', () => {
     expect(response.method).toEqual('test');
     expect(response.error).toEqual({});
     expect(response.result).not.toEqual({});
+  });
+
+
+  it('should wait for response and rejects', () => {
+    let response = jsonrpc.waitFor('test');
+    expect(response).rejects.toBeTruthy();
   });
 
 });

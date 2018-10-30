@@ -21,6 +21,7 @@ const jsonrpc = {
     message: '',
     data: {}
   },
+  subs: {},
   isValidRequest(object) {
     const v = new Validator();
     let validation = v.validate(object, schemes.jsonRpcRequest);
@@ -52,6 +53,77 @@ const jsonrpc = {
     if (error) response.error = error;
     if (!error) response.result = result;
     return response;
+  },
+  waitFor(method) {
+    return new Promise((resolve, reject) => {
+      process.stdin.on('message', (response) => {
+        try {
+          response = JSON.parse(response);
+          let validResponse = this.isValidResponse(response);
+          let methodsMatch = method === response.method;
+
+          if (
+            validResponse &&
+            methodsMatch
+          ) {
+            clearTimeout(timeOut);
+            resolve(response);
+          }
+          else if (response.error) {
+            reject(jsonrpc.response(request.method, request.id, null, response.error));
+          }
+        } catch (error) {
+          clearTimeout(timeOut);
+          reject(jsonrpc.response(request.method, request.id, null, {
+            code: this.INTERNAL_ERROR,
+            message: 'there has been an error',
+            data: error
+          }));
+        }
+      });
+    });
+  },
+  on(event, callback) {
+    if (this.subs[event] && this.subs[event].callbacks) {
+      this.subs[event].callbacks.push(callback);
+    } else {
+      this.subs[event] = {
+        callbacks: [callback]
+      };
+    }
+  },
+  off(event) {
+    if (event in this.subs) {
+      delete this.subs[event];
+    }
+  },
+  emit(event, data) {
+    if (event in this.subs) {
+      let cbacks = this.subs[event].callbacks;
+      for (let cback of cbacks) {
+        cback(data, event);
+      }
+    }
+  },
+
+  /**
+   * 
+   * @param {function(response,error?):void} callback 
+   * @param {object} options 
+   * @param {object} options.method
+   * @param {object} options.id
+   */
+  onAny(callback, options) {
+    this.on('request', (request) => {
+      // console.log("Request arrived: ", request);
+      try {
+        let validResponse = this.isValidRequest(request);
+        if (validResponse) callback(request, null);
+        else if (request.error) callback(null, request.error);
+      } catch (error) {
+        callback(null, error);
+      }
+    });
   },
 
   /**

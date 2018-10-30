@@ -4,9 +4,11 @@ const path = require('path');
 const fs = require('fs-extra');
 const clc = require('cli-color');
 const program = require('commander');
+const readline = require('readline');
 const logging = require('../src/lib/logging');
 const package = require('../package.json');
 const child_process = require('child_process');
+const jsonrpc = require('../src/lib/jsonrpc');
 
 program.version(package.version);
 
@@ -39,6 +41,7 @@ program
   .option('-f --method <method>', 'run method in skill')
   .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
   .option('-n --no-tty', 'shows output as is, without formatting')
+  .option('-I --interactive', 'shows prompt to interact with the task via stdin')
   .action((cmd) => {
     let isTTY = process.stdin.isTTY && cmd.tty;
 
@@ -73,40 +76,80 @@ program
       task.logger.pretty = false;
     }
 
+    let result;
     if (cmd.method) {
-      return rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
+      result = rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
         .then(resp => {
           logging.log('success', `Method ${color(cmd.method, 'blackBright')} OK`);
           logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
           logging.log('success', `Time:   ${color(resp.execution_time + 's')}`);
-          // logging.log('success', `Subroutines:   ${color(resp.subroutines.length)}`, resp.subroutines);
           process.exit(0);
         })
         .catch(async err => {
           logging.log('error', `Finished run method ${cmd.method} with ERROR`, err);
           process.exit(1);
         });
+    } else {
+      result = rallfRunner.runTask(task, cmd.input, isTTY)
+        .then(resp => {
+          logging.log('success', 'Finished task OK');
+          logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
+          logging.log('success', `Time:   ${color(resp.execution_time + 's', 'blueBright')}`);
+
+          if (resp.subroutines && cmd.subroutines) {
+            logging.log('info', `Runned ${color(resp.subroutines.length, 'blueBright')} subroutines: `);
+            resp.subroutines.forEach(el => {
+              logging.log('info', `${el.method}() -> ${color(el.result || 'void', 'blueBright')} ${clc.green('@' + (el.exec_time / 1000) + 's')}`);
+            });
+          }
+
+          process.exit(0);
+        })
+        .catch(err => {
+          logging.log('error', 'Finished task with ERROR', err);
+          process.exit(1);
+        });
     }
 
-    return rallfRunner.runTask(task, cmd.input, isTTY)
-      .then(resp => {
-        logging.log('success', 'Finished task OK');
-        logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
-        logging.log('success', `Time:   ${color(resp.execution_time + 's', 'blueBright')}`);
+    if (!cmd.interactive || !isTTY) {
+      return result;
+    } else {
+      task.on('wamup:end', () => {
+        const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout
+        });
 
-        if (resp.subroutines && cmd.subroutines) {
-          logging.log('info', `Runned ${color(resp.subroutines.length, 'blueBright')} subroutines: `);
-          resp.subroutines.forEach(el => {
-            logging.log('info', `${el.method}() -> ${color(el.result || 'void', 'blueBright')} ${clc.green('@' + (el.exec_time / 1000) + 's')}`);
-          });
+        function askQuestion() {
+          rl.question(`\nEnter action, formatted("<method> <id> <{data}>"): `,
+            (answer) => {
+              let reg = /^([\w-_]*) ([\w\d_-]*) (\{.*\})$/;
+              let valid = reg.test(answer);
+
+              if (valid) {
+                logging.log('info', 'Sending request');
+                let match = answer.match(reg);
+
+                let params = null;
+                try {
+                  params = JSON.parse(match[3]);
+                  jsonrpc.emit('request', jsonrpc.request(match[1], params, match[2]));
+                  jsonrpc.waitFor();
+                  askQuestion();
+                } catch (error) {
+                  logging.log('error', error);
+                }
+              }
+              else {
+                logging.log('error', 'Invalid request, must be format: <method> <id> <{data}>');
+                askQuestion();
+              }
+            });
         }
 
-        process.exit(0);
-      })
-      .catch(err => {
-        logging.log('error', 'Finished task with ERROR', err);
-        process.exit(1);
+        askQuestion();
       });
+    }
   });
 
 program
