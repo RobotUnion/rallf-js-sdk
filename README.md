@@ -1,5 +1,9 @@
 # RALLF Node.js SDK
 
+[![Build Status](https://semaphoreci.com/api/v1/nombrekeff/loggin-js/branches/master/badge.svg)](https://semaphoreci.com/nombrekeff/loggin-js)
+<!-- ![Codacy grade](https://img.shields.io/codacy/grade/28253ebf50a34a088b99d3f3e80615bc.svg?style=flat-square)-->
+
+
 [![Website](https://img.shields.io/website-up-down-green-red/https/api.rallf.com.svg?label=api&style=flat-square)](https://rallf.com)
 [![GitHub](https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
 [![npm](https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
@@ -75,6 +79,7 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 
 
 You will know if everything went OK  .
+
 Now you can have fun! 🤖
 
 ## Found a bug?
