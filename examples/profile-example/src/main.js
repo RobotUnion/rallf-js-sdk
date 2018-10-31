@@ -1,5 +1,6 @@
 const rallf = require('../../../');
 const fs = rallf.fs;
+const rcopy = require('recursive-copy');
 const { By, until, Key } = require('selenium-webdriver');
 
 class FirefoxProfileExample extends rallf.Task {
@@ -13,7 +14,15 @@ class FirefoxProfileExample extends rallf.Task {
     this.firefox = await this.devices.get('firefox', {
       profile: this.home + '/custom-profile'
     });
+
     await this.firefox.get('https://github.com');
+
+    if (!(await this.isLoggedIn())) {
+      this.logger.debug('Logging in');
+      await this.login();
+    } else {
+      this.logger.debug('Already logged in');
+    }
   }
 
   async isLoggedIn() {
@@ -37,19 +46,34 @@ class FirefoxProfileExample extends rallf.Task {
   }
 
   async start(input) {
-    this.logger.debug('FirefoxProfileExample started');
-    if (!(await this.isLoggedIn())) {
-      this.logger.debug('Logging in');
-      await this.login();
-    } else {
-      this.logger.debug('Already logged in');
+    // this.logger.debug('FirefoxProfileExample started');
+    // if (!(await this.isLoggedIn())) {
+    //   this.logger.debug('Logging in');
+    //   await this.login();
+    // } else {
+    //   this.logger.debug('Already logged in');
+    // }
+    // return 'finished';
+  }
+
+  async followUser(input) {
+    this.logger.debug('Trying to follow user: ' + input.username);
+    await this.firefox.get('https://github.com/' + input.username);
+
+    try {
+      let followBtn = await this.firefox.findElement(By.xpath('/html/body/div[4]/div[1]/div/div[1]/div[4]/span/span[1]/form/button'));
+      await followBtn.click();
+      this.logger.debug('Followed user: ' + input.username);
+    } catch (error) {
+      this.logger.error('Error following user: ' + input.username + ' - ' + error);
     }
-    return 'finished';
   }
 
   async saveProfile() {
-    let profile = await this.firefox.getCapabilities().get('moz:profile');
-    await fs.copy(profile, this.home + '/custom-profile', {
+    let capabilities = await this.firefox.getCapabilities();
+    let profile = capabilities.get('moz:profile');
+    await rcopy(profile, this.home + '/custom-profile', {
+      overwrite: true,
       filter: (orig, dest) => (!orig.includes('parent.lock') && fs.existsSync(orig))
     });
   }

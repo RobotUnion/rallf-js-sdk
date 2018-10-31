@@ -71,6 +71,7 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
   * `npm run run:getTitle`
   * `rallf-runner run -r test-robot --input {} -m getTitle`    
       * If method is passed it will asume it is a skill and will run that method
+  * `rallf-runner run -r test-robot --input {} <<< {"jsonrpc": "2.0", "method": "run-method", "params": { "method": "getTitle" }, "id": "test"}`    
 
 
 You will know if everything went OK  .

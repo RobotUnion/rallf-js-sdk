@@ -5,6 +5,6 @@
   "sdk_version": "0.0.12",
   "fqtn": "com.example.profile",
   "language": "nodejs",
-  "type": "task",
+  "type": "skill",
   "skills": {}
 }

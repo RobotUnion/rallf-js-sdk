@@ -58,6 +58,14 @@ program
       color = color.bind(color, false);
     }
 
+    if (cmd.input) {
+      try {
+        cmd.input = JSON.parse(cmd.input)
+      } catch (error) {
+        throw new Error(`Error parsing input, must be valid json: ${cmd.input}`);
+      }
+    }
+
     logging.log('info', 'running command: run');
 
     let taskPath = cmd.task || cwd;
@@ -83,7 +91,7 @@ program
 
     if (!cmd.method && task.isTask()) {
       cmd.method = 'start';
-    } else {
+    } else if (!cmd.method) {
       cmd.method = 'warmup';
     }
 
