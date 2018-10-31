@@ -15,3 +15,4 @@ IDEAS.md
 /node_modules
 Ideas.md
 /**/robots
+!/examples/init-template/robots

@@ -103,8 +103,9 @@ function copyTemplate() {
       path: 'src/main.js.tmpl',
       vars: { ...manifestTemplate, name: toPascalCase(manifestTemplate.name) }
     },
-    'mocks/test.mock.js',
-    'robots/test-robot/data.json'
+    'mocks/com.test.task/index.js',
+    'robots/nullrobot/devices.json',
+    'robots/nullrobot/skills.json',
   ];
 
   for (let file of templateFiles) {
