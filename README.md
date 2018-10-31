@@ -7,6 +7,10 @@
 [![wiki](https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
 )](https://github.com/RobotUnion/rallf-js-sdk/wiki)
 
+
+> !!! Take into account that this branch is not stable, please reference to "stable" branch !!!
+
+
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
@@ -82,3 +86,4 @@ If you found a bug please leave us an issue.
 * Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/v2/.github/CONTRIBUTING.md) before.
 * Make sure that issue has not been reported
 
+<!-- {"jsonrpc": "2.0", "method": "run-method", "params": { "method": "followUser", "username":"santoslluis" }, "id": "test"} -->
