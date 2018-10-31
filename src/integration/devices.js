@@ -91,9 +91,7 @@ class Devices {
 
     if (device_options.profile) {
       let profile = new firefox.Profile(device_options.profile);
-      // let prof = await profile.writeToDisk();
       opts = opts.setProfile(profile);
-      // opts.real_profile = prof;
     }
 
     return opts;

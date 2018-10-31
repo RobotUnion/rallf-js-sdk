@@ -15,7 +15,7 @@ class Logger extends AbstractLogger {
    * @param {*} process 
    * @param {*} pretty 
    */
-  constructor(process, pretty) {
+  constructor(a, pretty) {
     super({
       notify: (log) => {
         if (this.pretty) {
