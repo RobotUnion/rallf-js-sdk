@@ -18,7 +18,9 @@ class <name> extends Task {
    */
   async warmup() {
     this.logger.debug('warmup');
-    this.firefox = await this.devices.get('firefox');
+
+    // Initialize firefox and get instance of WebDriver
+    this.firefox = await this.devices.get('firefox');  
   }
 
   /**
@@ -26,9 +28,6 @@ class <name> extends Task {
    * @param {any} input - this is the input of your task, provided by the consumer
    */
   async start(input) {
-    // Initialize firefox and get instance of WebDriver
-    this.firefox = await this.devices.get('firefox');
-
     // You can log stuff via the available logger
     this.logger.debug(`Task <name> started`);
 
