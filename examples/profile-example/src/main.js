@@ -37,8 +37,10 @@ class FirefoxProfileExample extends rallf.Task {
     let usernameElem = await this.firefox.findElement(By.id('login_field'));
     let passwordElem = await this.firefox.findElement(By.id('password'));
 
-    await usernameElem.sendKeys('keff-bot');
-    await passwordElem.sendKeys('Bots4Life', Key.ENTER);
+    let data = this.robot.readJSON('data.json');
+
+    await usernameElem.sendKeys(data.username);
+    await passwordElem.sendKeys(data.password, Key.ENTER);
 
     this.logger.debug('Logged in');
 
