@@ -1,0 +1,9 @@
+{
+  "com.test.task": {
+    "methods": {
+      "like": {
+        "return": "success"
+      }
+    }
+  }
+}

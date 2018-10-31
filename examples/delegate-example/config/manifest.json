@@ -7,7 +7,12 @@
   "language": "nodejs",
   "type": "task",
   "skills": {
-    "Facebook": [
+    "com.test.task": [
+      "like"
+    ]
+  },
+  "tasks": {
+    "com.test.task": [
       "like"
     ]
   }

@@ -11,6 +11,10 @@
 [![wiki](https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
 )](https://github.com/RobotUnion/rallf-js-sdk/wiki)
 
+
+> !!! Take into account that this branch is not stable, please reference to "stable" branch !!!
+
+
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
 based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
@@ -28,7 +32,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ### Dependencies
 You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npmjs.com/get-npm) installed.
-> Recomended to have Firefox installed as well as [geckodriver](https://github.com/mozilla/geckodriver/releases)
+> !! It is necesary to have Firefox installed as well as [geckodriver](https://github.com/mozilla/geckodriver/releases), so example is successfull !!
 
 ### Installation
 * Run `npm install rallf-js-sdk -g` to install the sdk and have access to global [commands]()
@@ -40,19 +44,23 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
   3. **init** will generate the following file structure (_explained below_)
   ```
   |-- config
-    `-- manifest.json
+  |  `-- manifest.json
   |-- mocks
-    `-- test.mock.js
+  |  `-- com.test.task
+  |    `-- index.js
   |-- robots
-    `-- test-robot
-        `-- data.json
+  |  `-- test-robot
+  |      `-- data
+  |        `-- com.test.task
+  |      `-- devices.json
+  |      `-- skills.json
   |-- src
-    `-- main.js
+  |  `-- main.js
   |-- package.json
   \-- README.md
   ```
   * `config/manifest.json` - The [Manifest](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) holds information about your Task, e.g: name, version, fqtn
-  * `mocks/test.mock.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
+  * `mocks/com.test.task/index.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
   * `robots/test-robot` - [Robots]() TODO...
   * `src/main.js` - This is the main file of the task, the one that will get executed
 
@@ -65,15 +73,17 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 ## Running 
 ### Running a task
   * `npm start`
-  * `rallf-runner run --mock test --input {}`    
+  * `rallf-runner run -r test-robot --input {}`    
     
 ### Running a Skill
   * `npm run run:getTitle`
-  * `rallf-runner run --mock test --input {} --method getTitle`    
+  * `rallf-runner run -r test-robot --input {} -m getTitle`    
       * If method is passed it will asume it is a skill and will run that method
+  * `rallf-runner run -r test-robot --input {} <<< {"jsonrpc": "2.0", "method": "run-method", "params": { "method": "getTitle" }, "id": "test"}`    
 
 
-You will know if everything went OK  
+You will know if everything went OK  .
+
 Now you can have fun! 🤖
 
 ## Found a bug?
@@ -81,3 +91,4 @@ If you found a bug please leave us an issue.
 * Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/v2/.github/CONTRIBUTING.md) before.
 * Make sure that issue has not been reported
 
+<!-- {"jsonrpc": "2.0", "method": "run-method", "params": { "method": "followUser", "username":"santoslluis" }, "id": "test"} -->

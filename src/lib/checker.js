@@ -14,12 +14,18 @@ module.exports = {
    */
   isValidTaskProject(task_path, manifest) {
     if (typeof task_path !== 'string') {
-      throw new Error(`ERROR: "task_path" must be a string`);
+      return {
+        error: `ERROR: "task_path" must be a string`
+      };
+      // throw new Error(`ERROR: "task_path" must be a string`);
     }
 
     let manifestPath = path.join(task_path, 'config', 'manifest.json');
     if (!fs.existsSync(manifestPath)) {
-      throw new Error(`Task "${task_path}" does not seem to be a rallf Task: 'config/manifest.json' is missing`);
+      return {
+        error: `Task "${task_path}" does not seem to be a rallf Task: 'config/manifest.json' is missing`
+      };
+      // throw new Error(`Task "${task_path}" does not seem to be a rallf Task: 'config/manifest.json' is missing`);
     }
 
 

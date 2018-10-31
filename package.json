@@ -20,13 +20,15 @@
     "test": "jest",
     "test:w": "jest --watchAll",
     "init": "node ./bin/init.js",
-    "npm:publish": "npm version patch && npm publish"
+    "npm:publish": "npm version patch && npm publish",
+    "teste2e": "node ./.tests/e2etest.js"
   },
   "dependencies": {
     "cli-color": "^1.2.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.0",
     "jsonschema": "^1.2.4",
+    "recursive-copy": "^2.0.9",
     "selenium-webdriver": "^3.6.0",
     "yargs": "^12.0.2"
   },
@@ -37,7 +39,11 @@
   "jest": {
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/examples/"
+      "/examples/",
+      "/tests"
     ]
-  }
+  },
+  "pre-commit": [
+    "test"
+  ]
 }

@@ -4,6 +4,7 @@ const RallfFS = require('../lib/rallf-fs');
 class Robot extends RallfFS {
   constructor(cwd) {
     super(cwd);
+    this.skills = [];
   }
 
   /**

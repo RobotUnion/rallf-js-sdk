@@ -18,6 +18,20 @@ class Task extends PubSub {
     this._persisting =  /** @param {Boolean} */ (false);
     this._manifest =  /** @param {Manifest|null} */ (null);
     this.id = null;
+    this.type = 'task';
+  }
+
+  get home() {
+    return this.robot._cwd;
+  }
+
+  isSkill() {
+    return this.type === 'skill';
+  }
+
+
+  isTask() {
+    return this.type === 'task';
   }
 
   /**

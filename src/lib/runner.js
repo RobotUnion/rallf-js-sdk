@@ -5,6 +5,7 @@ const path = require('path');
 const { Task, Robot } = require('../integration');
 const checker = require('./checker');
 const examples = require('./examples');
+const jsonrpc = require('./jsonrpc');
 
 
 class Runner {
@@ -18,10 +19,12 @@ class Runner {
    * @param {string} task_path 
    * @param {any} manifest
    * @param {any} input 
-   * @param {string} robot_id 
+   * @param {string} robot 
+   * @param {string} mocks_folder 
+   * @param {boolean} isTTY 
    * @returns {Task}
    */
-  createTask(task_path, manifest, mock = {}) {
+  createTask(task_path, manifest, robot, mocks_folder, isTTY) {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
@@ -40,25 +43,25 @@ class Runner {
     let taskInstance = /** @type {UserTask} */ new UserTask();
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
+    taskInstance.type = manifest.type;
 
-
-    if (!mock) {
-      mock = {};
-    }
-    if (!mock.robot) {
-      mock.robot = {
-        cwd: 'default-robot',
-        skills: {},
-        devices: []
-      }
+    let robot_path = this.locateRobot(robot);
+    if (!robot) {
+      robot_path = '/robots/nullrobot';
     }
 
-    if (!fs.existsSync(task_path + '/' + mock.robot.cwd)) {
-      fs.mkdirpSync(task_path + '/' + mock.robot.cwd);
+    robot_path = task_path + robot_path;
+
+    if (!fs.existsSync(robot_path)) {
+      this.generateDefaultRobot(robot_path, manifest.fqtn);
     }
 
-    taskInstance.robot = this.getRobot(task_path + '/' + mock.robot.cwd || null);
-    taskInstance.devices._setDevices(mock.robot.devices || []);
+    let devices = this.getDevices(robot_path);
+    let skills = this.getSkills(robot_path);
+
+    taskInstance.robot = this.getRobot((robot_path + '/data/' + manifest.fqtn) || null);
+    taskInstance.devices._setDevices(devices || []);
+    taskInstance.robot.skills = skills;
 
     let pipePath = task_path + '/.rallf'
     if (!fs.existsSync(pipePath)) {
@@ -75,8 +78,18 @@ class Runner {
         }
       }
     });
-    this._taskMap[taskInstance.getName()] = { instance: taskInstance, mock, manifest };
+    this._taskMap[taskInstance.getName()] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
     return taskInstance;
+  }
+
+  generateDefaultRobot(path_, fqtn) {
+    fs.ensureFileSync(path.join(path_, 'devices.json'));
+    fs.writeJsonSync(path.join(path_, 'devices.json'), {});
+
+    fs.ensureFileSync(path.join(path_, 'skills.json'));
+    fs.writeJsonSync(path.join(path_, 'skills.json'), {});
+
+    fs.ensureDirSync(path.join(path_, 'data', fqtn));
   }
 
   safeJSONParse(str) {
@@ -90,25 +103,40 @@ class Runner {
   }
 
   /**
-   * String format: <event_type>:<event_name> <{data}>
-   * @param {string} str 
-   * @return {{event_name:string, event_type:string, data: any}}
+   * 
+   * @param {string} nameOrPath - name or path 
    */
-  parseEvent(str) {
-    let parts = str.match(/^([\w\d]*):([\w\d]*) (.*)$/);
-    return {
-      event_name: parts[1],
-      event_type: parts[2],
-      data: this.safeJSONParse(parts[3])
-    };
+  locateRobot(nameOrPath) {
+    let path_ = nameOrPath;
+    if (/[\\/]/g.test(nameOrPath)) {
+      path_ = nameOrPath;
+    } else {
+      path_ = `/robots/${nameOrPath}`;
+    }
+    return path_;
   }
 
+  getDevices(path_) {
+    path_ = path.join(path_, 'devices.json');
+    let devices = fs.readJsonSync(path_);
+    return devices;
+  }
+
+  getSkills(path_) {
+    path_ = path.join(path_, 'skills.json');
+    let skills = fs.readJsonSync(path_);
+    return skills;
+  }
 
   /**
    * @param {string} cwd - robot cwd 
    * @return {Robot}
    */
   getRobot(cwd) {
+    if (!fs.existsSync(cwd)) {
+      fs.mkdirpSync(cwd);
+    }
+
     return new Robot(cwd);
   }
 
@@ -118,7 +146,7 @@ class Runner {
    * @param {string} name 
    */
   getMock(task_path, name) {
-    let mockPath = path.join(path.resolve(task_path), 'mocks', name + '.mock.js');
+    let mockPath = path.join(path.resolve(task_path), 'mocks', name, 'index.js');
     if (fs.existsSync(mockPath)) {
       const mock = require(mockPath);
       mock.name = name;
@@ -160,6 +188,15 @@ class Runner {
     return false;
   }
 
+  checkAccessToTask(manifest, task_name, task_method) {
+    if (
+      manifest.tasks
+      && manifest.tasks[task_name]
+      && manifest.tasks[task_name].indexOf(task_method) !== -1
+    ) return true;
+    return false;
+  }
+
   /**
    * Delegate in a skill
    * @param {Task} task
@@ -168,13 +205,15 @@ class Runner {
    * @param {*} data 
    * @param {*} options 
    */
-  async delegateTask(task, skill_name, skill_method, data, options) {
+  async delegateTaskLocal(task, skill_name, skill_method, data, options) {
+
     let task_ = this._taskMap[task.getName()];
+    // let mock = this.getMock(task_.path, skill_name);
     let manifest = task_.manifest;
-    let mock = task_.mock;
+    // console.log(mock);
 
     let hasAccessToSkill = this.checkAccessToSkill(manifest, skill_name, skill_method);
-    let skills = mock.robot.skills;
+    let skills = task.robot.skills;
 
     if (!hasAccessToSkill) {
       return Promise.reject({ error: "You havent required access to that skill. Please add to manifest:" + examples.skills });
@@ -189,23 +228,56 @@ class Runner {
     }
 
     let skill = skills[skill_name];
+
+    if (!skill.methods) {
+      return Promise.reject({ error: `Oopsy, skill "${skill_name}" has no methods exported` + examples.skills });
+    }
+
     if (!(skill_method in skill.methods)) {
       return Promise.reject({ error: `Oopsy, skill method "${skill_method}" is not exported by mock: ${mock.name}` + examples.skills });
     }
 
     let method = skill.methods[skill_method];
+    return Promise.resolve(method.return || 'no-response');
+  }
 
-    return Promise.resolve(method.callback(data, task_));
+  async delegateTaskRemote(task, task_name, task_method, data, options) {
+
+    let task_ = this._taskMap[await task.getName()];
+    let mock = this.getMock(task.mocks_folder || task_.path, task_name);
+    let hasAccessToSkill = this.checkAccessToTask(task_.manifest, task_name, task_method);
+
+    if (!hasAccessToSkill) {
+      return Promise.reject({ error: "You havent required access to that task. Please add to manifest:" + examples.tasks });
+    }
+
+    if (!mock) {
+      return Promise.reject({ error: `Oopsy, mock "${task_name}" was not found!` });
+    }
+
+
+    if (!mock.methods) {
+      return Promise.reject({ error: `Oopsy, mock "${task_name}" has no methods exported` + examples.tasks });
+    }
+
+    if (!(task_method in mock.methods)) {
+      return Promise.reject({ error: `Oopsy, mock method "${task_method}" is not exported by mock: ${skill_name}` });
+    }
+
+
+    let method = mock.methods[task_method];
+    return Promise.resolve(method.callback());
   }
 
   /**
    * 
    * @param {Task} task 
    * @param {any} input 
+   * @param {boolean} isTTY 
    * @returns {Promise<{result:any, execution_time: number}>}
    */
-  async runTask(task, input = {}) {
-    return await this.runMethod(task, 'start', input);
+  async runTask(task, input = {}, isTTY = false) {
+    return this.runMethod(task, 'start', input, isTTY);
   }
 
   /**
@@ -213,9 +285,55 @@ class Runner {
    * @param {Task} task 
    * @param {string} method_name 
    * @param {any} input 
+   * @param {boolean} isTTY 
+   * @returns {{result: any, execution_time: number, subroutines: any[]}}
    */
-  async runMethod(task, method_name, input) {
-    let start = Date.now();
+  async runMethod(task, method_name, input, isTTY) {
+
+    const subroutines = [];
+
+    const handler = {
+      get(target, propKey, receiver) {
+        const origMethod = target[propKey];
+        let start = Date.now();
+
+        try {
+          if (typeof origMethod === 'function') {
+            return function (...args) {
+              let meth = origMethod.apply(this, args);
+
+              if (meth && meth.then) {
+                return meth.then(result => {
+                  let end = Date.now();
+                  let execTime = (end - start);
+
+                  subroutines.push({
+                    method: propKey,
+                    args: args,
+                    result: result,
+                    exec_time: execTime
+                  });
+
+                  return result;
+                }).catch(err => {
+                  throw err;
+                });
+              }
+
+
+              return meth;
+            };
+          }
+        } catch (error) {
+          throw err;
+        }
+
+        return origMethod;
+      }
+    };
+
+    const taskProxy = new Proxy(task, handler);
+
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
       throw { error: `Exported class must extend from \"Task\"` };
     }
@@ -225,44 +343,92 @@ class Runner {
     }
 
     // First setup task
-    task.emit('setup:start', {});
-    task.robot.delegateLocal =
-      task.robot.delegateRemote = (...args) => {
-        return new Promise((resolve, reject) => {
-          this.delegateTask(task, ...args)
-            .then(resp => {
-              resolve(resp);
-            })
-            .catch(error => reject(error));
-        });
-      };
-    task.logger.task_name = task.getName();
-    task.emit('setup:end', {});
+    taskProxy.emit('setup:start', {});
 
-    if (task.warmup && typeof task.warmup === 'function') {
-      await Promise.resolve(task.warmup());
+    taskProxy.robot.delegateLocal = (...args) => {
+      if (!isTTY) {
+        return jsonrpc.sendAndAwaitForResponse(jsonrpc.request('delegate-local', args));
+      }
+
+      return new Promise((resolve, reject) => {
+        this.delegateTaskLocal(taskProxy, ...args)
+          .then(resp => resolve(resp))
+          .catch(error => reject(error));
+      });
+    };
+
+    taskProxy.robot.delegateRemote = (...args) => {
+      if (!isTTY) {
+        return jsonrpc.sendAndAwaitForResponse(jsonrpc.request('delegate-remote', args));
+      }
+
+      return new Promise((resolve, reject) => {
+        this.delegateTaskRemote(taskProxy, ...args)
+          .then(resp => resolve(resp))
+          .catch(error => reject(error));
+      });
+    };
+
+    taskProxy.logger.task_name = task.getName();
+    taskProxy.emit('setup:end', {});
+
+    if (taskProxy.warmup && typeof taskProxy.warmup === 'function') {
+      task.emit('wamup:start', {});
+      await Promise.resolve(taskProxy.warmup());
+      task.emit('wamup:end', {});
     }
 
     // Start
-    let method = task[method_name].bind(task);
-    task.emit('start', {});
-    return await method(input)
+    taskProxy.emit('start', {});
+    let result = await taskProxy[method_name](input)
       .then(async result => {
-        if (task.cooldown && typeof task.cooldown === 'function') {
-          await Promise.resolve(task.cooldown());
+        if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
+          await Promise.resolve(taskProxy.cooldown());
         }
 
-        task.emit('finish', {});
+        taskProxy.emit('finish', {});
 
-        if (task.type !== 'skill') {
-          await task.devices.quitAll();
+        if (taskProxy.type !== 'skill') {
+          await taskProxy.devices.quitAll();
         }
 
-        let finish = Date.now();
-
-        let execTimeSeconds = (finish - start) / 1000;
-        return { result, execution_time: execTimeSeconds };
+        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
+        return { result, execution_time, subroutines };
+      }).catch(err => {
+        throw err;
       });
+
+    if (task.isSkill()) {
+      await new Promise(() => { });
+    } else {
+      return result;
+    }
+  }
+
+
+  async runSkillMethod(task, method, params) {
+    return new Promise((resolve, reject) => {
+      if (!method in task) {
+        reject({ message: 'method-not-exist', code: jsonrpc.METHOD_NOT_FOUND, data: {} });
+      }
+      else {
+        try {
+          task[method](params)
+            .then(resolve)
+            .catch(reject);
+        } catch (error) {
+          reject(error);
+        }
+
+        // let resolvesMethod = task[method](params);
+        // if (resolvesMethod.then) {
+        //   return resolvesMethod
+        //     .then(resolve)
+        //     .catch(reject);
+        // }
+        // return resolvesMethod;
+      }
+    });
   }
 }
 

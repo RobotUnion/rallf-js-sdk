@@ -3,6 +3,7 @@
 /node_modules
 /doc
 /out
+/tests
 /rr.log
 # /example
 /.vscode
@@ -13,3 +14,4 @@ IDEAS.md
 *.png
 /node_modules
 Ideas.md
+/**/robots
