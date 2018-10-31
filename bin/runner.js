@@ -10,6 +10,14 @@ const package = require('../package.json');
 const child_process = require('child_process');
 const jsonrpc = require('../src/lib/jsonrpc');
 
+
+
+// let stdinPut = null;
+// inputReader.on('line', (line) => {
+//   console.log("Line ", line);
+//   stdinPut = line;
+// });
+
 program.version(package.version);
 
 const Runner = require('../src/lib/runner');
@@ -25,13 +33,8 @@ function color(colorEnabled, str, colorName) {
   return str;
 }
 
+// process.on('unhandledRejection', r => console.log(r));
 
-// try {
-//   let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
-//   if (latestVersion.toString() !== package.version.trim()) {
-//     logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-//   }
-// } catch (error) { }
 program
   .command('run')
   .option('-t --task <task>', 'path task, default to cwd')
@@ -77,78 +80,61 @@ program
     }
 
     let result;
-    if (cmd.method) {
-      result = rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
-        .then(resp => {
-          logging.log('success', `Method ${color(cmd.method, 'blackBright')} OK`);
-          logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
-          logging.log('success', `Time:   ${color(resp.execution_time + 's')}`);
-          process.exit(0);
-        })
-        .catch(async err => {
-          logging.log('error', `Finished run method ${cmd.method} with ERROR`, err);
-          process.exit(1);
-        });
+
+    if (!cmd.method && task.isTask()) {
+      cmd.method = 'start';
     } else {
-      result = rallfRunner.runTask(task, cmd.input, isTTY)
-        .then(resp => {
-          logging.log('success', 'Finished task OK');
-          logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
-          logging.log('success', `Time:   ${color(resp.execution_time + 's', 'blueBright')}`);
-
-          if (resp.subroutines && cmd.subroutines) {
-            logging.log('info', `Runned ${color(resp.subroutines.length, 'blueBright')} subroutines: `);
-            resp.subroutines.forEach(el => {
-              logging.log('info', `${el.method}() -> ${color(el.result || 'void', 'blueBright')} ${clc.green('@' + (el.exec_time / 1000) + 's')}`);
-            });
-          }
-
-          process.exit(0);
-        })
-        .catch(err => {
-          logging.log('error', 'Finished task with ERROR', err);
-          process.exit(1);
-        });
+      cmd.method = 'warmup';
     }
 
-    if (!cmd.interactive || !isTTY) {
-      return result;
-    } else {
-      task.on('wamup:end', () => {
-        const rl = readline.createInterface({
-          input: process.stdin,
-          output: process.stdout
-        });
-
-        function askQuestion() {
-          rl.question(`\nEnter action, formatted("<method> <id> <{data}>"): `,
-            (answer) => {
-              let reg = /^([\w-_]*) ([\w\d_-]*) (\{.*\})$/;
-              let valid = reg.test(answer);
-
-              if (valid) {
-                logging.log('info', 'Sending request');
-                let match = answer.match(reg);
-
-                let params = null;
-                try {
-                  params = JSON.parse(match[3]);
-                  jsonrpc.emit('request', jsonrpc.request(match[1], params, match[2]));
-                  jsonrpc.waitFor();
-                  askQuestion();
-                } catch (error) {
-                  logging.log('error', error);
-                }
-              }
-              else {
-                logging.log('error', 'Invalid request, must be format: <method> <id> <{data}>');
-                askQuestion();
-              }
-            });
-        }
-
-        askQuestion();
+    rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
+      .then(resp => {
+        logging.log('success', `Method ${color(cmd.method, 'blackBright')} OK`);
+        logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
+        logging.log('success', `Time:   ${color(resp.execution_time + 's')}`);
+        process.exit(0);
+      })
+      .catch(err => {
+        logging.log('error', `Finished method ${cmd.method} with ERROR ` + err);
+        process.exit(1);
       });
+
+    if (task.isSkill()) {
+      task.on('wamup:end', () => {
+        logging.log('info', 'Sending request');
+
+        let inputReader = readline.createInterface({ input: process.stdin });
+        inputReader.on('line', async (line) => {
+          logging.log('info', 'on line: ' + line);
+          try {
+            let request = JSON.parse(line);
+
+            if (request.method === 'run-method' && request.params && request.params.method) {
+              let params = { ...request.params };
+              let method = params.method;
+              delete params.method;
+
+              await Promise.resolve(task[method](params)).catch(error => {
+                console.log(jsonrpc.response('unknown', 'unknown', null, {
+                  code: jsonrpc.INTERNAL_ERROR,
+                  data: { error, request: line },
+                  message: 'internal-error'
+                }));
+                process.exit(1);
+              });
+            }
+          } catch (error) {
+            console.log(jsonrpc.response('unknown', 'unknown', null, {
+              code: jsonrpc.PARSE_ERROR,
+              data: { error, request: line },
+              message: 'parse-error'
+            }));
+            process.exit(1);
+          }
+        });
+      });
+    } else {
+      return result;
     }
   });
 

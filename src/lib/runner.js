@@ -297,30 +297,43 @@ class Runner {
         const origMethod = target[propKey];
         let start = Date.now();
 
-        if (typeof origMethod === 'function') {
-          return function (...args) {
-            return Promise.resolve(origMethod.apply(this, args)).then(result => {
-              let end = Date.now();
-              let execTime = (end - start);
+        try {
+          if (typeof origMethod === 'function') {
+            return function (...args) {
+              let meth = origMethod.apply(this, args);
 
-              subroutines.push({
-                method: propKey,
-                args: args,
-                result: result,
-                exec_time: execTime
-              });
+              if (meth && meth.then) {
+                console.log('is promise');
+                return meth.then(result => {
+                  let end = Date.now();
+                  let execTime = (end - start);
 
-              // console.log(`run fn ${propKey} with args ${JSON.stringify(args)} \n  > result in ${JSON.stringify(result)}  \n  > time: ${(execTime / 1000) + 's'}`);
-              return result;
-            });
-          };
+                  subroutines.push({
+                    method: propKey,
+                    args: args,
+                    result: result,
+                    exec_time: execTime
+                  });
+
+                  // console.log(`run fn ${propKey} with args ${JSON.stringify(args)} \n  > result in ${JSON.stringify(result)}  \n  > time: ${(execTime / 1000) + 's'}`);
+                  return result;
+                }).catch(err => {
+                  throw err;
+                });
+              }
+              console.log('is not promise');
+              return meth;
+            };
+          }
+        } catch (error) {
+          throw err;
         }
 
         return origMethod;
       }
     };
 
-    const taskProxy = new Proxy(task, handler);
+    const taskProxy = task//new Proxy(task, handler);
 
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
       throw { error: `Exported class must extend from \"Task\"` };
@@ -366,28 +379,6 @@ class Runner {
       task.emit('wamup:end', {});
     }
 
-    // Listen for events if task its a skill
-
-    if (task.isSkill()) {
-      // console.log("Is skill listening for requests");
-      jsonrpc.onAny(async (request, error) => {
-        if (request.method === 'run-method' && request.params && request.params.method) {
-          let params = { ...request.params };
-          let method = params.method;
-          delete params.method;
-
-          await this.runSkillMethod(taskProxy, method, params)
-            .then(resp => {
-              console.log(`\n run ${method}(${JSON.stringify(params)}) -> ${resp}`);
-            }).catch(err => {
-              throw new Error(err);
-            });
-        } else {
-          throw new Error('Error running method: ' + method);
-        }
-      }, {});
-    }
-
     // Start
     taskProxy.emit('start', {});
     let result = await taskProxy[method_name](input)
@@ -402,8 +393,10 @@ class Runner {
           await taskProxy.devices.quitAll();
         }
 
-        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time })).exec_time / 1000;
+        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), 0).exec_time / 1000;
         return { result, execution_time, subroutines };
+      }).catch(err => {
+        throw err;
       });
 
     if (task.isSkill()) {
@@ -414,21 +407,27 @@ class Runner {
   }
 
 
-  runSkillMethod(task, method, params) {
-    // console.log(`Running method ${method} with params ${JSON.stringify(params)} in task ${task.constructor.name}`);
+  async runSkillMethod(task, method, params) {
     return new Promise((resolve, reject) => {
       if (!method in task) {
         reject({ message: 'method-not-exist', code: jsonrpc.METHOD_NOT_FOUND, data: {} });
       }
       else {
-        let resolvesMethod = Promise.resolve(task[method](params));
-        resolvesMethod
-          .then(resp => {
-            resolve(resp);
-          })
-          .catch(err => {
-            reject({ message: 'internal-error', code: jsonrpc.INTERNAL_ERROR, data: err });
-          });
+        try {
+          task[method](params)
+            .then(resolve)
+            .catch(reject);
+        } catch (error) {
+          reject(error);
+        }
+
+        // let resolvesMethod = task[method](params);
+        // if (resolvesMethod.then) {
+        //   return resolvesMethod
+        //     .then(resolve)
+        //     .catch(reject);
+        // }
+        // return resolvesMethod;
       }
     });
   }

@@ -8,13 +8,14 @@ class GihubSkill extends rallf.Task {
 
   async warmup() {
     this.logger.debug('warmup');
-    this.firefox = await this.devices.get('firefox');
-    await this.firefox.get('https://github.com');
-    this.logger.debug('GihubSkill example started');
+    // this.firefox = await this.devices.get('firefox');
+    // await this.firefox.get('https://github.com');
+    // this.logger.debug('GihubSkill example started');
   }
 
   async getTitle(input) {
-    return await this.firefox.getTitle();
+    let title = await this.firefox.getTitle();
+    return title;
   }
 }
 module.exports = GihubSkill;

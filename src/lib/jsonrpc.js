@@ -54,33 +54,52 @@ const jsonrpc = {
     if (!error) response.result = result;
     return response;
   },
-  waitFor(method) {
+  waitFor(method, id) {
     return new Promise((resolve, reject) => {
-      process.stdin.on('message', (response) => {
+      let timeOut = setTimeout(() => {
+        reject(jsonrpc.response(request.method, request.id, null, {
+          code: this.TIMED_OUT,
+          message: 'request timed out',
+          data: {}
+        }));
+      }, 30e3);
+
+      let str;
+      const onResponse = (response) => {
         try {
           response = JSON.parse(response);
           let validResponse = this.isValidResponse(response);
           let methodsMatch = method === response.method;
+          let idsMatch = id === response.id;
 
           if (
             validResponse &&
-            methodsMatch
+            methodsMatch &&
+            idsMatch
           ) {
-            clearTimeout(timeOut);
             resolve(response);
+            clearTimeout(timeOut);
           }
           else if (response.error) {
             reject(jsonrpc.response(request.method, request.id, null, response.error));
+            clearTimeout(timeOut);
           }
         } catch (error) {
-          clearTimeout(timeOut);
           reject(jsonrpc.response(request.method, request.id, null, {
             code: this.INTERNAL_ERROR,
             message: 'there has been an error',
             data: error
           }));
+          clearTimeout(timeOut);
         }
-      });
+
+        if (str.destroy) str.destroy();
+      };
+
+      str = process.stdin.on('message', onResponse);
+
+      this.on('response', onResponse);
+
     });
   },
   on(event, callback) {
@@ -113,16 +132,17 @@ const jsonrpc = {
    * @param {object} options.method
    * @param {object} options.id
    */
-  onAny(callback, options) {
-    this.on('request', (request) => {
-      // console.log("Request arrived: ", request);
-      try {
-        let validResponse = this.isValidRequest(request);
-        if (validResponse) callback(request, null);
-        else if (request.error) callback(null, request.error);
-      } catch (error) {
-        callback(null, error);
-      }
+  onAny(options) {
+    return new Promise((resolve, reject) => {
+      this.on('request', (request) => {
+        try {
+          let validResponse = this.isValidRequest(request);
+          if (validResponse) resolve(request, null);
+          else if (request.error) reject(request.error);
+        } catch (error) {
+          reject(error);
+        }
+      });
     });
   },
 
@@ -177,6 +197,7 @@ const jsonrpc = {
     });
   },
 
+  
 
 
   INTERNAL_ERROR: -32603,
