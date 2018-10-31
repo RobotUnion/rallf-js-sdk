@@ -19,10 +19,6 @@ class <name> extends Task {
   async warmup() {
     this.logger.debug('warmup');
     this.firefox = await this.devices.get('firefox');
-
-    this.on('event:external', (data) => {
-      this.logger.debug('event:external', data);
-    });
   }
 
   /**

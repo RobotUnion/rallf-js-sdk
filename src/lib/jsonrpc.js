@@ -197,7 +197,10 @@ const jsonrpc = {
     });
   },
 
-  
+  error(method, id, code, message, data = {}) {
+    return this.response(method, id, null, { code, message, data });
+  },
+  log() { },
 
 
   INTERNAL_ERROR: -32603,

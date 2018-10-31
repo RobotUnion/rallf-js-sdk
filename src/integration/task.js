@@ -21,6 +21,10 @@ class Task extends PubSub {
     this.type = 'task';
   }
 
+  get home() {
+    return this.robot._cwd;
+  }
+
   isSkill() {
     return this.type === 'skill';
   }

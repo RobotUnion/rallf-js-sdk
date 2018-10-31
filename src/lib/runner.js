@@ -303,7 +303,6 @@ class Runner {
               let meth = origMethod.apply(this, args);
 
               if (meth && meth.then) {
-                console.log('is promise');
                 return meth.then(result => {
                   let end = Date.now();
                   let execTime = (end - start);
@@ -315,13 +314,13 @@ class Runner {
                     exec_time: execTime
                   });
 
-                  // console.log(`run fn ${propKey} with args ${JSON.stringify(args)} \n  > result in ${JSON.stringify(result)}  \n  > time: ${(execTime / 1000) + 's'}`);
                   return result;
                 }).catch(err => {
                   throw err;
                 });
               }
-              console.log('is not promise');
+
+
               return meth;
             };
           }
@@ -333,7 +332,7 @@ class Runner {
       }
     };
 
-    const taskProxy = task//new Proxy(task, handler);
+    const taskProxy = new Proxy(task, handler);
 
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
       throw { error: `Exported class must extend from \"Task\"` };
@@ -393,7 +392,7 @@ class Runner {
           await taskProxy.devices.quitAll();
         }
 
-        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), 0).exec_time / 1000;
+        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
         return { result, execution_time, subroutines };
       }).catch(err => {
         throw err;

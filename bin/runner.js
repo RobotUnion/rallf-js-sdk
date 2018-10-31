@@ -94,8 +94,9 @@ program
         logging.log('success', `Time:   ${color(resp.execution_time + 's')}`);
         process.exit(0);
       })
-      .catch(err => {
-        logging.log('error', `Finished method ${cmd.method} with ERROR ` + err);
+      .catch(async err => {
+        logging.log('error', `Finished method ${cmd.method} with ERROR ` + err.stack);
+        await task.devices.quitAll();
         process.exit(1);
       });
 
@@ -115,20 +116,12 @@ program
               delete params.method;
 
               await Promise.resolve(task[method](params)).catch(error => {
-                console.log(jsonrpc.response('unknown', 'unknown', null, {
-                  code: jsonrpc.INTERNAL_ERROR,
-                  data: { error, request: line },
-                  message: 'internal-error'
-                }));
+                console.log(jsonrpc.error(request.method, request.id, jsonrpc.INTERNAL_ERROR, 'internal-error', error));
                 process.exit(1);
               });
             }
           } catch (error) {
-            console.log(jsonrpc.response('unknown', 'unknown', null, {
-              code: jsonrpc.PARSE_ERROR,
-              data: { error, request: line },
-              message: 'parse-error'
-            }));
+            console.log(jsonrpc.error('unknown', 'unknown', jsonrpc.INTERNAL_ERROR, 'parse-error', error));
             process.exit(1);
           }
         });
