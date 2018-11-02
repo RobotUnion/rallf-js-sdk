@@ -11,13 +11,6 @@ const child_process = require('child_process');
 const jsonrpc = require('../src/lib/jsonrpc');
 
 
-
-// let stdinPut = null;
-// inputReader.on('line', (line) => {
-//   console.log("Line ", line);
-//   stdinPut = line;
-// });
-
 program.version(package.version);
 
 const Runner = require('../src/lib/runner');
@@ -33,7 +26,15 @@ function color(colorEnabled, str, colorName) {
   return str;
 }
 
-// process.on('unhandledRejection', r => console.log(r));
+function outputRpc(pretty, rpcent) {
+  if (pretty) {
+    logging.log('info', 'rpc:message', rpcent.toObject());
+  } else {
+    rpcent.output();
+  }
+}
+
+
 
 program
   .command('run')
@@ -52,10 +53,12 @@ program
       logging.logger = logging.prettyLogger;
       logging.color = true;
       color = color.bind(color, true);
+      outputRpc = outputRpc.bind(outputRpc, true);
     } else {
       logging.logger = logging.rpcLogger;
       logging.color = false;
       color = color.bind(color, false);
+      outputRpc = outputRpc.bind(outputRpc, false);
     }
 
     if (cmd.input) {
@@ -110,27 +113,31 @@ program
 
     if (task.isSkill()) {
       task.on('wamup:end', () => {
-        logging.log('info', 'Sending request');
+        logging.log('info', 'Warm up done - listening for requests...');
 
-        let inputReader = readline.createInterface({ input: process.stdin });
-        inputReader.on('line', async (line) => {
-          logging.log('info', 'on line: ' + line);
-          try {
-            let request = JSON.parse(line);
+        jsonrpc.rpiecy.listen(async request => {
+          logging.log('info', 'on request: ', request);
 
-            if (request.method === 'run-method' && request.params && request.params.method) {
-              let params = { ...request.params };
-              let method = params.method;
-              delete params.method;
+          if (
+            request.method === 'delegate_local' &&
+            request.params &&
+            request.params.routine
+          ) {
+            let method = request.params.routine;
+            let args = request.params.args || {};
 
-              await Promise.resolve(task[method](params)).catch(error => {
-                console.log(jsonrpc.error(request.method, request.id, jsonrpc.INTERNAL_ERROR, 'internal-error', error));
+            await Promise.resolve(task[method](args))
+              .then(resp => {
+                let response = rpiecy.createResponse(request.id, { data: resp });
+                outputRpc(response);
+              })
+              .catch(error => {
+                let response = rpiecy.createResponse(request.id, null, {
+                  code: jsonrpc.INTERNAL_ERROR
+                });
+                outputRpc(response);
                 process.exit(1);
               });
-            }
-          } catch (error) {
-            console.log(jsonrpc.error('unknown', 'unknown', jsonrpc.INTERNAL_ERROR, 'parse-error', error));
-            process.exit(1);
           }
         });
       });

@@ -8,8 +8,11 @@ module.exports = {
     process.stdout.write(str + '\n');
   },
   rpcLogger(str) {
-    let request = jsonrpc.request('log', { message: str, data: {}, channel: 'runner.js', severity: 6 });
-    process.stdout.write(request.toString() + '\n');
+    let log = { message: str, data: {}, channel: 'runner.js', severity: 6 };
+    let notif = jsonrpc.rpiecy.createRequest('log', log);
+    notif.output();
+    // let request = jsonrpc.request('log', { message: str, data: {}, channel: 'runner.js', severity: 6 });
+    // process.stdout.write(request.toString() + '\n');
   },
   logger(str) {
     process.stdout.write(str + '\n');

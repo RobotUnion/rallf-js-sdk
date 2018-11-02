@@ -8,9 +8,9 @@ class GihubSkill extends rallf.Task {
 
   async warmup() {
     this.logger.debug('warmup');
-    // this.firefox = await this.devices.get('firefox');
-    // await this.firefox.get('https://github.com');
-    // this.logger.debug('GihubSkill example started');
+    this.firefox = await this.devices.get('firefox');
+    await this.firefox.get('https://github.com');
+    this.logger.debug('GihubSkill example started');
   }
 
   async getTitle(input) {
@@ -19,3 +19,4 @@ class GihubSkill extends rallf.Task {
   }
 }
 module.exports = GihubSkill;
+// { "method" : "delegate_local", "params" : { "routine": "getTitle" }, "id" : 123 }

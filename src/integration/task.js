@@ -15,10 +15,11 @@ class Task extends PubSub {
     this.logger = /** @type {Logger} */ (new Logger(process, true));
     this.devices = /** @type {Devices} */ (new Devices());
     this.robot =  /** @param {Robot} */ (new Robot());
-    this._persisting =  /** @param {Boolean} */ (false);
-    this._manifest =  /** @param {Manifest|null} */ (null);
-    this.id = null;
-    this.type = 'task';
+    this._persisting = (false);
+    this._manifest = (null);
+    this._warmup_done = (false);
+    this.id = (null);
+    this.type = ('task');
   }
 
   get home() {
@@ -32,6 +33,13 @@ class Task extends PubSub {
 
   isTask() {
     return this.type === 'task';
+  }
+
+  _hasDoneWarmup(val) {
+    if (val) {
+      this._warmup_done = val;
+    }
+    else return this._warmup_done;
   }
 
   /**

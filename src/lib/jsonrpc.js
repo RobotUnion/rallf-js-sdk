@@ -2,8 +2,10 @@
 
 const Validator = require('jsonschema').Validator;
 const schemes = require('./schemes');
+const rpiecy = require('json-rpiecy');
 
 const jsonrpc = {
+  rpiecy,
   version: '2.0',
   request_template: {
     jsonrpc: '2.0',

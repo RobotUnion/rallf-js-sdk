@@ -54,7 +54,7 @@ class Devices {
    * @param {WebDriver} device 
    */
   async quit(device) {
-    return await device.close();
+    return device ? await device.close() : null;
   }
 
   /**

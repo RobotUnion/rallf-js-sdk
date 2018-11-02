@@ -372,37 +372,44 @@ class Runner {
     taskProxy.logger.task_name = task.getName();
     taskProxy.emit('setup:end', {});
 
-    if (taskProxy.warmup && typeof taskProxy.warmup === 'function') {
+
+    
+    let result = {};
+    if (typeof taskProxy.warmup === 'function' && method_name === 'warmup' && !taskProxy._hasDoneWarmup()) {
       task.emit('wamup:start', {});
       await Promise.resolve(taskProxy.warmup());
+      taskProxy._hasDoneWarmup(true);
       task.emit('wamup:end', {});
+      result = {};
     }
+    else {
+      // Start
+      taskProxy.emit('start', {});
+      result = await taskProxy[method_name](input)
+        .then(async result => {
+          if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
+            await Promise.resolve(taskProxy.cooldown());
+          }
 
-    // Start
-    taskProxy.emit('start', {});
-    let result = await taskProxy[method_name](input)
-      .then(async result => {
-        if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
-          await Promise.resolve(taskProxy.cooldown());
-        }
+          taskProxy.emit('finish', {});
 
-        taskProxy.emit('finish', {});
+          if (taskProxy.type !== 'skill') {
+            await taskProxy.devices.quitAll();
+          }
 
-        if (taskProxy.type !== 'skill') {
-          await taskProxy.devices.quitAll();
-        }
-
-        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
-        return { result, execution_time, subroutines };
-      }).catch(err => {
-        throw err;
-      });
+          let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
+          return { result, execution_time, subroutines };
+        }).catch(err => {
+          throw err;
+        });
+    }
 
     if (task.isSkill()) {
       await new Promise(() => { });
     } else {
       return result;
     }
+
   }
 
 
