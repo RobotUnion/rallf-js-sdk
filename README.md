@@ -13,7 +13,7 @@
 )](https://github.com/RobotUnion/rallf-js-sdk/wiki)
 
 
-> !!! Take into account that this branch is not stable, please reference to "stable" branch !!!
+<!-- > !!! Take into account that this branch is not stable, please reference to "stable" branch !!! -->
 
 
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
