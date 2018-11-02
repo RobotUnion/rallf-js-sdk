@@ -19,4 +19,4 @@ class GihubSkill extends rallf.Task {
   }
 }
 module.exports = GihubSkill;
-// { "method" : "delegate_local", "params" : { "routine": "getTitle" }, "id" : 123 }
+// { "method" : "delegate_local", "params" : { "routine": "logIntoGoogle" }, "id" : 123 }

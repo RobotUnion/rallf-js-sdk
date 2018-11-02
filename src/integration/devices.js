@@ -89,9 +89,13 @@ class Devices {
       opts = opts.windowSize(device.screen);
     }
 
-    if (device_options.profile) {
+    if (device_options.profile && deviceName === 'firefox') {
+      console.log("Setting profile", device_options.profile);
       let profile = new firefox.Profile(device_options.profile);
       opts = opts.setProfile(profile);
+    }
+    if (device_options.profile && deviceName === 'chrome') {
+      opts.addArgument(`user-data-dir=${device_options.profile}`);
     }
 
     return opts;

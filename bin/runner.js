@@ -115,10 +115,14 @@ program
       task.on('wamup:end', () => {
         logging.log('info', 'Warm up done - listening for requests...');
 
-        jsonrpc.rpiecy.listen(async request => {
+        jsonrpc.rpiecy.listen(request => {
           logging.log('info', 'on request: ', request);
 
-          if (
+          if (request.method === 'quit') {
+            outputRpc(request);
+            process.exit(1);
+          }
+          else if (
             request.method === 'delegate_local' &&
             request.params &&
             request.params.routine
@@ -126,14 +130,16 @@ program
             let method = request.params.routine;
             let args = request.params.args || {};
 
-            await Promise.resolve(task[method](args))
+            Promise.resolve(task[method](args))
               .then(resp => {
                 let response = rpiecy.createResponse(request.id, { data: resp });
                 outputRpc(response);
               })
               .catch(error => {
                 let response = rpiecy.createResponse(request.id, null, {
-                  code: jsonrpc.INTERNAL_ERROR
+                  code: jsonrpc.INTERNAL_ERROR,
+                  data: error,
+                  message: 'error running method'
                 });
                 outputRpc(response);
                 process.exit(1);

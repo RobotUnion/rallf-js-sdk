@@ -2,7 +2,7 @@
   "name": "<name>",
   "main": "src/main.js",
   "scripts": {
-    "run:getTitle": "rallf-runner run --mock test --input {} --method getTitle"
+    "run:getTitle": "rallf-runner run --input {} --method getTitle"
   },
   "dependencies": {
     "rallf-js-sdk": "^<sdk_version>"
