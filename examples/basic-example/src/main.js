@@ -8,6 +8,7 @@ class BasicExample extends rallf.Task {
 
   async warmup() {
     this.logger.debug('warmup');
+    this.logger.debug('cwd: ' + process.cwd());
     this.firefox = await this.devices.get('firefox');
   }
 
@@ -15,7 +16,7 @@ class BasicExample extends rallf.Task {
     this.logger.debug('BasicExample started');
 
     this.robot.saveJSON('data.json', { test: 'asdads' });
-    
+
     let data = this.robot.readJSON('data.json');
 
     this.logger.debug('Data saved: ', data);

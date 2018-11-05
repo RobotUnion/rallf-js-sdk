@@ -60,6 +60,9 @@ class Runner {
     let skills = this.getSkills(robot_path);
 
     taskInstance.robot = this.getRobot((robot_path + '/data/' + manifest.fqtn) || null);
+
+    process.chdir((robot_path + '/data/' + manifest.fqtn));
+
     taskInstance.devices._setDevices(devices || []);
     taskInstance.robot.skills = skills;
 
@@ -373,36 +376,35 @@ class Runner {
     taskProxy.emit('setup:end', {});
 
 
-    
+    console.log("Method: ", method_name);
     let result = {};
-    if (typeof taskProxy.warmup === 'function' && method_name === 'warmup' && !taskProxy._hasDoneWarmup()) {
+    if (typeof taskProxy.warmup === 'function' && method_name !== 'warmup' && !taskProxy._hasDoneWarmup()) {
       task.emit('wamup:start', {});
       await Promise.resolve(taskProxy.warmup());
       taskProxy._hasDoneWarmup(true);
       task.emit('wamup:end', {});
       result = {};
     }
-    else {
-      // Start
-      taskProxy.emit('start', {});
-      result = await taskProxy[method_name](input)
-        .then(async result => {
-          if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
-            await Promise.resolve(taskProxy.cooldown());
-          }
 
-          taskProxy.emit('finish', {});
+    // Start
+    taskProxy.emit('start', {});
+    result = await taskProxy[method_name](input)
+      .then(async result => {
+        if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
+          await Promise.resolve(taskProxy.cooldown());
+        }
 
-          if (taskProxy.type !== 'skill') {
-            await taskProxy.devices.quitAll();
-          }
+        taskProxy.emit('finish', {});
 
-          let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
-          return { result, execution_time, subroutines };
-        }).catch(err => {
-          throw err;
-        });
-    }
+        if (taskProxy.type !== 'skill') {
+          await taskProxy.devices.quitAll();
+        }
+
+        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
+        return { result, execution_time, subroutines };
+      }).catch(err => {
+        throw err;
+      });
 
     if (task.isSkill()) {
       await new Promise(() => { });

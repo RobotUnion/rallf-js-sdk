@@ -1,5 +1,19 @@
-[
-  {
-    "name": "firefox"
+{
+  "firefox": {
+    "platform": "selenium",
+    "kind": "driver",
+    "device": "firefox",
+    "bin": "firefox/App/Firefox/firefox.exe",
+    "driver": "geckodriver.exe"
+  },
+  "android": {
+    "platform": "selenium",
+    "kind": "remote",
+    "device": "android",
+    "version": "8.1.0",
+    "app_package": "com.android.settings",
+    "app_activity": "com.android.settings.Settings",
+    "host": "localhost",
+    "port": "4723"
   }
-]
+}
