@@ -1,8 +1,11 @@
 
-const cv = require('opencv');
+const cv = require('opencv4nodejs');
 
 class RallfCV {
-  constructor() { }
+  constructor() {
+    this.cv = cv;
+  }
+
 
   /**
    * 
@@ -10,13 +13,14 @@ class RallfCV {
    * @param {string} template - a image path
    */
   match(img, template) {
+    let imgPic = cv.imread(img);
+    let output = imgPic.matchTemplate(template, 3);
 
-    img = cv.readImage(img);
-    template = cv.readImage(template);
 
-    return cv.matchTemplate(img, template, cv.TM_CCOEFF_NORMED);
+    // await cv.imshowWait('Detected', img);
+    return output;
   }
 }
 
 
-
+module.exports = new RallfCV();

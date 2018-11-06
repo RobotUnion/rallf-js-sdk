@@ -24,7 +24,7 @@ class Devices {
     try {
       let device = this.devices[device_name];
 
-      console.log("Getting device: ", device);
+      // console.log("Getting device: ", device);
 
       if (!device) {
         throw new Error('Device not found: ' + device_name + ` - robot does not have that devices defined`);
@@ -52,7 +52,7 @@ class Devices {
         });
       }
       else if (device.kind === 'remote') {
-        console.log("Is remote");
+        // console.log("Is remote");
         const opts = {
           port: device.port,
           desiredCapabilities: {

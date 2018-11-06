@@ -28,9 +28,11 @@ class Runner {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
+    console.log(task_path, path.resolve(task_path));
 
     let mainFile = manifest.main;
     let taskPath = path.join(path.resolve(task_path), mainFile);
+
 
     if (!fs.existsSync(taskPath)) {
       throw new Error(`It seams main file defined in 'config/manifest.json' does not exist`);

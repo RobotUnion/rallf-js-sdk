@@ -29,7 +29,6 @@
     "fs-extra": "^7.0.0",
     "json-rpiecy": "^0.1.0",
     "jsonschema": "^1.2.4",
-    "node-opencv": "0.0.2-security",
     "recursive-copy": "^2.0.9",
     "selenium-webdriver": "^3.6.0",
     "webdriverio": "^4.14.0",
