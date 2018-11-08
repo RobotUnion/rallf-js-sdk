@@ -61,6 +61,7 @@ class Runner {
     }
 
     let devices = this.getDevices(robot_path);
+
     let skills = this.getSkills(robot_path);
 
     taskInstance.robot = this.getRobot((robot_path + '/data/' + manifest.fqtn) || null);
