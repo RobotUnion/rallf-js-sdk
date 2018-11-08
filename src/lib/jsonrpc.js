@@ -5,7 +5,7 @@ const schemes = require('./schemes');
 const rpiecy = require('json-rpiecy');
 const fs = require('fs-extra');
 
-console.log("Requiring rpc " + __dirname);
+// console.log("Requiring rpc " + __dirname);
 // fs.createFileSync('C:\\Users\\keff\\Desktop\\cosas\\Dev\\Trabajo\\RobotUnion\\@rallf\\rallf-node\\debug.txt');
 // fs.writeFileSync('C:\\Users\\keff\\Desktop\\cosas\\Dev\\Trabajo\\RobotUnion\\@rallf\\rallf-node\\debug.txt', JSON.stringify(require.main));
 
@@ -126,12 +126,10 @@ const jsonrpc = {
     }
   },
   emit(event, data) {
-    console.log("Emiting: " + event + ' id: ' + this.id, this.subs);
     if (event in this.subs) {
       let cbacks = this.subs[event].callbacks;
       for (let cback of cbacks) {
         cback(data, event);
-        console.log('emitted ' + event);
       }
     }
   },

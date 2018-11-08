@@ -56,7 +56,7 @@ program
   .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
   .option('-i --input <input>', 'tasks input')
   .option('-m --mocks <mocks>', 'mocks folder')
-  .option('-f --method <method>', 'run method in skill')
+  .option('-f --method <method>', 'run method in skill', 'warmup')
   .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
   .option('-n --no-tty', 'shows output as is, without formatting')
   .option('-I --interactive', 'shows prompt to interact with the task via stdin')
