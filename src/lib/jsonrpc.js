@@ -111,7 +111,6 @@ const jsonrpc = {
     });
   },
   on(event, callback) {
-    console.log("on(" + event + ") " + this.id);
     if (this.subs[event] && this.subs[event].callbacks) {
       this.subs[event].callbacks.push(callback);
     } else {
@@ -165,63 +164,8 @@ const jsonrpc = {
     return new Promise((resolve, reject) => {
       console.log('Listening for: ' + 'response:' + request.id);
       task.on('response:' + request.id, (resp) => {
-        console.log('Received awaited response: ', resp);
       });
     });
-
-    // return rpiecy.Request.waitFor(request.id)
-    //   .then(resp => {
-    //     console.log('Received awaited response: ', resp);
-    //     return resp;
-    //   });
-    // return new Promise((resolve, reject) => {
-    //   request.sendAndWait();
-    //   // process.stdout.write(request + '\n');
-
-    //   // let timeOut = setTimeout(() => {
-    //   //   reject(jsonrpc.response(request.method, request.id, null, {
-    //   //     code: this.TIMED_OUT,
-    //   //     message: 'request timed out',
-    //   //     data: {}
-    //   //   }));
-    //   // }, 6e4); // 6 minutes
-
-    //   // process.stdin.on('message', (response) => {
-    //   //   console.log("On message: " + response);
-    //   //   try {
-    //   //     response = JSON.parse(response);
-    //   //     let validResponse = this.isValidResponse(response);
-    //   //     let idsMatch = request.id === response.id;
-
-    //   //     if (
-    //   //       validResponse &&
-    //   //       idsMatch
-    //   //     ) {
-    //   //       clearTimeout(timeOut);
-    //   //       resolve(response);
-    //   //     }
-    //   //     else if (response.error) {
-    //   //       clearTimeout(timeOut);
-    //   //       reject(jsonrpc.response(request.method, request.id, null, response.error));
-    //   //     }
-    //   //     else if (!idsMatch) {
-    //   //       clearTimeout(timeOut);
-    //   //       reject(jsonrpc.response(request.method, request.id, null, {
-    //   //         code: this.INTERNAL_ERROR,
-    //   //         message: 'id\'s do not match',
-    //   //         data: error
-    //   //       }));
-    //   //     }
-    //   //   } catch (error) {
-    //   //     clearTimeout(timeOut);
-    //   //     reject(jsonrpc.response(request.method, request.id, null, {
-    //   //       code: this.INTERNAL_ERROR,
-    //   //       message: 'there has been an error',
-    //   //       data: error
-    //   //     }));
-    //   //   }
-    //   // });
-    // });
   },
 
   error(method, id, code, message, data = {}) {
