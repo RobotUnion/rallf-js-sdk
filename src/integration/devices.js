@@ -113,7 +113,7 @@ class Devices {
     if (this._instances.length) {
       let promises = [];
       for (let i = 0; i < this._instances.length; i++) {
-        promises.push(this._instances[i].device.close());
+        promises.push(this._instances[i].device.quit());
       }
       await Promise.all(promises).then((res) => res).catch((err) => { });
     }

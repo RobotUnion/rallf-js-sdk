@@ -6,7 +6,7 @@ const { Task, Robot } = require('../integration');
 const checker = require('./checker');
 const examples = require('./examples');
 
-const COOLDOWN_TIMEOUT = 10 * 60e3; // 10 minutes
+const COOLDOWN_TIMEOUT = process.env.RALLF_COOLDOWN_TIMEOUT || 10 * 60e3; // 10 minutes
 
 class Runner {
   constructor() {
@@ -283,51 +283,53 @@ class Runner {
    */
   async runMethod(task, method_name, input, isTTY) {
 
+    // console.log("Running method: " + method_name);
+
     clearTimeout(this.cooldownTimeout);
 
     const subroutines = [];
 
-    const handler = {
-      get(target, propKey, receiver) {
-        const origMethod = target[propKey];
-        let start = Date.now();
+    // const handler = {
+    //   get(target, propKey, receiver) {
+    //     const origMethod = target[propKey];
+    //     let start = Date.now();
 
-        try {
-          if (typeof origMethod === 'function') {
-            return function (...args) {
-              let meth = origMethod.apply(this, args);
+    //     try {
+    //       if (typeof origMethod === 'function') {
+    //         return function (...args) {
+    //           let meth = origMethod.apply(this, args);
 
-              if (meth && meth.then) {
-                return meth.then(result => {
-                  let end = Date.now();
-                  let execTime = (end - start);
+    //           if (meth && meth.then) {
+    //             return meth.then(result => {
+    //               let end = Date.now();
+    //               let execTime = (end - start);
 
-                  subroutines.push({
-                    method: propKey,
-                    args: args,
-                    result: result,
-                    exec_time: execTime
-                  });
+    //               subroutines.push({
+    //                 method: propKey,
+    //                 args: args,
+    //                 result: result,
+    //                 exec_time: execTime
+    //               });
 
-                  return result;
-                }).catch(err => {
-                  throw err;
-                });
-              }
+    //               return result;
+    //             }).catch(err => {
+    //               throw err;
+    //             });
+    //           }
 
 
-              return meth;
-            };
-          }
-        } catch (error) {
-          throw err;
-        }
+    //           return meth;
+    //         };
+    //       }
+    //     } catch (error) {
+    //       throw err;
+    //     }
 
-        return origMethod;
-      }
-    };
+    //     return origMethod;
+    //   }
+    // };
 
-    const taskProxy = new Proxy(task, handler);
+    // const taskProxy = new Proxy(task, handler);
 
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
       throw { error: `Exported class must extend from \"Task\"` };
@@ -368,7 +370,7 @@ class Runner {
     task.emit('setup:end', {});
 
 
-    if (typeof task.warmup === 'function' && method_name === 'warmup' && !task._hasDoneWarmup()) {
+    if (typeof task.warmup === 'function' && !task._hasDoneWarmup()) {
       task.emit('warmup:start', {});
       await Promise.resolve(task.warmup());
       task._hasDoneWarmup(true);
@@ -391,13 +393,14 @@ class Runner {
           task.emit('error', { error });
         }
       }, COOLDOWN_TIMEOUT);
-      return new Promise(res => { });
     }
 
-    if (method_name !== 'warmup') {
+    if (method_name === 'warmup') {
+      return new Promise(res => { });
+    } else {
       // Start
-      task.emit('start', {});
-      return await taskProxy[method_name](input)
+      task.emit('run-method', { method_name, input });
+      return await task[method_name](input)
         .then(result => {
           let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
           return { result, execution_time, subroutines };

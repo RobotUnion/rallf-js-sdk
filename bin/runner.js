@@ -51,10 +51,13 @@ function outputRpc(pretty, rpcent) {
 }
 
 function onFinish(resp, cmd) {
-  // logging.log('success', `Method ${color(cmd.method, 'blackBright')} OK`);
-  // logging.log('success', `Result: ${color(resp.result, 'blackBright')}`);
-  // logging.log('success', `Time:   ${color(resp.execution_time + 's')}`);
+  logging.log('success', `Finished ${color('OK', 'green')}`);
   process.exit(resp);
+}
+
+const finish = (data, cmd) => {
+  let request = rpiecy.createRequest('finish', data, rpiecy.id());
+  onFinish(request, cmd);
 }
 
 program
@@ -112,17 +115,11 @@ program
       task.logger.pretty = false;
     }
 
-    let result;
 
-    if (!cmd.method && task.isTask()) {
-      cmd.method = 'start';
-    } else if (!cmd.method) {
-      cmd.method = 'warmup';
-    }
-
-    // console.log("Method: " + cmd.method);
     rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
-      .then(resp => { })
+      .then(resp => {
+        logging.log('info', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
+      })
       .catch(async err => {
         logging.log('error', `Finished method ${cmd.method} with ERROR ` + err.stack);
         await task.devices.quitAll();
@@ -176,9 +173,9 @@ program
       });
     });
 
-    task.on('finish', (data = {}) => {
-      let request = rpiecy.createRequest('finish', data, rpiecy.id());
-      onFinish(request, cmd);
+    task.on('finish', async (data) => {
+      await task.devices.quitAll();
+      finish(data, cmd);
     });
 
     task.on('error', async (err) => {
@@ -196,6 +193,11 @@ program
       }, rpiecy.id());
       outputRpc(request);
     };
+
+    process.on('SIGINT', async () => {
+      await task.devices.quitAll();
+      finish({}, cmd);
+    });
   });
 
 program
