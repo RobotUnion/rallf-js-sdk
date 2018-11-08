@@ -11,6 +11,10 @@ class PubSub {
     this[subSymbol] = {};
   }
 
+  onAny(event, data) {
+
+  }
+
   /**
    * Subscribe to an event
    * @param {string} event 
@@ -20,6 +24,7 @@ class PubSub {
     if (typeof callback !== 'function') {
       throw new Error('Callback argument must be type "function" given: ' + (typeof callback));
     }
+
 
     if (this[subSymbol][event] && this[subSymbol][event].callbacks) {
       this[subSymbol][event].callbacks.push(callback);
@@ -49,6 +54,10 @@ class PubSub {
   emit(event, data) {
     if (event in this[subSymbol]) {
       let cbacks = this[subSymbol][event].callbacks;
+
+      // Emit any event through onAny
+      this.onAny(event, data);
+
       for (let cback of cbacks) {
         cback(data, event);
       }

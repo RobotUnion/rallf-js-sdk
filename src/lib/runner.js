@@ -5,13 +5,14 @@ const path = require('path');
 const { Task, Robot } = require('../integration');
 const checker = require('./checker');
 const examples = require('./examples');
-const jsonrpc = require('./jsonrpc');
 
+const COOLDOWN_TIMEOUT = 10 * 60e3; // 10 minutes
 
 class Runner {
-
   constructor() {
     this._taskMap = {};
+    this.cooldownTimeout = null;
+    this.jsonrpc = require('./jsonrpc');
   }
 
   /**
@@ -28,7 +29,8 @@ class Runner {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
-    console.log(task_path, path.resolve(task_path));
+    // console.log(task_path, path.resolve(task_path));
+
 
     let mainFile = manifest.main;
     let taskPath = path.join(path.resolve(task_path), mainFile);
@@ -68,21 +70,6 @@ class Runner {
     taskInstance.devices._setDevices(devices || []);
     taskInstance.robot.skills = skills;
 
-    let pipePath = task_path + '/.rallf'
-    if (!fs.existsSync(pipePath)) {
-      fs.mkdirpSync(pipePath);
-      fs.writeFileSync(pipePath + '/event-pipe', '');
-    }
-
-    fs.watchFile(pipePath + '/event-pipe', (prev, curr) => {
-      if (curr !== prev) {
-        let data = fs.readFileSync(pipePath + '/event-pipe').toString().trim();
-        if (/^([\w\d]*):([\w\d]*) (.*)$/.test(data)) {
-          let parsed = this.parseEvent(data);
-          taskInstance.emit(parsed.event_name + ':' + parsed.event_type, parsed.data);
-        }
-      }
-    });
     this._taskMap[taskInstance.getName()] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
     return taskInstance;
   }
@@ -295,6 +282,8 @@ class Runner {
    */
   async runMethod(task, method_name, input, isTTY) {
 
+    clearTimeout(this.cooldownTimeout);
+
     const subroutines = [];
 
     const handler = {
@@ -348,79 +337,90 @@ class Runner {
     }
 
     // First setup task
-    taskProxy.emit('setup:start', {});
+    task.emit('setup:start', {});
 
-    taskProxy.robot.delegateLocal = (...args) => {
+    task.robot.delegateLocal = (...args) => {
       if (!isTTY) {
-        return jsonrpc.sendAndAwaitForResponse(jsonrpc.request('delegate-local', args));
+        return this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-local', args, this.jsonrpc.rpiecy.id()), task);
       }
 
       return new Promise((resolve, reject) => {
-        this.delegateTaskLocal(taskProxy, ...args)
+        this.delegateTaskLocal(task, ...args)
           .then(resp => resolve(resp))
           .catch(error => reject(error));
       });
     };
 
-    taskProxy.robot.delegateRemote = (...args) => {
+    task.robot.delegateRemote = (...args) => {
       if (!isTTY) {
-        return jsonrpc.sendAndAwaitForResponse(jsonrpc.request('delegate-remote', args));
+        return this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-remote', args, this.jsonrpc.rpiecy.id()), task);
       }
 
       return new Promise((resolve, reject) => {
-        this.delegateTaskRemote(taskProxy, ...args)
+        this.delegateTaskRemote(task, ...args)
           .then(resp => resolve(resp))
           .catch(error => reject(error));
       });
     };
 
-    taskProxy.logger.task_name = task.getName();
-    taskProxy.emit('setup:end', {});
+    task.logger.task_name = task.getName();
+    task.emit('setup:end', {});
 
 
-    console.log("Method: ", method_name);
-    let result = {};
-    if (typeof taskProxy.warmup === 'function' && method_name !== 'warmup' && !taskProxy._hasDoneWarmup()) {
-      task.emit('wamup:start', {});
-      await Promise.resolve(taskProxy.warmup());
-      taskProxy._hasDoneWarmup(true);
-      task.emit('wamup:end', {});
-      result = {};
+    if (typeof task.warmup === 'function' && method_name === 'warmup' && !task._hasDoneWarmup()) {
+      task.emit('warmup:start', {});
+      await Promise.resolve(task.warmup());
+      task._hasDoneWarmup(true);
+      task.emit('warmup:end', {});
+
+      this.cooldownTimeout = setTimeout(async () => {
+        try {
+          if (task.cooldown && typeof task.cooldown === 'function') {
+            await Promise.resolve(task.cooldown());
+          }
+
+          if (task.type !== 'skill') {
+            await task.devices.quitAll();
+          }
+
+          // let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
+          task.emit('finish', {});
+        } catch (error) {
+          task.logger.error('There has been an error cooling down: ' + error.stack);
+          task.emit('error', { error });
+        }
+      }, COOLDOWN_TIMEOUT);
+      return new Promise(res => { });
     }
 
-    // Start
-    taskProxy.emit('start', {});
-    result = await taskProxy[method_name](input)
-      .then(async result => {
-        if (taskProxy.cooldown && typeof taskProxy.cooldown === 'function') {
-          await Promise.resolve(taskProxy.cooldown());
-        }
+    if (method_name !== 'warmup') {
+      // Start
+      task.emit('start', {});
+      return await taskProxy[method_name](input)
+        .then(result => {
+          let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
+          return { result, execution_time, subroutines };
+        }).catch(err => {
+          task.emit('error', err);
+        });
+    }
+  }
 
-        taskProxy.emit('finish', {});
-
-        if (taskProxy.type !== 'skill') {
-          await taskProxy.devices.quitAll();
-        }
-
-        let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
-        return { result, execution_time, subroutines };
-      }).catch(err => {
-        throw err;
+  sendAndAwaitForResponse(request, task) {
+    return new Promise((resolve, reject) => {
+      task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
+      task.on('response:' + request.id, (resp) => {
+        resolve(resp.result);
       });
-
-    if (task.isSkill()) {
-      await new Promise(() => { });
-    } else {
-      return result;
-    }
-
+      request.output();
+    }).then(resp => resp);
   }
 
 
   async runSkillMethod(task, method, params) {
     return new Promise((resolve, reject) => {
       if (!method in task) {
-        reject({ message: 'method-not-exist', code: jsonrpc.METHOD_NOT_FOUND, data: {} });
+        reject({ message: 'method-not-exist', code: this.jsonrpc.METHOD_NOT_FOUND, data: {} });
       }
       else {
         try {
