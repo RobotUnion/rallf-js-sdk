@@ -42,29 +42,11 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
   1. Create an empty folder: `mkdir test-task && cd test-task`
   2. Init a task project with: `rallf-init`  
      2.1. Init will ask some questions
-  3. **init** will generate the following file structure (_explained below_)
-  ```
-  |-- config
-  |  `-- manifest.json
-  |-- mocks
-  |  `-- com.test.task
-  |    `-- index.js
-  |-- robots
-  |  `-- test-robot
-  |      `-- data
-  |        `-- com.test.task
-  |      `-- devices.json
-  |      `-- skills.json
-  |-- src
-  |  `-- main.js
-  |-- package.json
-  \-- README.md
-  ```
+  3. **init** will generate the following some files (_explained below_)
   * `config/manifest.json` - The [Manifest](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) holds information about your Task, e.g: name, version, fqtn
-  * `mocks/com.test.task/index.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
-  * `robots/test-robot` - [Robots]() TODO...
+  * `mocks/test.task.com/index.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
+  * `robots/test-robot/` - [Robots]() TODO...
   * `src/main.js` - This is the main file of the task, the one that will get executed
-
 
 ### Create simple Skill
 1. Follow the steps above until 2.
