@@ -6,6 +6,5 @@
   "fqtn": "com.example.basic",
   "language": "nodejs",
   "type": "task",
-  "skills": {},
-  "permissions": {}
+  "skills": {}
 }

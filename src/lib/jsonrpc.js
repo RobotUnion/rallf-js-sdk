@@ -3,9 +3,15 @@
 const Validator = require('jsonschema').Validator;
 const schemes = require('./schemes');
 const rpiecy = require('json-rpiecy');
+const fs = require('fs-extra');
+
+// console.log("Requiring rpc " + __dirname);
+// fs.createFileSync('C:\\Users\\keff\\Desktop\\cosas\\Dev\\Trabajo\\RobotUnion\\@rallf\\rallf-node\\debug.txt');
+// fs.writeFileSync('C:\\Users\\keff\\Desktop\\cosas\\Dev\\Trabajo\\RobotUnion\\@rallf\\rallf-node\\debug.txt', JSON.stringify(require.main));
 
 const jsonrpc = {
   rpiecy,
+  id: Math.random(),
   version: '2.0',
   request_template: {
     jsonrpc: '2.0',
@@ -149,52 +155,15 @@ const jsonrpc = {
   },
 
   /**
-   * @param {object} request - must be valid jsonrpc request object 
+   * @param {rpiecy.Request} request - must be valid jsonrpc request object 
    * @returns {Promise<any>}
    */
-  sendAndAwaitForResponse(request) {
+  sendAndAwaitForResponse(request, task) {
+    request.output();
+
     return new Promise((resolve, reject) => {
-      process.stdout.write(request + '\n');
-
-      let timeOut = setTimeout(() => {
-        reject(jsonrpc.response(request.method, request.id, null, {
-          code: this.TIMED_OUT,
-          message: 'request timed out',
-          data: {}
-        }));
-      }, 10e3);
-
-      process.stdin.on('message', (response) => {
-        try {
-          response = JSON.parse(response);
-          let validResponse = this.isValidResponse(response);
-          let idsMatch = request.id === response.id;
-
-          if (
-            validResponse &&
-            idsMatch
-          ) {
-            clearTimeout(timeOut);
-            resolve(response);
-          }
-          else if (response.error) {
-            reject(jsonrpc.response(request.method, request.id, null, response.error));
-          }
-          else if (!idsMatch) {
-            reject(jsonrpc.response(request.method, request.id, null, {
-              code: this.INTERNAL_ERROR,
-              message: 'id\'s do not match',
-              data: error
-            }));
-          }
-        } catch (error) {
-          clearTimeout(timeOut);
-          reject(jsonrpc.response(request.method, request.id, null, {
-            code: this.INTERNAL_ERROR,
-            message: 'there has been an error',
-            data: error
-          }));
-        }
+      console.log('Listening for: ' + 'response:' + request.id);
+      task.on('response:' + request.id, (resp) => {
       });
     });
   },

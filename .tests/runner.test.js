@@ -4,7 +4,17 @@ const fs = require('fs-extra');
 
 jest.setTimeout(60e3);
 
+let cwd = process.cwd();
+
 fdescribe('Runner', () => {
+
+  const runner = new Runner();
+
+  // beforeEach(_ => {
+  //   process.chdir(cwd);
+  // })
+
+
   it(`should be defined`, () => {
     expect(Runner).toBeDefined();
   });
@@ -13,7 +23,6 @@ fdescribe('Runner', () => {
 
   it(`should contain method: runTask`, isMethodAFunction('runTask'));
 
-  const runner = new Runner();
   it(`should throw error if anything but a task is passed to: runTask`, async () => {
     try {
       await runner.runTask({});
@@ -42,6 +51,7 @@ fdescribe('Runner', () => {
   });
 
   it(`.getTask should return a task`, () => {
+    process.chdir(cwd);
     let manifest = runner.getManifest('./examples/basic-example');
     let mock = runner.getMock('./examples/basic-example', 'test');
     let task = runner.createTask('./examples/basic-example', manifest, mock);
@@ -49,10 +59,11 @@ fdescribe('Runner', () => {
   });
 
   it(`should run "basic task" and return 'finished'`, async () => {
+    process.chdir(cwd);
     let manifest = runner.getManifest('./examples/basic-example');
     let mock = runner.getMock('./examples/basic-example', 'test');
     let task = runner.createTask('./examples/basic-example', manifest, mock);
-    let res = await runner.runTask(task);
-    expect(res.result).toEqual('finished');
+    let res = await runner.runMethod(task, 'start', {}, false);
+    expect(res.result).toEqual('started');
   });
 });

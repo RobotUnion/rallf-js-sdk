@@ -2,6 +2,7 @@
 const { Builder, WebDriver } = require('selenium-webdriver')
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
+const wdio = require("webdriverio");
 
 
 /**
@@ -16,38 +17,86 @@ class Devices {
   /**
    * Request access to a device. 
    * @arg {String} device_name
-   * @returns {Promise<WebDriver>}
+   * @returns {Promise<WebDriver>|wdio.Client<void>}
    * @rejects if device is not found or if build failed
    */
-  async get(device_name, device_options) {
-    if (!this.devices || !this.devices.length || !this.devices.some((el) => el.name === device_name)) {
-      return Promise.reject('Device not found: ' + device_name + ` - robot does not have that devices defined`);
-    }
-
-    let device = this.devices.find((el) => el.name === device_name);
-    let builder = new Builder().forBrowser(device.name);
-    let options = await this._getOptions(device, device_options);
-
-    if (device.name === 'firefox') {
-      builder.setFirefoxOptions(options);
-    }
-    else if (device.name === 'chrome') {
-      builder.setChromeOptions(options);
-    }
-
-    let cap = await builder.getCapabilities();
-    cap.set('real-profile', options.real_profile);
-
+  get(device_name, device_options) {
     try {
-      let deviceInstance = await builder.build();
-      this._instances.push({ device_name: device_name, device: deviceInstance, options: device_options });
+      let device = this.devices[device_name];
 
+      // console.log("Getting device: ", device);
 
-      return deviceInstance;
+      if (!device) {
+        throw new Error('Device not found: ' + device_name + ` - robot does not have that devices defined`);
+      }
+      if (device.kind === 'driver') {
+        return new Promise(async (resolve, reject) => {
+          let builder = new Builder().forBrowser(device.device);
+          let options = await this._getOptions(device, device_options);
+
+          if (device.name === 'firefox') {
+            options.useGeckoDriver(device.driver);
+            options.setBinary(device.bin);
+            builder.setFirefoxOptions(options);
+          }
+          else if (device.name === 'chrome') {
+            options.setProperty("webdriver.chrome.driver", device.driver);
+            opts.setChromeBinaryPath(device.bin);
+            builder.setChromeOptions(options);
+          }
+
+          let deviceInstance = await builder.build();
+          this._instances.push({ device_name: device_name, device: deviceInstance, options: device_options });
+
+          resolve(deviceInstance);
+        });
+      }
+      else if (device.kind === 'remote') {
+        // console.log("Is remote");
+        const opts = {
+          port: device.port,
+          desiredCapabilities: {
+            platformName: device.device,
+            platformVersion: device.version,
+            deviceName: 'keff',
+            appPackage: device.app_package,
+            appActivity: device.app_activity,
+            automationName: "UiAutomator2",
+            host: device.host,
+            port: device.port
+          }
+        };
+
+        const client = wdio.remote(opts).init();
+        return client;
+      }
     } catch (error) {
-      return Promise.reject(error);
+      throw new Error(error);
     }
   }
+
+  build(device_name, device_options) {
+    let device = this.devices[device_name];
+    return function () {
+      console.log("Is remote");
+      const opts = {
+        port: device.port,
+        desiredCapabilities: {
+          platformName: device.device,
+          platformVersion: device.version,
+          deviceName: 'keff',
+          appPackage: device.app_package,
+          appActivity: device.app_activity,
+          automationName: "UiAutomator2",
+          host: device.host,
+          port: device.port
+        }
+      };
+
+      return wdio.remote(opts).init();
+    }
+  }
+
 
   /**
    * Close a device

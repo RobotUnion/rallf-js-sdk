@@ -9,17 +9,16 @@ class BasicExample extends rallf.Task {
   async warmup() {
     this.logger.debug('warmup');
     this.firefox = await this.devices.get('firefox');
+    await this.firefox.get('https://github.com');
   }
 
   async start(input) {
     this.logger.debug('BasicExample started');
+    return 'started';
+  }
 
-    this.robot.saveJSON('data.json', { test: 'asdads' });
-    
-    let data = this.robot.readJSON('data.json');
-
-    this.logger.debug('Data saved: ', data);
-    return 'finished';
+  async getTitle(input) {
+    return await this.firefox.getTitle();
   }
 
   async cooldown() {
@@ -28,3 +27,12 @@ class BasicExample extends rallf.Task {
   }
 }
 module.exports = BasicExample;
+// {
+//   "jsonrpc": "2.0",
+//   "method": "event",
+//   "params": {
+//     "event": "warmup:end",
+//     "data": {}
+//   },
+//   "id": "bt5mzosz"
+// }

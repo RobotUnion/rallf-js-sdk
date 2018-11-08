@@ -1,5 +1,7 @@
-[
-  {
-    "name": "firefox"
+{
+  "firefox": {
+    "platform": "selenium",
+    "kind": "driver",
+    "device": "firefox"
   }
-]
+}

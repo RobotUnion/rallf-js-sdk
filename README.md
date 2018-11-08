@@ -27,7 +27,7 @@ based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 * [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
 * [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
 * [Technical Docs](https://github.com/RobotUnion/rallf-sdk/wiki/Technical-Docs)
-
+* [OpenCV](https://github.com/RobotUnion/rallf-sdk/wiki/Integration---OpenCV)
 
 ## First steps
 
