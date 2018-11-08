@@ -1,6 +1,6 @@
 # RALLF Node.js SDK
 
-[![Build Status](https://semaphoreci.com/api/v1/nombrekeff/loggin-js/branches/master/badge.svg)](https://semaphoreci.com/nombrekeff/loggin-js)
+[![Build Status](https://semaphoreci.com/api/v1/nombrekeff/loggin-js/branches/master/badge.svg)](https://semaphoreci.com/nombrekeff/rallf-js-sdk)
 <!-- ![Codacy grade](https://img.shields.io/codacy/grade/28253ebf50a34a088b99d3f3e80615bc.svg?style=flat-square)-->
 
 
