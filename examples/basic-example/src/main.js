@@ -27,12 +27,3 @@ class BasicExample extends rallf.Task {
   }
 }
 module.exports = BasicExample;
-// {
-//   "jsonrpc": "2.0",
-//   "method": "event",
-//   "params": {
-//     "event": "warmup:end",
-//     "data": {}
-//   },
-//   "id": "bt5mzosz"
-// }

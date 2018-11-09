@@ -14,12 +14,16 @@ const rpiecy = require('json-rpiecy');
 
 program.version(package.version);
 
-try {
-  let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
-  if (latestVersion.toString() !== package.version.trim()) {
-    logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-  }
-} catch (error) { }
+program.option('--nvc', 'Don\'t check version', false);
+
+if (!process.argv.includes('--nvc')) {
+  try {
+    let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
+    if (latestVersion.toString() !== package.version.trim()) {
+      logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
+    }
+  } catch (error) { }
+}
 
 const Runner = require('../src/lib/runner');
 const rallfRunner = new Runner();
@@ -68,13 +72,16 @@ program
   .option('-m --mocks <mocks>', 'mocks folder')
   .option('-f --method <method>', 'run method in skill', 'warmup')
   .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
-  .option('-n --no-tty', 'shows output as is, without formatting')
+  .option('-T --tty', 'if TTY should be set', true)
   .option('-I --interactive', 'shows prompt to interact with the task via stdin')
   .option('-v --verbose', 'shows  verbose logging', false)
   .action((cmd) => {
-    let isTTY = process.stdin.isTTY && cmd.tty;
+    let isTTY = process.stdin.isTTY || cmd.tty;
 
-    if (isTTY) {
+    console.log('isTTY', isTTY);
+
+
+    if (!isTTY) {
       logging.logger = logging.prettyLogger;
       logging.color = true;
       color = color.bind(color, true);
@@ -109,7 +116,7 @@ program
     logging.log('info', 'Created task');
     logging.log('info', 'Executing task');
 
-    if (isTTY) {
+    if (!isTTY) {
       task.logger.pretty = true;
     } else {
       task.logger.pretty = false;
@@ -129,6 +136,7 @@ program
     task.on('warmup:end', () => {
       logging.log('info', 'Warm up done - listening for requests...');
       rpiecy.listen(request => {
+        console.log('request', request);
         if (request.id) {
           if (cmd.verbose && request.method) {
             logging.log('info', task.id + ' on request: ', request);
@@ -155,7 +163,7 @@ program
               })
               .catch(error => {
                 let response = rpiecy.createResponse(request.id, null, {
-                  code: INTERNAL_ERROR,
+                  code: jsonrpc.INTERNAL_ERROR,
                   data: error,
                   message: 'error running method'
                 });
