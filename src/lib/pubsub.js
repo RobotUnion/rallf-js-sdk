@@ -20,6 +20,28 @@ class PubSub {
    * @param {string} event 
    * @param {function} callback 
    */
+  once(event, callback) {
+    if (typeof callback !== 'function') {
+      throw new Error('Callback argument must be type "function" given: ' + (typeof callback));
+    }
+
+
+    if (this[subSymbol][event] && this[subSymbol][event].callbacks) {
+      this[subSymbol][event].callbacks.push(callback);
+      this[subSymbol][event].onlyOnce = true;
+    } else {
+      this[subSymbol][event] = {
+        callbacks: [callback],
+        onlyOnce: true
+      }
+    }
+  }
+
+  /**
+   * Subscribe to an event
+   * @param {string} event 
+   * @param {function} callback 
+   */
   on(event, callback) {
     if (typeof callback !== 'function') {
       throw new Error('Callback argument must be type "function" given: ' + (typeof callback));
@@ -28,9 +50,11 @@ class PubSub {
 
     if (this[subSymbol][event] && this[subSymbol][event].callbacks) {
       this[subSymbol][event].callbacks.push(callback);
+      this[subSymbol][event].onlyOnce = false;
     } else {
       this[subSymbol][event] = {
-        callbacks: [callback]
+        callbacks: [callback],
+        onlyOnce: false
       };
     }
   }
@@ -60,6 +84,10 @@ class PubSub {
 
       for (let cback of cbacks) {
         cback(data, event);
+      }
+
+      if (this[subSymbol][event].onlyOnce) {
+        delete this[subSymbol][event];
       }
     }
   }

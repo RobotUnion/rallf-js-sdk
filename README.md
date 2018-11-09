@@ -60,9 +60,8 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
     
 ### Running a Skill
   * `npm run run:getTitle`
-  * `rallf-runner run -r test-robot --input '{"routine": "delegate_local"}' -m delegate_local`    
+  * `rallf-runner run -r test-robot --method getTitle --input '{}'`    
       * If method is passed it will asume it is a skill and will run that method
-  * `rallf-runner run -r test-robot --input {} <<< {"jsonrpc": "2.0", "method": "delegate_local", "params": { "routine": "getTitle" }, "id": "test"}`    
 
 
 You will know if everything went OK  .

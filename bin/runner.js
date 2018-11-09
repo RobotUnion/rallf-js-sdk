@@ -54,14 +54,14 @@ function outputRpc(pretty, rpcent) {
   }
 }
 
-function onFinish(resp, cmd) {
-  logging.log('success', `Finished ${color('OK', 'green')}`);
-  process.exit(resp);
+function onFinish(resp, cmd, task) {
+  logging.log('success', `Finished ${task.id} ${color('OK', 'green')} ${JSON.stringify(resp)}`);
+  process.exit('SIGINT');
 }
 
-const finish = (data, cmd) => {
+const finish = (data, cmd, task) => {
   let request = rpiecy.createRequest('finish', data, rpiecy.id());
-  onFinish(request, cmd);
+  onFinish(request, cmd, task);
 }
 
 program
@@ -78,7 +78,7 @@ program
   .action((cmd) => {
     let isTTY = process.stdin.isTTY || cmd.tty;
 
-    console.log('isTTY', isTTY);
+    // console.log('isTTY', isTTY);
 
 
     if (!isTTY) {
@@ -136,17 +136,16 @@ program
     task.on('warmup:end', () => {
       logging.log('info', 'Warm up done - listening for requests...');
       rpiecy.listen(request => {
-        console.log('request', request);
         if (request.id) {
-          if (cmd.verbose && request.method) {
-            logging.log('info', task.id + ' on request: ', request);
-          } else if (cmd.verbose && request.result || request.method) {
-            logging.log('info', task.id + ' on respose: ', request);
-          }
+          // if (cmd.verbose && request.method) {
+          //   logging.log('info', task.id + ' on request: ', request);
+          // } else if (cmd.verbose && request.result || request.method) {
+          //   logging.log('info', task.id + ' on respose: ', request);
+          // }
 
           if (request.method === 'quit') {
             task.devices.quitAll().then(x => {
-              onFinish(request, cmd);
+              onFinish(request, cmd, task);
             });
           }
           else if (
@@ -159,7 +158,7 @@ program
             Promise.resolve(task[method](args))
               .then(resp => {
                 let response = rpiecy.createResponse(request.id, resp, null);
-                outputRpc(response);
+                response.output();
               })
               .catch(error => {
                 let response = rpiecy.createResponse(request.id, null, {
@@ -167,7 +166,7 @@ program
                   data: error,
                   message: 'error running method'
                 });
-                outputRpc(response);
+                response.output();
                 process.exit(1);
               });
           } else if (request.result || request.error) {
@@ -181,12 +180,14 @@ program
       });
     });
 
+    // if (task.isTask()) {
     task.on('finish', async (data) => {
       await task.devices.quitAll();
-      finish(data, cmd);
+      finish(data, cmd, task);
     });
+    // }
 
-    task.on('error', async (err) => {
+    task.once('error', async (err) => {
       logging.log('error', `Finished method ${cmd.method} with ERROR ` + err);
       await task.devices.quitAll();
       process.exit(1);
@@ -194,17 +195,18 @@ program
 
     // On any event
     task.onAny = (evt, data) => {
-      // logging.log('info', `received event: ${evt}`, data);
+      logging.log('info', `received event: ${evt}`, data);
       let request = rpiecy.createRequest('event', {
         event: evt,
         data: data || {}
       }, rpiecy.id());
-      outputRpc(request);
+      request.output();
+      // logging.log('info', `Send request: ${request.toString()}`);
     };
 
     process.on('SIGINT', async () => {
       await task.devices.quitAll();
-      finish({}, cmd);
+      finish({}, cmd, task);
     });
   });
 
