@@ -17,7 +17,6 @@
 
 
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
-based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
 
 ## Resources
 * [First steps](#first-steps)
