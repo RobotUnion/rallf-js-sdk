@@ -5,6 +5,7 @@ const path = require('path');
 const { Task, Robot } = require('../integration');
 const checker = require('./checker');
 const examples = require('./examples');
+const now = require('./now');
 
 const COOLDOWN_TIMEOUT = process.env.RALLF_COOLDOWN_TIMEOUT || 10 * 60e3; // 10 minutes
 
@@ -239,9 +240,11 @@ class Runner {
 
     if (typeof task.warmup === 'function' && !task._hasDoneWarmup()) {
       task.emit('warmup:start', {});
-      await Promise.resolve(task.warmup());
+
+      let timed = await now.timeFnExecutionAsync(() => task.warmup()); // await Promise.resolve(task.warmup());
+
       task._hasDoneWarmup(true);
-      task.emit('warmup:end', {});
+      task.emit('warmup:end', { timed });
 
       this.cooldownTimeout = setTimeout(async () => {
         try {
@@ -276,7 +279,7 @@ class Runner {
   }
 
   sendAndAwaitForResponse(request, task) {
-      task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
+    task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
     return request.sendAndAwait().then(resp => resp.result);
   }
 
