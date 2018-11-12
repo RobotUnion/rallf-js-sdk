@@ -60,6 +60,14 @@ class Task extends PubSub {
   }
 
   /**
+   * @deprecated in favor of `Task.name`
+   * @return {String|null}
+   */
+  getName() {
+    return this._manifest ? this._manifest.name : null;
+  }
+
+  /**
    * @return {String|null}
    */
   get fqtn() {

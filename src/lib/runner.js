@@ -71,7 +71,7 @@ class Runner {
     taskInstance.devices._setDevices(devices || []);
     taskInstance.robot.skills = skills;
 
-    this._taskMap[taskInstance.getName()] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
+    this._taskMap[taskInstance.name] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
     return taskInstance;
   }
 
@@ -220,7 +220,7 @@ class Runner {
     }
 
     if (!checker.hasMethod(task, method_name)) {
-      throw { error: `Method (${method_name}) was not found in Task: ${task.getName()}` };
+      throw { error: `Method (${method_name}) was not found in Task: ${task.name}` };
     }
 
     task.emit('setup:start', {});
@@ -233,7 +233,7 @@ class Runner {
       return this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-remote', args, this.jsonrpc.rpiecy.id()), task);
     };
 
-    task.logger.task_name = task.getName();
+    task.logger.task_name = task.name;
     task.emit('setup:end', {});
 
 

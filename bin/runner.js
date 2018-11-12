@@ -125,7 +125,7 @@ program
     }
 
     let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
-    let taskLbl = color(task.getName() + '@' + task.getVersion(), 'green');
+    let taskLbl = color(task.name + '@' + task.version + 'green');
 
     logging.log('success', 'Running task: ' + taskLbl);
     logging.log('info', 'Created task');
@@ -181,7 +181,7 @@ program
                 logging.log('info', 'Method start:    ' + start);
                 logging.log('info', 'Method end:      ' + end);
                 logging.log('info', 'Method duration: ' + duration);
-                
+
                 let response = rpiecy.createResponse(request.id, {
                   return: resp,
                   stats: {
