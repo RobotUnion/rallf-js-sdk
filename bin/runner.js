@@ -64,6 +64,21 @@ const finish = (data, cmd, task) => {
   onFinish(request, cmd, task);
 }
 
+const now = (unit) => {
+  const hrTime = process.hrtime();
+  switch (unit) {
+    case 'milli':
+      return hrTime[0] * 1000 + hrTime[1] / 1000000;
+    case 'micro':
+      return hrTime[0] * 1000000 + hrTime[1] / 1000;
+    case 'nano':
+      return hrTime[0] * 1000000000 + hrTime[1];
+    default:
+      return hrTime[0] * 1000000000 + hrTime[1];
+  }
+
+};
+
 program
   .command('run')
   .option('-t --task <task>', 'path task, default to cwd')
@@ -155,9 +170,31 @@ program
           ) {
             let method = request.params.routine;
             let args = request.params.args || {};
+            let start = now('milli').toFixed(6);
+            let start_time = Date.now();
             Promise.resolve(task[method](args))
               .then(resp => {
-                let response = rpiecy.createResponse(request.id, resp, null);
+                let end = now('milli').toFixed(6);
+                let end_time = Date.now();
+                let duration = end - start;
+
+                logging.log('info', 'Method start:    ' + start);
+                logging.log('info', 'Method end:      ' + end);
+                logging.log('info', 'Method duration: ' + duration);
+                
+                let response = rpiecy.createResponse(request.id, {
+                  return: resp,
+                  stats: {
+                    method: method,
+                    args: args,
+                    task_id: task.id,
+
+                    start_time: start_time,
+                    end_time: end_time,
+                    duration_ms: duration,
+                    duration_s: duration / 1000
+                  }
+                }, null);
                 response.output();
               })
               .catch(error => {

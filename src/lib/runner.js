@@ -223,7 +223,6 @@ class Runner {
       throw { error: `Method (${method_name}) was not found in Task: ${task.getName()}` };
     }
 
-    // First setup task
     task.emit('setup:start', {});
 
     task.robot.delegateLocal = (...args) => {
@@ -254,7 +253,6 @@ class Runner {
             await task.devices.quitAll();
           }
 
-          // let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
           task.emit('finish', {});
         } catch (error) {
           task.logger.error('There has been an error cooling down: ' + error.stack);
@@ -266,7 +264,6 @@ class Runner {
     if (method_name === 'warmup') {
       return new Promise(res => { });
     } else {
-      // Start
       task.emit('run-method', { method_name, input });
       return await task[method_name](input)
         .then(result => {
@@ -281,13 +278,6 @@ class Runner {
   sendAndAwaitForResponse(request, task) {
       task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
     return request.sendAndAwait().then(resp => resp.result);
-    // return new Promise((resolve, reject) => {
-    //   task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
-    //   task.on('response:' + request.id, (resp) => {
-    //     resolve(resp.result);
-    //   });
-    //   request.output();
-    // }).then(resp => resp);
   }
 
 
@@ -304,14 +294,6 @@ class Runner {
         } catch (error) {
           reject(error);
         }
-
-        // let resolvesMethod = task[method](params);
-        // if (resolvesMethod.then) {
-        //   return resolvesMethod
-        //     .then(resolve)
-        //     .catch(reject);
-        // }
-        // return resolvesMethod;
       }
     });
   }

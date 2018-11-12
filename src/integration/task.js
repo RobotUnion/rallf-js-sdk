@@ -55,17 +55,31 @@ class Task extends PubSub {
   /**
    * @return {String|null}
    */
-  getName() {
+  get name() {
     return this._manifest ? this._manifest.name : null;
   }
 
   /**
    * @return {String|null}
    */
-  getVersion() {
+  get fqtn() {
+    return this._manifest ? this._manifest.fqtn : null;
+  }
+
+  /**
+   * @return {String|null}
+   */
+  get version() {
     return this._manifest ? this._manifest.version : null;
   }
 
+  /**
+   * @deprecated in favor of `Task.version`
+   * @return {String|null}
+   */
+  getVersion() {
+    return this._manifest ? this._manifest.version : null;
+  }
 }
 
 module.exports = Task;
