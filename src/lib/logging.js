@@ -32,11 +32,11 @@ module.exports = {
   },
 
   // Ugly, improve
-  log(type, msg, data) {
+  log(type, msg, data, channel = 'runner') {
     let cl = this.getClFromType(type);
     let segments = [
       cl(this.padd(type.toUpperCase().substr(0, 3))),
-      '(' + this.getClFromType()('runner') + ')',
+      '(' + this.getClFromType()(channel) + ')',
       (msg),
       data ? this.getClFromType()(JSON.stringify(data, null, 2)) : null,
     ].filter((x) => x);

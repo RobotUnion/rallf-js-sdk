@@ -1,6 +1,6 @@
 {
   "name": "rallf-js-sdk",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Toolset to create Tasks for RALLF based on selenium-webdrver",
   "main": "index.js",
   "author": "RobotUnion",
@@ -14,7 +14,8 @@
   },
   "bin": {
     "rallf-runner": "bin/runner.js",
-    "rallf-init": "bin/init.js"
+    "rallf-init": "bin/init.js",
+    "rallf-pkg": "bin/packager.js"
   },
   "scripts": {
     "test": "jest",
@@ -24,6 +25,7 @@
     "teste2e": "node ./.tests/e2etest.js"
   },
   "dependencies": {
+    "adm-zip": "^0.4.11",
     "cli-color": "^1.2.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.0",

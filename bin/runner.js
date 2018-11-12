@@ -7,6 +7,7 @@ const program = require('commander');
 const readline = require('readline');
 const logging = require('../src/lib/logging');
 const jsonrpc = require('../src/lib/jsonrpc');
+const now = require('../src/lib/now');
 const package = require('../package.json');
 const child_process = require('child_process');
 const rpiecy = require('json-rpiecy');
@@ -64,6 +65,21 @@ const finish = (data, cmd, task) => {
   onFinish(request, cmd, task);
 }
 
+// const now = (unit) => {
+//   const hrTime = process.hrtime();
+//   switch (unit) {
+//     case 'milli':
+//       return hrTime[0] * 1000 + hrTime[1] / 1000000;
+//     case 'micro':
+//       return hrTime[0] * 1000000 + hrTime[1] / 1000;
+//     case 'nano':
+//       return hrTime[0] * 1000000000 + hrTime[1];
+//     default:
+//       return hrTime[0] * 1000000000 + hrTime[1];
+//   }
+
+// };
+
 program
   .command('run')
   .option('-t --task <task>', 'path task, default to cwd')
@@ -110,7 +126,7 @@ program
     }
 
     let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
-    let taskLbl = color(task.getName() + '@' + task.getVersion(), 'green');
+    let taskLbl = color(task.name + '@' + task.version + 'green');
 
     logging.log('success', 'Running task: ' + taskLbl);
     logging.log('info', 'Created task');
@@ -137,12 +153,6 @@ program
       logging.log('info', 'Warm up done - listening for requests...');
       rpiecy.listen(request => {
         if (request.id) {
-          // if (cmd.verbose && request.method) {
-          //   logging.log('info', task.id + ' on request: ', request);
-          // } else if (cmd.verbose && request.result || request.method) {
-          //   logging.log('info', task.id + ' on respose: ', request);
-          // }
-
           if (request.method === 'quit') {
             task.devices.quitAll().then(x => {
               onFinish(request, cmd, task);
@@ -155,23 +165,23 @@ program
           ) {
             let method = request.params.routine;
             let args = request.params.args || {};
-            Promise.resolve(task[method](args))
-              .then(resp => {
-                let response = rpiecy.createResponse(request.id, resp, null);
+
+            now.timeFnExecutionAsync(() => task[method](args))
+              .then((res) => {
+                logging.log('info', `Timed: `, res);
+                let response = rpiecy.createResponse(request.id, { timed: res.timed, info: { method, args, result: res.return } }, null);
                 response.output();
               })
-              .catch(error => {
+              .catch(err => {
                 let response = rpiecy.createResponse(request.id, null, {
                   code: jsonrpc.INTERNAL_ERROR,
-                  data: error,
+                  data: err,
                   message: 'error running method'
                 });
                 response.output();
                 process.exit(1);
               });
           } else if (request.result || request.error) {
-            // logging.log('info', `Task ${task.id} received response ${request.id}`, { request, subs: task['__subscriptions'] });
-            // logging.log('info', 'is response:' + request.id, task['__subscriptions']);
             task.emit('response:' + request.id, request);
           }
         } else if (cmd.verbose) {
@@ -195,7 +205,7 @@ program
 
     // On any event
     task.onAny = (evt, data) => {
-      logging.log('info', `received event: ${evt}`, data);
+      // logging.log('info', `received event: ${evt}`, data);
       let request = rpiecy.createRequest('event', {
         event: evt,
         data: data || {}

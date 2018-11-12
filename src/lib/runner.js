@@ -5,6 +5,7 @@ const path = require('path');
 const { Task, Robot } = require('../integration');
 const checker = require('./checker');
 const examples = require('./examples');
+const now = require('./now');
 
 const COOLDOWN_TIMEOUT = process.env.RALLF_COOLDOWN_TIMEOUT || 10 * 60e3; // 10 minutes
 
@@ -71,7 +72,7 @@ class Runner {
     taskInstance.devices._setDevices(devices || []);
     taskInstance.robot.skills = skills;
 
-    this._taskMap[taskInstance.getName()] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
+    this._taskMap[taskInstance.name] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
     return taskInstance;
   }
 
@@ -220,10 +221,9 @@ class Runner {
     }
 
     if (!checker.hasMethod(task, method_name)) {
-      throw { error: `Method (${method_name}) was not found in Task: ${task.getName()}` };
+      throw { error: `Method (${method_name}) was not found in Task: ${task.name}` };
     }
 
-    // First setup task
     task.emit('setup:start', {});
 
     task.robot.delegateLocal = (...args) => {
@@ -234,15 +234,17 @@ class Runner {
       return this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-remote', args, this.jsonrpc.rpiecy.id()), task);
     };
 
-    task.logger.task_name = task.getName();
+    task.logger.task_name = task.name;
     task.emit('setup:end', {});
 
 
     if (typeof task.warmup === 'function' && !task._hasDoneWarmup()) {
       task.emit('warmup:start', {});
-      await Promise.resolve(task.warmup());
+
+      let timed = await now.timeFnExecutionAsync(() => task.warmup()); // await Promise.resolve(task.warmup());
+
       task._hasDoneWarmup(true);
-      task.emit('warmup:end', {});
+      task.emit('warmup:end', { timed });
 
       this.cooldownTimeout = setTimeout(async () => {
         try {
@@ -254,7 +256,6 @@ class Runner {
             await task.devices.quitAll();
           }
 
-          // let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
           task.emit('finish', {});
         } catch (error) {
           task.logger.error('There has been an error cooling down: ' + error.stack);
@@ -266,7 +267,6 @@ class Runner {
     if (method_name === 'warmup') {
       return new Promise(res => { });
     } else {
-      // Start
       task.emit('run-method', { method_name, input });
       return await task[method_name](input)
         .then(result => {
@@ -279,15 +279,8 @@ class Runner {
   }
 
   sendAndAwaitForResponse(request, task) {
-      task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
+    task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
     return request.sendAndAwait().then(resp => resp.result);
-    // return new Promise((resolve, reject) => {
-    //   task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
-    //   task.on('response:' + request.id, (resp) => {
-    //     resolve(resp.result);
-    //   });
-    //   request.output();
-    // }).then(resp => resp);
   }
 
 
@@ -304,14 +297,6 @@ class Runner {
         } catch (error) {
           reject(error);
         }
-
-        // let resolvesMethod = task[method](params);
-        // if (resolvesMethod.then) {
-        //   return resolvesMethod
-        //     .then(resolve)
-        //     .catch(reject);
-        // }
-        // return resolvesMethod;
       }
     });
   }

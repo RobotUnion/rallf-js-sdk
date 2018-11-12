@@ -55,6 +55,14 @@ class Task extends PubSub {
   /**
    * @return {String|null}
    */
+  get name() {
+    return this._manifest ? this._manifest.name : null;
+  }
+
+  /**
+   * @deprecated in favor of `Task.name`
+   * @return {String|null}
+   */
   getName() {
     return this._manifest ? this._manifest.name : null;
   }
@@ -62,10 +70,24 @@ class Task extends PubSub {
   /**
    * @return {String|null}
    */
-  getVersion() {
+  get fqtn() {
+    return this._manifest ? this._manifest.fqtn : null;
+  }
+
+  /**
+   * @return {String|null}
+   */
+  get version() {
     return this._manifest ? this._manifest.version : null;
   }
 
+  /**
+   * @deprecated in favor of `Task.version`
+   * @return {String|null}
+   */
+  getVersion() {
+    return this._manifest ? this._manifest.version : null;
+  }
 }
 
 module.exports = Task;
