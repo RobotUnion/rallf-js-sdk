@@ -244,7 +244,7 @@ class Runner {
       let timed = await now.timeFnExecutionAsync(() => task.warmup()); // await Promise.resolve(task.warmup());
 
       task._hasDoneWarmup(true);
-      task.emit('warmup:end', { timed });
+      task.emit('warmup:end', timed);
 
       this.cooldownTimeout = setTimeout(async () => {
         try {

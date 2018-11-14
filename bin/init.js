@@ -118,13 +118,13 @@ function copyTemplate() {
 
   logging.log('info', 'Installing dependencies, please wait...');
 
-  let p = child_process.exec(`cd ${cwd} && npm install`);
-  p.stdout.on('data', function (data) {
-    console.log(data.toString());
-  });
-  p.stderr.on('data', function (data) {
-    console.error(data.toString());
-  });
+  let p = child_process.exec(`cd ${cwd} && npm install`, { stdio: ['inherit', 'inherit', 'inherit',] });
+  // p.stdout.on('data', function (data) {
+  //   console.log(data.toString());
+  // });
+  // p.stderr.on('data', function (data) {
+  //   console.error(data.toString());
+  // });
   p.on('exit', (exit_code) => {
     if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle' : 'npm start')}`);
     if (exit_code === 0) logging.log('info', `Readme available at: ${clc.blackBright.underline('./README.md')}`);

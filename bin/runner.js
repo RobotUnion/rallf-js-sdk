@@ -168,7 +168,6 @@ program
 
             now.timeFnExecutionAsync(() => task[method](args))
               .then((res) => {
-                logging.log('info', `Timed: `, res);
                 let response = rpiecy.createResponse(request.id, { timed: res.timed, info: { method, args, result: res.return } }, null);
                 response.output();
               })
