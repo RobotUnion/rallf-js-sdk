@@ -13,7 +13,7 @@ class BasicExample extends rallf.Task {
   }
 
   async start(input) {
-    this.logger.debug('BasicExample started');
+    this.logger.debug(this.fqtn + ' started');
     return 'started';
   }
 
