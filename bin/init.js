@@ -118,7 +118,7 @@ function copyTemplate() {
 
   logging.log('info', 'Installing dependencies, please wait...');
 
-  let p = child_process.spawn(`cd ${cwd} && npm install`, { stdio: ['inherit', 'inherit', 'inherit',] });
+  let p = child_process.exec(`cd ${cwd} && npm install`, { stdio: ['inherit', 'inherit', 'inherit',] });
   // p.stdout.on('data', function (data) {
   //   console.log(data.toString());
   // });
