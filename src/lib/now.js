@@ -12,30 +12,27 @@ const now = (unit) => {
       result = hrTime[0] * 1000000000 + hrTime[1];
   }
 
-  return parseFloat(result.toFixed(6));
+  return result.toFixed(6);
 };
 
 
 
 /**
  * @param {function()} fn
- * @return {{ timed: { start_time: number, start_millis: number,  end_time: number, end_millis: number, duration_millis: number, }, result: any }}
  */
 now.timeFnExecution = (fn, args) => {
   let start_time = Date.now();
-  let start_millis = now('milli').toFixed(6);
-  let result = fn();
-  let end_millis = now('milli').toFixed(6);
+  const time = process.hrtime();
+  let result = fn(args);
+  const diff = process.hrtime(time);
   let end_time = Date.now();
 
-  let duration_millis = end_millis - start_millis;
+  let duration_millis = (diff[0] * 1e9 + diff[1]) / 1000000;
 
   return {
     timed: {
       start_time,
-      start_millis,
       end_time,
-      end_millis,
       duration_millis,
       fn: fn
     },
@@ -46,23 +43,21 @@ now.timeFnExecution = (fn, args) => {
 
 /**
  * @param {function(args)} fn
- * @return {Promise<{ timed: { start_time: number, start_millis: number,  end_time: number, end_millis: number, duration_millis: number, }, result: any }>}
  */
 now.timeFnExecutionAsync = async (fn, args) => {
   let start_time = Date.now();
-  let start_millis = now('milli').toFixed(6);
+  const time = process.hrtime();
   let result = await Promise.resolve(fn(args));
-  let end_millis = now('milli').toFixed(6);
+  const diff = process.hrtime(time);
   let end_time = Date.now();
 
-  let duration_millis = end_millis - start_millis;
+  let duration_millis = (diff[0] * 1e9 + diff[1]) / 1000000;
+
 
   return {
     timed: {
       start_time,
-      start_millis,
       end_time,
-      end_millis,
       duration_millis,
       fn: fn
     },
