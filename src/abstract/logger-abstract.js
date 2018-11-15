@@ -16,8 +16,9 @@ class AbstractLogger {
     this.LOG_SEVERITY_INFO = 6;
     this.LOG_SEVERITY_DEBUG = 7;
     this.task_name = null;
+    this.task = null;
   }
-  
+
 
   /**
    * @param string message
@@ -33,6 +34,11 @@ class AbstractLogger {
       message,
       data
     };
+
+    if (this.task) {
+      log.message = this._replaceShortcuts(log.message, this.task);
+    }
+
     this.notifier.notify(log);
   }
 
@@ -112,6 +118,22 @@ class AbstractLogger {
    */
   info(message, data = null, channel = "") {
     this.log(message, data, this.LOG_SEVERITY_INFO, channel);
+  }
+
+
+  /**
+   * @param {string} message 
+   * @param {rallf.Task} task 
+   */
+  _replaceShortcuts(message, task) {
+    // @ could be the fqtn of the task
+    message = message.replace('@', task.fqtn);
+    // $ could be the name of the task
+    message = message.replace('$', task.name);
+    // & could be some other property
+    message = message.replace('%', task.robot.id);
+    
+    return message;
   }
 }
 

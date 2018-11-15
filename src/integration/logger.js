@@ -15,7 +15,7 @@ class Logger extends AbstractLogger {
    * @param {*} process 
    * @param {*} pretty 
    */
-  constructor(a, pretty) {
+  constructor(a, pretty, parentTask) {
     super({
       notify: (log) => {
         if (this.pretty) {
@@ -24,9 +24,11 @@ class Logger extends AbstractLogger {
           log.channel = this.task_name;
           process.stdout.write(jsonrpc.request('log', log) + '\n');
         }
-      }
+      },
+      task: parentTask
     });
     this.pretty = pretty;
+    this.task = parentTask;
   }
 
   /**
