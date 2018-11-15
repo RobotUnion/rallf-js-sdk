@@ -8,13 +8,14 @@ const logging = require('../src/lib/logging');
 const package = require('../package.json');
 const readline = require('readline');
 const child_process = require('child_process');
+const checkVersion = require('./version-check');
 
-try {
-  let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
-  if (latestVersion.toString() !== package.version.trim()) {
-    logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-  }
-} catch (error) { }
+program.version(package.version);
+program.option('--nvc', 'Don\'t check version', false);
+program.option('-s, --skill');
+program.option('-f, --force');
+
+checkVersion(process.argv.includes('--nvc'));
 
 let cwd = process.cwd();
 let folderName = path.parse(cwd).base;
@@ -46,15 +47,12 @@ let manifestTemplate = {
   sdk_version: package.version
 };
 
-program.version(package.version);
-
 let init_template_name = 'init-template';
 
 function replaceVars(str, vars) {
   str = String(str);
   for (let key in vars) {
     let var_ = vars[key];
-    // logging.log('info', `Replacing: <${key}> with value: ${var_} from: ${typeof str}`);
     str = str.replace(new RegExp(`<${key}>`, 'g'), var_);
   }
   return str;
@@ -72,7 +70,6 @@ function copyFile(origin, target, vars) {
   fs.ensureFileSync(target);
 
   fs.writeFileSync(target, content);
-  // logging.log('info', 'copied file: ' + target);
 }
 
 function toPascalCase(str) {
@@ -119,12 +116,6 @@ function copyTemplate() {
   logging.log('info', 'Installing dependencies, please wait...');
 
   let p = child_process.exec(`cd ${cwd} && npm install`, { stdio: ['inherit', 'inherit', 'inherit',] });
-  // p.stdout.on('data', function (data) {
-  //   console.log(data.toString());
-  // });
-  // p.stderr.on('data', function (data) {
-  //   console.error(data.toString());
-  // });
   p.on('exit', (exit_code) => {
     if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle' : 'npm start')}`);
     if (exit_code === 0) logging.log('info', `Readme available at: ${clc.blackBright.underline('./README.md')}`);
@@ -185,6 +176,4 @@ logging.log('info', 'Answer the following questions to initialize rallf-task pro
 
 askForData(initQuestions);
 
-program.option('-s, --skill');
-program.option('-f, --force');
 program.parse(process.argv);
