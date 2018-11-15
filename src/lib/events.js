@@ -1,10 +1,10 @@
 'use strict';
-
-
+const EventEmitter = require('events').EventEmitter;
 let subSymbol = '__subscriptions';
 
 /**
  * A little pub sub class
+ * @deprecated in favor of RallfEventEmitter
  */
 class PubSub {
   constructor() {
@@ -93,4 +93,28 @@ class PubSub {
   }
 }
 
-module.exports = PubSub;
+class RallfEventEmitter extends EventEmitter {
+  constructor() {
+    super();
+  }
+
+  /**
+   * Listens for any event
+   * !! Should be overwriten ¡¡ 
+   * @param {function(event: string, data: any)} listener 
+   */
+  onAny() {
+    return null;
+  }
+
+  emit(e) {
+    this.onAny(e, ...arguments);
+    super.emit(...arguments);
+  }
+}
+
+
+module.exports = {
+  RallfEventEmitter,
+  PubSub
+}

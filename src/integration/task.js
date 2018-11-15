@@ -3,12 +3,12 @@
 const Logger = require('./logger');
 const Devices = require('./devices');
 const Robot = require('./robot');
-const PubSub = require('../lib/pubsub');
+const events = require('../lib/events');
 
 /**
  * This is the class the user will need to extend from to create a Task
  */
-class Task extends PubSub {
+class Task extends events.RallfEventEmitter {
   constructor() {
     super();
 

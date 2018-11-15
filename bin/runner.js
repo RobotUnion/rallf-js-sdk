@@ -11,20 +11,14 @@ const now = require('../src/lib/now');
 const package = require('../package.json');
 const child_process = require('child_process');
 const rpiecy = require('json-rpiecy');
+const checkVersion = require('./version-check');
 
 
 program.version(package.version);
-
 program.option('--nvc', 'Don\'t check version', false);
 
-if (!process.argv.includes('--nvc')) {
-  try {
-    let latestVersion = child_process.execSync(`npm show ${package.name} version`, { timeout: 8000 }).toString().trim();
-    if (latestVersion.toString() !== package.version.trim()) {
-      logging.log('warn', `"${package.name}" is not in the latest version, please consider updating`);
-    }
-  } catch (error) { }
-}
+checkVersion(process.argv.includes('--nvc'));
+
 
 const Runner = require('../src/lib/runner');
 const rallfRunner = new Runner();
@@ -65,20 +59,6 @@ const finish = (data, cmd, task) => {
   onFinish(request, cmd, task);
 }
 
-// const now = (unit) => {
-//   const hrTime = process.hrtime();
-//   switch (unit) {
-//     case 'milli':
-//       return hrTime[0] * 1000 + hrTime[1] / 1000000;
-//     case 'micro':
-//       return hrTime[0] * 1000000 + hrTime[1] / 1000;
-//     case 'nano':
-//       return hrTime[0] * 1000000000 + hrTime[1];
-//     default:
-//       return hrTime[0] * 1000000000 + hrTime[1];
-//   }
-
-// };
 
 program
   .command('run')
