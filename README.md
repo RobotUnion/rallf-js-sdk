@@ -7,12 +7,28 @@
 [skill-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
 
 
-[![Website](https://img.shields.io/website-up-down-green-red/https/api.rallf.com.svg?label=api&style=flat-square)](https://rallf.com)
-[![GitHub](https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
-[![npm](https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
-[![GitHub package version](https://img.shields.io/github/package-json/v/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
-[![David](https://img.shields.io/david/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
-[![wiki](https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk/wiki)
+[license-img]: https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square
+[github-link]: https://github.com/RobotUnion/rallf-js-sdk
+
+[rallf-status-img]: https://img.shields.io/website-up-down-green-red/https/api.rallf.com.svg?label=site&style=flat-square
+[rallf-link]: https://rallf.com
+
+[npm-version-img]: https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square
+[npm-link]: https://www.npmjs.com/package/rallf-js-sdk
+
+[gh-pkg-version-img]: https://img.shields.io/github/package-json/v/RobotUnion/rallf-js-sdk.svg?style=flat-square
+[npm-deps-img]: https://img.shields.io/david/RobotUnion/rallf-js-sdk.svg?style=flat-square
+
+[wiki-img]: https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
+[wiki-link]: https://github.com/RobotUnion/rallf-js-sdk/wiki
+
+# rallf-js-sdk
+[![License][license-img]][github-link]
+[![Website][rallf-status-img]][rallf-link]
+[![npm][npm-version-img]][npm-link]
+[![GitHub package version][gh-pkg-version-img]][github-link]
+[![Dependencies][npm-deps-img]][github-link]
+[![wiki][wiki-img]][wiki-link]
 
 
 Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
