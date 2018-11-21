@@ -23,7 +23,6 @@
 [wiki-img]: https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
 [wiki-link]: https://github.com/RobotUnion/rallf-js-sdk/wiki
 
-# rallf-js-sdk docs
 [![License][license-img]][github-link]
 [![Website][rallf-status-img]][rallf-link]
 [![npm][npm-version-img]][npm-link]
