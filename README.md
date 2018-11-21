@@ -7,6 +7,7 @@
 [skill-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
 
 
+
 [license-img]: https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square
 [github-link]: https://github.com/RobotUnion/rallf-js-sdk
 
@@ -22,7 +23,7 @@
 [wiki-img]: https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
 [wiki-link]: https://github.com/RobotUnion/rallf-js-sdk/wiki
 
-# rallf-js-sdk
+# rallf-js-sdk docs
 [![License][license-img]][github-link]
 [![Website][rallf-status-img]][rallf-link]
 [![npm][npm-version-img]][npm-link]
@@ -30,8 +31,7 @@
 [![Dependencies][npm-deps-img]][github-link]
 [![wiki][wiki-img]][wiki-link]
 
-
-Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
+Toolset to create, test & deploy **Tasks** for [RALLF][rallf-link] _(**NodeJS** Edition)_
 
 ### Quick Links
 Docs: [CLI][cli-docs], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs]
