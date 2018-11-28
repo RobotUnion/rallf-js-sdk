@@ -30,12 +30,9 @@ class Runner {
     if (!checker.isValidTaskProject(task_path, manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
-    // console.log(task_path, path.resolve(task_path));
-
 
     let mainFile = manifest.main;
     let taskPath = path.join(path.resolve(task_path), mainFile);
-
 
     if (!fs.existsSync(taskPath)) {
       throw new Error(`It seams main file defined in 'config/manifest.json' does not exist`);
@@ -86,16 +83,6 @@ class Runner {
     fs.ensureDirSync(path.join(path_, 'data', fqtn));
   }
 
-  safeJSONParse(str) {
-    let parsed;
-    try {
-      parsed = JSON.parse(str);
-    } catch (e) {
-      parsed = JSON.parse(JSON.stringify(str));
-    }
-    return parsed;
-  }
-
   /**
    * 
    * @param {string} nameOrPath - name or path 
@@ -112,14 +99,12 @@ class Runner {
 
   getDevices(path_) {
     path_ = path.join(path_, 'devices.json');
-    let devices = fs.readJsonSync(path_);
-    return devices;
+    return fs.readJsonSync(path_);
   }
 
   getSkills(path_) {
     path_ = path.join(path_, 'skills.json');
-    let skills = fs.readJsonSync(path_);
-    return skills;
+    return fs.readJsonSync(path_);
   }
 
   /**
@@ -170,25 +155,6 @@ class Runner {
     }
 
     return manifest;
-  }
-
-
-  checkAccessToSkill(manifest, skill_name, skill_method) {
-    if (
-      manifest.skills
-      && manifest.skills[skill_name]
-      && manifest.skills[skill_name].indexOf(skill_method) !== -1
-    ) return true;
-    return false;
-  }
-
-  checkAccessToTask(manifest, task_name, task_method) {
-    if (
-      manifest.tasks
-      && manifest.tasks[task_name]
-      && manifest.tasks[task_name].indexOf(task_method) !== -1
-    ) return true;
-    return false;
   }
 
   /**
@@ -272,33 +238,13 @@ class Runner {
         .then(result => {
           let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
           return { result, execution_time, subroutines };
-        }).catch(err => {
-          task.emit('error', err);
-        });
+        }).catch(err => task.emit('error', err));
     }
   }
 
   sendAndAwaitForResponse(request, task) {
     task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
     return request.sendAndAwait().then(resp => resp.result);
-  }
-
-
-  async runSkillMethod(task, method, params) {
-    return new Promise((resolve, reject) => {
-      if (!method in task) {
-        reject({ message: 'method-not-exist', code: this.jsonrpc.METHOD_NOT_FOUND, data: {} });
-      }
-      else {
-        try {
-          task[method](params)
-            .then(resolve)
-            .catch(reject);
-        } catch (error) {
-          reject(error);
-        }
-      }
-    });
   }
 }
 

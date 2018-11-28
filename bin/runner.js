@@ -67,15 +67,11 @@ program
   .option('-i --input <input>', 'tasks input')
   .option('-m --mocks <mocks>', 'mocks folder')
   .option('-f --method <method>', 'run method in skill', 'warmup')
-  // .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
   .option('-T --tty', 'if TTY should be set', true)
   .option('-I --interactive', 'shows prompt to interact with the task via stdin')
   .option('-v --verbose', 'shows  verbose logging', false)
   .action((cmd) => {
     let isTTY = process.stdin.isTTY || cmd.tty;
-
-    // console.log('isTTY', isTTY);
-
 
     if (!isTTY) {
       logging.logger = logging.prettyLogger;
@@ -95,9 +91,11 @@ program
       } catch (error) {
         throw new Error(`Error parsing input, must be valid json: ${cmd.input}`);
       }
+    } else {
+      cmd.input = {};
     }
 
-    logging.log('info', 'running command: run');
+    logging.log('info', 'running command: run', null);
 
     let taskPath = cmd.task || cwd;
     let manifest = rallfRunner.getManifest(taskPath);
