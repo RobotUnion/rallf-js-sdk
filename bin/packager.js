@@ -126,4 +126,4 @@ program.action((cmd) => {
 });
 
 
-program.parse(process.argv)
+program.parse(process.argv);
