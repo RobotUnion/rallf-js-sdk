@@ -51,7 +51,7 @@ function outputRpc(pretty, rpcent) {
 
 function onFinish(resp, cmd, task) {
   logging.log('success', `Finished ${task.id} ${color('OK', 'green')} ${JSON.stringify(resp)}`);
-  process.exit('SIGINT');
+  process.exit(0);
 }
 
 const finish = (data, cmd, task) => {
@@ -67,7 +67,7 @@ program
   .option('-i --input <input>', 'tasks input')
   .option('-m --mocks <mocks>', 'mocks folder')
   .option('-f --method <method>', 'run method in skill', 'warmup')
-  .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
+  // .option('-s --subroutines', 'shows all subroutines it has executed, list of fns')
   .option('-T --tty', 'if TTY should be set', true)
   .option('-I --interactive', 'shows prompt to interact with the task via stdin')
   .option('-v --verbose', 'shows  verbose logging', false)
@@ -199,21 +199,21 @@ program
     });
   });
 
-program
-  .command('send-event <name> <type> [data]')
-  .option('-t --task <task>', 'path task, default to cwd')
-  .action((name, type, data = {}, cmd) => {
-    logging.log('info', 'running command: send-event ', { name, type, data });
-    let taskPath = cmd.task || cwd;
-    let pipePath = path.join(taskPath, '.rallf', 'event-pipe');
-    logging.log('info', 'pipe path', pipePath);
-    if (!fs.existsSync(pipePath)) {
-      return logging.log('error', 'Oopsy, it seams task is not running... or pipe is not available');
-    }
-    else {
-      fs.writeFileSync(pipePath, `${name}:${type} ${JSON.stringify(data)}`);
-      return logging.log('info', 'Sent event');
-    }
-  });
+// program
+//   .command('send-event <name> <type> [data]')
+//   .option('-t --task <task>', 'path task, default to cwd')
+//   .action((name, type, data = {}, cmd) => {
+//     logging.log('info', 'running command: send-event ', { name, type, data });
+//     let taskPath = cmd.task || cwd;
+//     let pipePath = path.join(taskPath, '.rallf', 'event-pipe');
+//     logging.log('info', 'pipe path', pipePath);
+//     if (!fs.existsSync(pipePath)) {
+//       return logging.log('error', 'Oopsy, it seams task is not running... or pipe is not available');
+//     }
+//     else {
+//       fs.writeFileSync(pipePath, `${name}:${type} ${JSON.stringify(data)}`);
+//       return logging.log('info', 'Sent event');
+//     }
+//   });
 
 program.parse(process.argv);

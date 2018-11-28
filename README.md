@@ -1,29 +1,46 @@
 # RALLF Node.js SDK
 
-<!-- [![Build Status](https://semaphoreci.com/api/v1/nombrekeff/rallf-js-sdk/branches/master/badge.svg)](https://semaphoreci.com/nombrekeff/rallf-js-sdk) -->
-<!-- ![Codacy grade](https://img.shields.io/codacy/grade/28253ebf50a34a088b99d3f3e80615bc.svg?style=flat-square)-->
+<!-- Docs links -->
+[manifest-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest
+[cli-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI---runner
+[task-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Task
+[skill-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
 
 
-[![Website](https://img.shields.io/website-up-down-green-red/https/api.rallf.com.svg?label=api&style=flat-square)](https://rallf.com)
-[![GitHub](https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
-[![npm](https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk)
-[![GitHub package version](https://img.shields.io/github/package-json/v/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
-[![David](https://img.shields.io/david/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
-[![wiki](https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
-)](https://github.com/RobotUnion/rallf-js-sdk/wiki)
 
+[license-img]: https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square
+[github-link]: https://github.com/RobotUnion/rallf-js-sdk
 
-<!-- > !!! Take into account that this branch is not stable, please reference to "stable" branch !!! -->
+[rallf-status-img]: https://img.shields.io/website-up-down-green-red/https/api.rallf.com.svg?label=site&style=flat-square
+[rallf-link]: https://rallf.com
 
+[npm-version-img]: https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square
+[npm-link]: https://www.npmjs.com/package/rallf-js-sdk
 
-Toolset to create/test **Tasks** for [RALLF](https://ralf.robotunion.net)
-based on [selenium-webdriver](https://www.npmjs.com/package/selenium-webdriver)
+[gh-pkg-version-img]: https://img.shields.io/github/package-json/v/RobotUnion/rallf-js-sdk.svg?style=flat-square
+[npm-deps-img]: https://img.shields.io/david/RobotUnion/rallf-js-sdk.svg?style=flat-square
+
+[wiki-img]: https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
+[wiki-link]: https://github.com/RobotUnion/rallf-js-sdk/wiki
+
+[![License][license-img]][github-link]
+[![Website][rallf-status-img]][rallf-link]
+[![npm][npm-version-img]][npm-link]
+[![GitHub package version][gh-pkg-version-img]][github-link]
+[![Dependencies][npm-deps-img]][github-link]
+[![wiki][wiki-img]][wiki-link]
+
+Toolset to create, test & deploy **Tasks** for [RALLF][rallf-link] _(**NodeJS** Edition)_
+
+### Quick Links
+Docs: [CLI][cli-docs], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs]
 
 ## Resources
 * [First steps](#first-steps)
   * [Create simple Task](#create-simple-task)
   * [Create simple Skill](#create-simple-skill)
 * [Getting Started](https://github.com/RobotUnion/rallf-sdk/wiki/Getting-Started)
+* [Examples](examples)
 * [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
 * [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
 * [Technical Docs](https://github.com/RobotUnion/rallf-sdk/wiki/Technical-Docs)
@@ -43,7 +60,7 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
   2. Init a task project with: `rallf-init`  
      2.1. Init will ask some questions
   3. **init** will generate the following some files (_explained below_)
-  * `config/manifest.json` - The [Manifest](https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest) holds information about your Task, e.g: name, version, fqtn
+  * `config/manifest.json` - The [Manifest][manifest-docs] holds information about your Task, e.g: name, version, fqtn
   * `mocks/test.task.com/index.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
   * `robots/test-robot/` - [Robots]() TODO...
   * `src/main.js` - This is the main file of the task, the one that will get executed
