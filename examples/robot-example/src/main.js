@@ -7,11 +7,13 @@ class BasicExample extends Task {
   }
 
   async warmup() {
-    this.logger.debug('warmup');
+    this.logger.debug('@ warmup');
   }
 
   async start(input) {
-    this.logger.debug('BasicExample started');
+    this.logger.debug('@ started');
+    this.logger.debug('& started');
+    this.logger.debug('With robot: %');
 
     // // await this.firefox.get('https://github.com');
     // this.robot.ensureFile('data.json');

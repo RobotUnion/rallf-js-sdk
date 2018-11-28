@@ -12,7 +12,7 @@ class Task extends events.RallfEventEmitter {
   constructor() {
     super();
 
-    this.logger = /** @type {Logger} */ (new Logger(process, true));
+    this.logger = /** @type {Logger} */ (new Logger(process, true, this));
     this.devices = /** @type {Devices} */ (new Devices());
     this.robot =  /** @param {Robot} */ (new Robot());
     this._persisting = (false);
