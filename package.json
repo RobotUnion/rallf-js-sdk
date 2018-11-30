@@ -29,6 +29,7 @@
     "cli-color": "^1.2.0",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.0",
+    "husky": "^1.2.0",
     "json-rpiecy": "^0.2.0",
     "jsonschema": "^1.2.4",
     "recursive-copy": "^2.0.9",
@@ -37,7 +38,6 @@
     "yargs": "^12.0.2"
   },
   "devDependencies": {
-    "pre-commit": "^1.2.2",
     "jest": "^23.6.0"
   },
   "jest": {
@@ -47,7 +47,9 @@
       "/tests"
     ]
   },
-  "pre-commit": [
-    "test"
-  ]
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm test"
+    }
+  }
 }
