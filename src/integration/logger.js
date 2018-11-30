@@ -15,7 +15,7 @@ class Logger extends AbstractLogger {
    * @param {*} process 
    * @param {*} pretty 
    */
-  constructor(a, pretty, parentTask) {
+  constructor(____, pretty, parentTask) {
     super({
       notify: (log) => {
         if (this.pretty) {
@@ -64,8 +64,7 @@ class Logger extends AbstractLogger {
         if (error) {
           this.error('error', { error });
           reject({ error });
-        }
-        else {
+        } else {
           this.debug('capture: ' + fname, { capture });
           resolve({ capture });
         }

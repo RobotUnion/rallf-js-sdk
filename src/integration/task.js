@@ -12,14 +12,14 @@ class Task extends events.RallfEventEmitter {
   constructor() {
     super();
 
-    this.logger = /** @type {Logger} */ (new Logger(process, true, this));
-    this.devices = /** @type {Devices} */ (new Devices());
-    this.robot =  /** @param {Robot} */ (new Robot());
-    this._persisting = (false);
-    this._manifest = (null);
-    this._warmup_done = (false);
-    this.id = (null);
-    this.type = ('task');
+    this.logger = /** @type {Logger} */ new Logger(process, true, this);
+    this.devices = /** @type {Devices} */ new Devices();
+    this.robot = /** @param {Robot} */ new Robot();
+    this._persisting = false;
+    this._manifest = null;
+    this._warmup_done = false;
+    this.id = null;
+    this.type = 'task';
   }
 
   get home() {
@@ -38,8 +38,9 @@ class Task extends events.RallfEventEmitter {
   _hasDoneWarmup(val) {
     if (val) {
       this._warmup_done = val;
-    }
-    else return this._warmup_done;
+    } else return this._warmup_done;
+    
+    return null;
   }
 
   /**

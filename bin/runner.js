@@ -1,20 +1,17 @@
 #!/usr/bin/env node
+'use strict';
 
-const path = require('path');
-const fs = require('fs-extra');
 const clc = require('cli-color');
 const program = require('commander');
-const readline = require('readline');
 const logging = require('../src/lib/logging');
 const jsonrpc = require('../src/lib/jsonrpc');
 const now = require('../src/lib/now');
-const package = require('../package.json');
-const child_process = require('child_process');
+const pkg = require('../package.json');
 const rpiecy = require('json-rpiecy');
 const checkVersion = require('./version-check');
 
 
-program.version(package.version);
+program.version(pkg.version);
 program.option('--nvc', 'Don\'t check version', false);
 
 checkVersion(process.argv.includes('--nvc'));
@@ -30,7 +27,8 @@ function color(colorEnabled, str, colorName) {
       str = clc[colorName](str);
     } catch (error) { }
   }
-  return str;
+  
+return str;
 }
 
 function outputRpc(pretty, rpcent) {
@@ -57,7 +55,7 @@ function onFinish(resp, cmd, task) {
 const finish = (data, cmd, task) => {
   let request = rpiecy.createRequest('finish', data, rpiecy.id());
   onFinish(request, cmd, task);
-}
+};
 
 
 program
@@ -87,7 +85,7 @@ program
 
     if (cmd.input) {
       try {
-        cmd.input = JSON.parse(cmd.input)
+        cmd.input = JSON.parse(cmd.input);
       } catch (error) {
         throw new Error(`Error parsing input, must be valid json: ${cmd.input}`);
       }
@@ -118,10 +116,10 @@ program
 
 
     rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
-      .then(resp => {
+      .then((resp) => {
         logging.log('info', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
       })
-      .catch(async err => {
+      .catch(async (err) => {
         logging.log('error', `Finished method ${cmd.method} with ERROR ` + err.stack);
         await task.devices.quitAll();
         process.exit(1);
@@ -129,14 +127,13 @@ program
 
     task.on('warmup:end', () => {
       logging.log('info', 'Warm up done - listening for requests...');
-      rpiecy.listen(request => {
+      rpiecy.listen((request) => {
         if (request.id) {
           if (request.method === 'quit') {
-            task.devices.quitAll().then(x => {
+            task.devices.quitAll().then((x) => {
               onFinish(request, cmd, task);
             });
-          }
-          else if (
+          } else if (
             request.method === 'run-method' &&
             request.params &&
             request.params.routine
@@ -149,7 +146,7 @@ program
                 let response = rpiecy.createResponse(request.id, { timed: res.timed, info: { method, args, result: res.return } }, null);
                 response.output();
               })
-              .catch(err => {
+              .catch((err) => {
                 let response = rpiecy.createResponse(request.id, null, {
                   code: jsonrpc.INTERNAL_ERROR,
                   data: err,
@@ -162,7 +159,7 @@ program
             task.emit('response:' + request.id, request);
           }
         } else if (cmd.verbose) {
-          logging.log('info', `Received request without id`, request);
+          logging.log('info', 'Received request without id', request);
         }
       });
     });

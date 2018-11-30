@@ -1,20 +1,24 @@
+'use strict';
+
 const now = (unit) => {
   const hrTime = process.hrtime();
   let result = 0;
   switch (unit) {
     case 'milli':
       result = hrTime[0] * 1000 + hrTime[1] / 1000000;
+      break;
     case 'micro':
       result = hrTime[0] * 1000000 + hrTime[1] / 1000;
+      break;
     case 'nano':
       result = hrTime[0] * 1000000000 + hrTime[1];
+      break;
     default:
       result = hrTime[0] * 1000000000 + hrTime[1];
   }
 
   return result.toFixed(6);
 };
-
 
 
 /**
@@ -37,7 +41,7 @@ now.timeFnExecution = (fn, args) => {
       fn: fn
     },
     return: result
-  }
+  };
 };
 
 
@@ -62,7 +66,7 @@ now.timeFnExecutionAsync = async (fn, args) => {
       fn: fn
     },
     return: result
-  }
+  };
 };
 
 module.exports = now;

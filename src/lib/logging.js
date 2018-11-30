@@ -37,9 +37,9 @@ module.exports = {
     let segments = [
       cl(this.padd(type.toUpperCase().substr(0, 3))),
       '(' + this.getClFromType()(channel) + ')',
-      (msg),
+      msg,
       data ? this.getClFromType()(JSON.stringify(data, null, 2)) : null,
-    ].filter((x) => x);
+    ].filter((log) => log);
     let str = segments.join(' - ');
     this.logger(str);
   }

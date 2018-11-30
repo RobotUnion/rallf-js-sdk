@@ -7,7 +7,7 @@ const checker = require('./checker');
 const examples = require('./examples');
 const now = require('./now');
 
-const COOLDOWN_TIMEOUT = process.env.RALLF_COOLDOWN_TIMEOUT || 10 * 60e3; // 10 minutes
+const COOLDOWN_TIMEOUT = process.env.RALLF_COOLDOWN_TIMEOUT || 10 * 60e3;
 
 class Runner {
   constructor() {
@@ -35,10 +35,10 @@ class Runner {
     let taskPath = path.join(path.resolve(task_path), mainFile);
 
     if (!fs.existsSync(taskPath)) {
-      throw new Error(`It seams main file defined in 'config/manifest.json' does not exist`);
+      throw new Error('It seams main file defined in \'config/manifest.json\' does not exist');
     }
 
-    let UserTask = /** @type {Task} */ (require(taskPath));
+    let UserTask = /** @type {Task} */ require(taskPath);
 
     checker.checkExportToBeTask(UserTask, manifest);
 
@@ -62,14 +62,15 @@ class Runner {
 
     let skills = this.getSkills(robot_path);
 
-    taskInstance.robot = this.getRobot((robot_path + '/data/' + manifest.fqtn) || null);
+    taskInstance.robot = this.getRobot(robot_path + '/data/' + manifest.fqtn || null);
 
-    process.chdir((robot_path + '/data/' + manifest.fqtn));
+    process.chdir(robot_path + '/data/' + manifest.fqtn);
 
     taskInstance.devices._setDevices(devices || []);
     taskInstance.robot.skills = skills;
 
     this._taskMap[taskInstance.name] = { instance: taskInstance, robot, manifest, path: task_path, mocks_folder };
+
     return taskInstance;
   }
 
@@ -89,21 +90,24 @@ class Runner {
    */
   locateRobot(nameOrPath) {
     let path_ = nameOrPath;
-    if (/[\\/]/g.test(nameOrPath)) {
+    if ((/[\\/]/g).test(nameOrPath)) {
       path_ = nameOrPath;
     } else {
       path_ = `/robots/${nameOrPath}`;
     }
+
     return path_;
   }
 
   getDevices(path_) {
     path_ = path.join(path_, 'devices.json');
+
     return fs.readJsonSync(path_);
   }
 
   getSkills(path_) {
     path_ = path.join(path_, 'skills.json');
+
     return fs.readJsonSync(path_);
   }
 
@@ -129,8 +133,10 @@ class Runner {
     if (fs.existsSync(mockPath)) {
       const mock = require(mockPath);
       mock.name = name;
+
       return mock;
     }
+
     return null;
   }
 
@@ -183,7 +189,7 @@ class Runner {
 
     // Task instance must extend from Task
     if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
-      throw { error: `Exported class must extend from \"Task\"` };
+      throw { error: 'Exported class must extend from "Task"' };
     }
 
     if (!checker.hasMethod(task, method_name)) {
@@ -192,13 +198,9 @@ class Runner {
 
     task.emit('setup:start', {});
 
-    task.robot.delegateLocal = (...args) => {
-      return this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-local', args, this.jsonrpc.rpiecy.id()), task);
-    };
+    task.robot.delegateLocal = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-local', args, this.jsonrpc.rpiecy.id()), task);
 
-    task.robot.delegateRemote = (...args) => {
-      return this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-remote', args, this.jsonrpc.rpiecy.id()), task);
-    };
+    task.robot.delegateRemote = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-remote', args, this.jsonrpc.rpiecy.id()), task);
 
     task.logger.task_name = task.name;
     task.emit('setup:end', {});
@@ -207,7 +209,7 @@ class Runner {
     if (typeof task.warmup === 'function' && !task._hasDoneWarmup()) {
       task.emit('warmup:start', {});
 
-      let timed = await now.timeFnExecutionAsync(() => task.warmup()); // await Promise.resolve(task.warmup());
+      let timed = await now.timeFnExecutionAsync(() => task.warmup());
 
       task._hasDoneWarmup(true);
       task.emit('warmup:end', timed);
@@ -231,20 +233,24 @@ class Runner {
     }
 
     if (method_name === 'warmup') {
-      return new Promise(res => { });
+      return new Promise((res) => { });
     } else {
       task.emit('run-method', { method_name, input });
+
       return await task[method_name](input)
-        .then(result => {
+        .then((result) => {
           let execution_time = subroutines.reduce((curr, prev) => ({ exec_time: prev.exec_time + curr.exec_time }), { exec_time: 0 }).exec_time / 1000;
+
           return { result, execution_time, subroutines };
-        }).catch(err => task.emit('error', err));
+        })
+        .catch((err) => task.emit('error', err));
     }
   }
 
   sendAndAwaitForResponse(request, task) {
-    task.logger.info(`Task ${task.id} is listening for: ` + 'response:' + request.id);
-    return request.sendAndAwait().then(resp => resp.result);
+    task.logger.info(`Task ${task.id} is listening for: response:` + request.id);
+
+    return request.sendAndAwait().then((resp) => resp.result);
   }
 }
 
