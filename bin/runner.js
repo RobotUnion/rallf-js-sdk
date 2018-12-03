@@ -15,11 +15,10 @@ program.version(pkg.version);
 program.option('--nvc', 'Don\'t check version', false);
 
 checkVersion(process.argv.includes('--nvc'))
-  .then(res => goAhead)
-  .catch(err => logging.log('error', err));
+  .then(goAhead)
+  .catch(goAhead);
 
 function goAhead() {
-
   const Runner = require('../src/lib/runner');
   const rallfRunner = new Runner();
 
