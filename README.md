@@ -5,8 +5,8 @@
 [docs:cli]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI---runner
 [docs:Task]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Task
 [docs:Skill]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
-[docs:running]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Running-Tasks
-[docs:create]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks
+[docs:Running]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Running-Tasks
+[docs:Creating]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks
 [docs:GettingStarted]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Getting-Started
 
 
@@ -37,8 +37,8 @@ Toolset to create, test & deploy **Tasks** for [RALLF][rallf-link] _(**NodeJS** 
 <!-- Docs: [CLI][docs:cli], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs], [Creating][docs-create], [Running][docs-running] -->
 > **Quick Links:**
 [`🔗 Getting Started`][docs:GettingStarted]
-[`🔗 Creating`][docs:creating]
-[`🔗 Running`][docs:running]
+[`🔗 Creating`][docs:Creating]
+[`🔗 Running`][docs:Running]
 [`🔗 CLI`][docs:cli]
 [`🔗 Manifest`][docs:manifest]
 [`🔗 Skill`][docs:Skill]
@@ -55,7 +55,7 @@ Toolset to create, test & deploy **Tasks** for [RALLF][rallf-link] _(**NodeJS** 
 * Run `npm install rallf-js-sdk -g` to install the sdk and have access to global [commands]()
 
 ## Getting Started
-Now you can check the [Getting Started][docs:GettingStarted] guide to start developing :smiley_face_!
+Now you can check the [Getting Started][docs:GettingStarted] guide to start developing 🤖!
 
 <!-- ### Create simple Task
   1. Create an empty folder: `mkdir test-task && cd test-task`
