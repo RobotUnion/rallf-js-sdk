@@ -1,11 +1,13 @@
 # RALLF Node.js SDK
 
 <!-- Docs links -->
-[manifest-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest
-[cli-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI---runner
-[task-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Task
-[skill-docs]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
-
+[docs:manifest]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest
+[docs:cli]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI---runner
+[docs:Task]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Task
+[docs:Skill]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
+[docs:running]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Running-Tasks
+[docs:create]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks
+[docs:GettingStarted]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Getting-Started
 
 
 [license-img]: https://img.shields.io/github/license/RobotUnion/rallf-js-sdk.svg?style=flat-square
@@ -32,30 +34,30 @@
 
 Toolset to create, test & deploy **Tasks** for [RALLF][rallf-link] _(**NodeJS** Edition)_
 
-### Quick Links
-Docs: [CLI][cli-docs], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs]
+<!-- Docs: [CLI][docs:cli], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs], [Creating][docs-create], [Running][docs-running] -->
+> **Quick Links:**
+[`🔗 Getting Started`][docs:GettingStarted]
+[`🔗 Creating`][docs:creating]
+[`🔗 Running`][docs:running]
+[`🔗 CLI`][docs:cli]
+[`🔗 Manifest`][docs:manifest]
+[`🔗 Skill`][docs:Skill]
+[`🔗 Task`][docs:Task]
+
 
 ## Resources
-* [First steps](#first-steps)
-  * [Create simple Task](#create-simple-task)
-  * [Create simple Skill](#create-simple-skill)
-* [Getting Started](https://github.com/RobotUnion/rallf-sdk/wiki/Getting-Started)
+* [Installing](#installing)
+* [Getting Started](#getting-started)
+* [Wiki](https://github.com/RobotUnion/rallf-sdk/wiki)
 * [Examples](examples)
-* [Creating Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Creating-Tasks)
-* [Running Tasks](https://github.com/RobotUnion/rallf-sdk/wiki/Running-Tasks)
-* [Technical Docs](https://github.com/RobotUnion/rallf-sdk/wiki/Technical-Docs)
-* [OpenCV](https://github.com/RobotUnion/rallf-sdk/wiki/Integration---OpenCV)
 
-## First steps
-
-### Dependencies
-You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npmjs.com/get-npm) installed.
-> !! It is necesary to have Firefox installed as well as [geckodriver](https://github.com/mozilla/geckodriver/releases), so example is successfull !!
-
-### Installation
+## Installing
 * Run `npm install rallf-js-sdk -g` to install the sdk and have access to global [commands]()
 
-### Create simple Task
+## Getting Started
+Now you can check the [Getting Started][docs:GettingStarted] guide to start developing :smiley_face_!
+
+<!-- ### Create simple Task
   1. Create an empty folder: `mkdir test-task && cd test-task`
   2. Init a task project with: `rallf-init`  
      2.1. Init will ask some questions
@@ -83,7 +85,7 @@ You will need to have [NodeJS](https://nodejs.org/es/) and [npm](https://www.npm
 
 You will know if everything went OK  .
 
-Now you can have fun! 🤖
+Now you can have fun! 🤖 -->
 
 ## Found a bug?
 If you found a bug please leave us an issue.
