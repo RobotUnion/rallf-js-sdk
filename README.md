@@ -25,10 +25,11 @@
 [wiki-img]: https://img.shields.io/badge/wiki-github-green.svg?longCache=true&style=flat-square
 [wiki-link]: https://github.com/RobotUnion/rallf-js-sdk/wiki
 
-[![License][license-img]][github-link]
-[![Website][rallf-status-img]][rallf-link]
 [![npm][npm-version-img]][npm-link]
 [![GitHub package version][gh-pkg-version-img]][github-link]
+
+[![License][license-img]][github-link]
+[![Website][rallf-status-img]][rallf-link]
 [![Dependencies][npm-deps-img]][github-link]
 [![wiki][wiki-img]][wiki-link]
 
