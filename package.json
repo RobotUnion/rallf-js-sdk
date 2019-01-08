@@ -9,7 +9,7 @@
     "type": "github",
     "url": "https://github.com/RobotUnion/rallf-js-sdk"
   },
-  "tags": [
+  "keywords": [
     "Automation", "Bots", "Rallf", "RobotUnion", "Selenium", "sdk"
   ],
   "engines": {
