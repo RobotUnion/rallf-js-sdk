@@ -27,6 +27,12 @@ class Devices {
     try {
       let device = this.devices[device_name];
 
+      // Quick hack to support already existing devices
+      // New devices should set a .name proerty instead of .device
+      if (!device.name) {
+        device.name = device.device;
+      }
+
       // console.log("Getting device: ", device);
 
       if (!device) {
@@ -35,15 +41,10 @@ class Devices {
       if (device.kind === 'driver') {
         return new Promise(async (resolve, reject) => {
           let builder = new Builder().forBrowser(device.name);
-          let options = await this._getOptions(device, device_options);
-
+          let options = this._getOptions(device, device_options);
           if (device.name === 'firefox') {
-            if (device.driver) options.useGeckoDriver(device.driver);
-            if (device.bin) options.setBinary(device.bin);
             builder.setFirefoxOptions(options);
           } else if (device.name === 'chrome') {
-            if (device.driver) options.setProperty('webdriver.chrome.driver', device.driver);
-            if (device.bin) options.setChromeBinaryPath(device.bin);
             builder.setChromeOptions(options);
           }
 
@@ -128,32 +129,47 @@ class Devices {
     }
   }
 
-  async _getOptions(device, device_options = {}) {
-    let opts;
-    let deviceName = device.name;
+  _getOptions(device, device_options = {}) {
+    let opts = {};
+    let deviceName = device.name || device.device;
 
     if (deviceName === 'firefox') {
       opts = new firefox.Options();
+      if (device.driver) {
+        // opts.useGeckoDriver(true);
+        // opts.addArguments('webdriver.firefox.driver=' + device.driver);
+      }
+      if (device.bin) {
+        opts.setBinary(device.bin);
+      }
+
     } else if (deviceName === 'chrome') {
       opts = new chrome.Options();
+      if (device.driver) opts.setProperty('webdriver.chrome.driver', device.driver);
+      if (device.bin) opts.setChromeBinaryPath(device.bin);
     }
 
+
     if (device.headless === true) {
-      opts = opts.headless();
+      opts.headless();
     }
 
     if (device.screen) {
-      opts = opts.windowSize(device.screen);
+      opts.windowSize(device.screen);
     }
 
     if (device_options.profile && deviceName === 'firefox') {
       let profile = new firefox.Profile(device_options.profile);
-      opts = opts.setProfile(profile);
+      opts.setProfile(profile);
     }
     if (device_options.profile && deviceName === 'chrome') {
       opts.addArgument(`user-data-dir=${device_options.profile}`);
     }
 
+    // console.log('opts', opts)
+
+    opts.device_name = deviceName;
+    
     return opts;
   }
 
