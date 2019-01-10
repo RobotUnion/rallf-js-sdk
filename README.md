@@ -27,7 +27,6 @@
 
 [![npm][npm-version-img]][npm-link]
 [![GitHub package version][gh-pkg-version-img]][github-link]
-
 [![License][license-img]][github-link]
 [![Website][rallf-status-img]][rallf-link]
 [![Dependencies][npm-deps-img]][github-link]
