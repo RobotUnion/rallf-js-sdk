@@ -1,5 +1,8 @@
 'use strict';
-const { Builder, WebDriver } = require('selenium-webdriver');
+const {
+  Builder,
+  WebDriver
+} = require('selenium-webdriver');
 const firefox = require('selenium-webdriver/firefox');
 const chrome = require('selenium-webdriver/chrome');
 const wdio = require('webdriverio');
@@ -10,8 +13,8 @@ const wdio = require('webdriverio');
  */
 class Devices {
   constructor() {
-    this.devices = /** @type {any][]} */[];
-    this._instances = /** @type {WebDriver[]} */[];
+    this.devices = /** @type {any][]} */ [];
+    this._instances = /** @type {WebDriver[]} */ [];
   }
 
   /**
@@ -31,21 +34,25 @@ class Devices {
       }
       if (device.kind === 'driver') {
         return new Promise(async (resolve, reject) => {
-          let builder = new Builder().forBrowser(device.device);
+          let builder = new Builder().forBrowser(device.name);
           let options = await this._getOptions(device, device_options);
 
           if (device.name === 'firefox') {
-            options.useGeckoDriver(device.driver);
-            options.setBinary(device.bin);
+            if (device.driver) options.useGeckoDriver(device.driver);
+            if (device.bin) options.setBinary(device.bin);
             builder.setFirefoxOptions(options);
           } else if (device.name === 'chrome') {
-            options.setProperty('webdriver.chrome.driver', device.driver);
-            options.setChromeBinaryPath(device.bin);
+            if (device.driver) options.setProperty('webdriver.chrome.driver', device.driver);
+            if (device.bin) options.setChromeBinaryPath(device.bin);
             builder.setChromeOptions(options);
           }
 
           let deviceInstance = await builder.build();
-          this._instances.push({ device_name: device_name, device: deviceInstance, options: device_options });
+          this._instances.push({
+            device_name: device_name,
+            device: deviceInstance,
+            options: device_options
+          });
 
           resolve(deviceInstance);
         });
@@ -54,7 +61,7 @@ class Devices {
         const opts = {
           port: device.port,
           desiredCapabilities: {
-            platformName: device.device,
+            platformName: device.name,
             platformVersion: device.version,
             deviceName: 'keff',
             appPackage: device.app_package,
@@ -84,7 +91,7 @@ class Devices {
       const opts = {
         port: device.port,
         desiredCapabilities: {
-          platformName: device.device,
+          platformName: device.name,
           platformVersion: device.version,
           deviceName: 'keff',
           appPackage: device.app_package,
@@ -140,7 +147,6 @@ class Devices {
     }
 
     if (device_options.profile && deviceName === 'firefox') {
-      console.log('Setting profile', device_options.profile);
       let profile = new firefox.Profile(device_options.profile);
       opts = opts.setProfile(profile);
     }
@@ -157,4 +163,3 @@ class Devices {
 }
 
 module.exports = Devices;
-

@@ -6,12 +6,14 @@ const fs = require('fs-extra');
 const clc = require('cli-color');
 const program = require('commander');
 const logging = require('../src/lib/logging');
-const package = require('../package.json');
+const pckg = require('../package.json');
 const readline = require('readline');
 const child_process = require('child_process');
 const checkVersion = require('./version-check');
 
-program.version(package.version);
+const version = pckg.version;
+
+program.version(version);
 program.option('--nvc', 'Don\'t check version', false);
 program.option('-s, --skill');
 program.option('-f, --force');
@@ -49,7 +51,7 @@ function goAhead() {
   ];
 
   let manifestTemplate = {
-    sdk_version: package.version
+    sdk_version: version
   };
 
   let init_template_name = 'init-template';
@@ -86,7 +88,7 @@ function goAhead() {
   }
 
   function copyTemplate() {
-    logging.log('info', 'Generating rallf-sdk-project ' + clc.blueBright('@' + package.version));
+    logging.log('info', 'Generating rallf-sdk-project ' + clc.blueBright('@' + version));
     let templatePath = __dirname.replace('bin', '') + `/examples/${init_template_name}`;
     let templateFiles = [
       {
