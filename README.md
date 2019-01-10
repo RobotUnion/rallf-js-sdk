@@ -41,7 +41,6 @@
 [![Dependencies][npm-deps-img]][github-link]
 [![wiki][wiki-img]][wiki-link]
   
-</div>
 <!-- Docs: [CLI][docs:cli], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs], [Creating][docs-create], [Running][docs-running] -->
 
 > **Quick Links:**
@@ -52,6 +51,7 @@
 [`🔗 Manifest`][docs:manifest]
 [`🔗 Skill`][docs:Skill]
 [`🔗 Task`][docs:Task]
+</div>
 
 
 ## Resources
