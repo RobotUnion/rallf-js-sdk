@@ -136,7 +136,7 @@ function goAhead() {
                 onFinish(request, cmd, task);
               });
             } else if (
-              request.method === 'run-method' &&
+              request.method === 'delegate_local' &&
               request.params &&
               request.params.routine
             ) {

@@ -198,9 +198,9 @@ class Runner {
 
     task.emit('setup:start', {});
 
-    task.robot.delegateLocal = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-local', args, this.jsonrpc.rpiecy.id()), task);
+    task.robot.delegateLocal = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate_local', args, this.jsonrpc.rpiecy.id()), task);
 
-    task.robot.delegateRemote = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate-remote', args, this.jsonrpc.rpiecy.id()), task);
+    task.robot.delegateRemote = (...args) => this.sendAndAwaitForResponse(this.jsonrpc.rpiecy.createRequest('delegate_remote', args, this.jsonrpc.rpiecy.id()), task);
 
     task.logger.task_name = task.name;
     task.emit('setup:end', {});
