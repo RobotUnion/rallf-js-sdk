@@ -108,9 +108,9 @@ function goAhead() {
       let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
       let taskLbl = color(task.name + '@' + task.version + 'green');
 
-      logging.log('success', 'Running task: ' + taskLbl);
-      logging.log('info', 'Created task');
-      logging.log('info', 'Executing task');
+      logging.log('debug', 'Running task: ' + taskLbl);
+      logging.log('debug', 'Created task');
+      logging.log('debug', 'Executing task');
 
       if (!isTTY) {
         task.logger.pretty = true;
@@ -119,9 +119,82 @@ function goAhead() {
       }
 
 
+      // On any event
+      task.onAny = (evt, data) => {
+        let request = rpiecy.createRequest('event', {
+          name: evt,
+          content: data || {},
+          context: task.fqtn,
+          time: now()
+        }, rpiecy.id());
+        request.output();
+      };
+
+
+      const methodsAllowed = ['delegate', 'event', 'quit'];
+      task.on('routine:end', (params) => {
+        if (params.name === 'warmup') {
+          logging.log('debug', 'Warm up done - listening for requests...');
+          rpiecy.listen((request) => {
+            if (request.method && !methodsAllowed.includes(request.method)) {
+              let response = rpiecy.createResponse(request.id, null, {
+                message: 'Method "' + request.method + '" not found.',
+                code: -32601,
+                data: {}
+              });
+              response.output();
+            } else if (request.id) {
+              if (
+                request.method === 'delegate' &&
+                request.params
+              ) {
+                let method = request.params.routine;
+                let args = request.params.args || {};
+
+                now.timeFnExecutionAsync(() => task[method](args))
+                  .then((res) => {
+                    let response = rpiecy.createResponse(request.id, {
+                      timed: res.timed,
+                      debug: {
+                        method,
+                        args,
+                        result: res.return
+                      }
+                    }, null);
+                    response.output();
+                  })
+                  .catch((err) => {
+                    let response = rpiecy.createResponse(request.id, null, {
+                      code: jsonrpc.INTERNAL_ERROR,
+                      data: err,
+                      message: 'error running method'
+                    });
+                    response.output();
+                    process.exit(1);
+                  });
+              } else if (request.result || request.error) {
+                task.emit('response:' + request.id, request);
+              }
+            } else if (cmd.verbose) {
+              logging.log('debug', 'Received request without id', request);
+            }
+          });
+        }
+      });
+
+      task.on('finish', async (data) => {
+        await task.devices.quitAll();
+        finish(data, cmd, task);
+      });
+
+      task.once('error', async (err) => {
+        await task.devices.quitAll();
+        process.exit(1);
+      });
+
       rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
         .then((resp) => {
-          logging.log('info', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
+          logging.log('debug', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
         })
         .catch(async (err) => {
           logging.log('error', `Finished method ${cmd.method} with ERROR ` + err.stack);
@@ -129,75 +202,10 @@ function goAhead() {
           process.exit(1);
         });
 
-      task.on('warmup:end', () => {
-        logging.log('info', 'Warm up done - listening for requests...');
-        rpiecy.listen((request) => {
-          if (request.id) {
-            if (request.method === 'quit') {
-              task.devices.quitAll().then((x) => {
-                onFinish(request, cmd, task);
-              });
-            } else if (
-              request.method === 'delegate' &&
-              request.params
-            ) {
-              let method = request.params.routine;
-              let args = request.params.args || {};
-
-              now.timeFnExecutionAsync(() => task[method](args))
-                .then((res) => {
-                  let response = rpiecy.createResponse(request.id, {
-                    timed: res.timed,
-                    info: {
-                      method,
-                      args,
-                      result: res.return
-                    }
-                  }, null);
-                  response.output();
-                })
-                .catch((err) => {
-                  let response = rpiecy.createResponse(request.id, null, {
-                    code: jsonrpc.INTERNAL_ERROR,
-                    data: err,
-                    message: 'error running method'
-                  });
-                  response.output();
-                  process.exit(1);
-                });
-            } else if (request.result || request.error) {
-              task.emit('response:' + request.id, request);
-            }
-          } else if (cmd.verbose) {
-            logging.log('info', 'Received request without id', request);
-          }
-        });
-      });
-
-      // if (task.isTask()) {
-      task.on('finish', async (data) => {
-        await task.devices.quitAll();
-        finish(data, cmd, task);
-      });
-      // }
-
-      task.once('error', async (err) => {
-        logging.log('error', `Finished method ${cmd.method} with ERROR ` + err);
-        await task.devices.quitAll();
-        process.exit(1);
-      });
-
-      // On any event
-      task.onAny = (evt, data) => {
-        let request = rpiecy.createRequest('event', {
-          name: evt,
-          content: data || {},
-          context: task.fqtn
-        }, rpiecy.id());
-        request.output();
-      };
 
       process.on('SIGINT', async () => {
+        task._hasDoneWarmup(true);
+        await rallfRunner.runMethod(task, 'cooldown', [], isTTY)
         await task.devices.quitAll();
         finish({}, cmd, task);
       });

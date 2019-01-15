@@ -45,14 +45,16 @@ module.exports = {
 
   // Ugly, improve
   log(type, msg, data, channel = 'runner') {
-    let cl = this.getClFromType(type);
-    let segments = [
-      cl(this.padd(type.toUpperCase().substr(0, 3))),
-      '(' + this.getClFromType()(channel) + ')',
-      msg,
-      data ? this.getClFromType()(JSON.stringify(data, null, 2)) : null,
-    ].filter((log) => log);
-    let str = segments.join(' - ');
-    this.logger(str);
+    if (type === 'debug' && !process.env.DEBUG) {
+      let cl = this.getClFromType(type);
+      let segments = [
+        cl(this.padd(type.toUpperCase().substr(0, 3))),
+        '(' + this.getClFromType()(channel) + ')',
+        msg,
+        data ? this.getClFromType()(JSON.stringify(data, null, 2)) : null,
+      ].filter((log) => log);
+      let str = segments.join(' - ');
+      this.logger(str);
+    }
   }
 };

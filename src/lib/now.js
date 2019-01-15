@@ -1,25 +1,17 @@
 'use strict';
 
-const now = (unit) => {
+// Millis
+const start = process.hrtime.bigint();
+const offset = BigInt(Date.now() * 1e6) - start;
+
+const now = () => {
   const hrTime = process.hrtime();
-  let result = 0;
-  switch (unit) {
-    case 'milli':
-      result = hrTime[0] * 1000 + hrTime[1] / 1000000;
-      break;
-    case 'micro':
-      result = hrTime[0] * 1000000 + hrTime[1] / 1000;
-      break;
-    case 'nano':
-      result = hrTime[0] * 1000000000 + hrTime[1];
-      break;
-    default:
-      result = hrTime[0] * 1000000000 + hrTime[1];
-  }
-
-  return result.toFixed(6);
+  let result = BigInt(hrTime[0] * 1e9 + hrTime[1]);
+  return parseFloat([
+    parseInt((result + offset) / BigInt(1e9)),
+    parseInt((result + offset) % BigInt(1e9)),
+  ].join('.'));
 };
-
 
 /**
  * @param {function()} fn

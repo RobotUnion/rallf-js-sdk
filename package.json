@@ -18,7 +18,7 @@
     "sdk"
   ],
   "engines": {
-    "node": ">= 8.9.0"
+    "node": ">= 10.15.0"
   },
   "bin": {
     "rallf-runner": "bin/runner.js",

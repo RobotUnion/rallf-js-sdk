@@ -213,65 +213,38 @@ class Runner {
       };
     }
 
-    task.emit('setup:start', {});
-
     task.robot.delegateLocal = (...args) => this.delegate('local', args[0], args[1], args[2], task);
     task.robot.delegateRemote = (...args) => this.delegate('remote', args[0], args[1], args[2], task);
     task.logger.task_name = task.name;
 
-    task.emit('setup:end', {});
-
     if (typeof task.warmup === 'function' && !task._hasDoneWarmup()) {
-      task.emit('warmup:start', {});
+      task.emit('routine:start', {
+        name: 'warmup'
+      });
 
       let timed = await now.timeFnExecutionAsync(() => task.warmup());
-
       task._hasDoneWarmup(true);
-      task.emit('warmup:end', timed);
-
-      this.cooldownTimeout = setTimeout(async () => {
-        try {
-          if (task.cooldown && typeof task.cooldown === 'function') {
-            await Promise.resolve(task.cooldown());
-          }
-
-          if (task.type !== 'skill') {
-            await task.devices.quitAll();
-          }
-
-          task.emit('finish', {});
-        } catch (error) {
-          task.logger.error('There has been an error cooling down: ' + error.stack);
-          task.emit('error', {
-            error
-          });
-        }
-      }, COOLDOWN_TIMEOUT);
+      task.emit('routine:end', {
+        name: 'warmup'
+      });
     }
 
     if (method_name === 'warmup') {
       return new Promise((res) => {});
     } else {
-      task.emit('run-method', {
-        method_name,
-        input
+      task.emit('routine:start', {
+        name: method_name
       });
 
-      return await task[method_name](input)
-        .then((result) => {
-          let execution_time = subroutines.reduce((curr, prev) => ({
-            exec_time: prev.exec_time + curr.exec_time
-          }), {
-            exec_time: 0
-          }).exec_time / 1000;
+      let result = await task[method_name](input)
+        .catch((err) => {
+          task.emit('error', err)
+        });
 
-          return {
-            result,
-            execution_time,
-            subroutines
-          };
-        })
-        .catch((err) => task.emit('error', err));
+      task.emit('routine:end', {
+        name: method_name
+      });
+      return result;
     }
   }
 

@@ -1,0 +1,6 @@
+
+// Delegate local - run test method
+{"jsonrpc":"2.0", "method": "delegate", "id": "test", "params": { "routing": "local", "routine": "test", "args": {} }}
+
+// Invalid rpc
+{"jsonrpc":"2.0", "method": "a", "id": "test", "params": { "routing": "local", "routine": "test", "args": {} }}
