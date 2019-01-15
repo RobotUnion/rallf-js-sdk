@@ -287,8 +287,14 @@ class Runner {
 
   sendAndAwaitForResponse(request, task) {
     task.logger.info(`Task ${task.id} is listening for: response:` + request.id);
-    
-    return request.sendAndAwait().then((resp) => resp.result);
+
+    return request.sendAndAwait()
+      .then((resp) => {
+        return resp.result;
+      })
+      .catch(err => {
+        return err;
+      });
   }
 }
 
