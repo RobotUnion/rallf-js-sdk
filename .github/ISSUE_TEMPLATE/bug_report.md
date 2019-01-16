@@ -7,7 +7,7 @@ assignees: nombrekeff
 
 ---
 
-# 🐛 Bug report _(let's catch it)_
+## 🐛 Bug report _(let's catch it)_
 
 **Describe the bug**
 A clear and concise description of what the bug is.
