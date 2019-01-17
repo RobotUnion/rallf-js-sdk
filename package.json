@@ -1,6 +1,6 @@
 {
   "name": "rallf-js-sdk",
-  "version": "0.7.3",
+  "version": "0.7.4",
   "description": "Toolset to create Tasks for RALLF",
   "main": "index.js",
   "author": "RobotUnion",
