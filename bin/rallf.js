@@ -63,6 +63,16 @@ function goAhead() {
     onFinish(request, cmd, task);
   };
 
+  async function sigintHandler(task, cmd, isTTY) {
+    console.log("SIGINT");
+    task._hasDoneWarmup(true);
+    await rallfRunner.runMethod(task, 'cooldown', [], isTTY);
+    try {
+      await task.devices.quitAll();
+    } catch (error) {};
+    return finish({}, cmd, task);
+  }
+
 
   program
     .command('init')
@@ -149,12 +159,18 @@ function goAhead() {
         request.output();
       };
 
+      /* Handle sigint before readline is active */
+      process.once('SIGINT', () => {
+        return sigintHandler(task, cmd, isTTY);
+      });
 
       const methodsAllowed = ['delegate', 'event', 'quit'];
       task.on('routine:end', (params) => {
         if (params.name === 'warmup') {
           logging.log('debug', 'Warm up done - listening for requests...');
-          rpiecy.listen((request) => {
+
+          /* rpiecy.listen Sets up a realine inteface that listens for json-rpc requests/responses */
+          const input = rpiecy.listen((request) => {
             if (request.method && !methodsAllowed.includes(request.method)) {
               let response = rpiecy.createResponse(request.id, null, {
                 message: 'Method "' + request.method + '" not found.',
@@ -198,18 +214,23 @@ function goAhead() {
               logging.log('debug', 'Received request without id', request);
             }
           });
+
+          /* Handle sigint for readline, as process.on will not receive the event */
+          input.once('SIGINT', () => {
+            return sigintHandler(task, cmd, isTTY);
+          });
         }
       });
 
-      task.on('finish', async (data) => {
-        await task.devices.quitAll();
-        finish(data, cmd, task);
-      });
+      // task.on('finish', async (data) => {
+      //   await task.devices.quitAll();
+      //   finish(data, cmd, task);
+      // });
 
-      task.once('error', async (err) => {
-        await task.devices.quitAll();
-        process.exit(1);
-      });
+      // task.once('error', async (err) => {
+      //   await task.devices.quitAll();
+      //   process.exit(1);
+      // });
 
       rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
         .then((resp) => {
@@ -220,14 +241,6 @@ function goAhead() {
           await task.devices.quitAll();
           process.exit(1);
         });
-
-
-      process.on('SIGINT', async () => {
-        task._hasDoneWarmup(true);
-        await rallfRunner.runMethod(task, 'cooldown', [], isTTY)
-        await task.devices.quitAll();
-        finish({}, cmd, task);
-      });
     });
 
   program.parse(process.argv);

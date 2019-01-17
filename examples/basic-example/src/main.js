@@ -24,7 +24,7 @@ class BasicExample extends rallf.Task {
 
   async cooldown() {
     this.logger.debug('cooldown');
-    await this.devices.quit(this.firefox);
+    // await this.firefox.quit();
   }
 }
 module.exports = BasicExample;
