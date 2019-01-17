@@ -17,7 +17,7 @@
 
 #### Running 
 * `npm start`
-* `rallf-runner run --task /path/to/task --mock test --input {}`    
+* `rallf-js run --task /path/to/task`    
 You will now if everything went OK
 
 Now you can have fun! 🤖
