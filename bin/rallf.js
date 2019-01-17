@@ -63,8 +63,7 @@ function goAhead() {
     onFinish(request, cmd, task);
   };
 
-  async function sigintHandler(task, cmd, isTTY) {
-    console.log("SIGINT");
+  async function finishHandler(task, cmd, isTTY) {
     task._hasDoneWarmup(true);
     await rallfRunner.runMethod(task, 'cooldown', [], isTTY);
     try {
@@ -161,7 +160,11 @@ function goAhead() {
 
       /* Handle sigint before readline is active */
       process.once('SIGINT', () => {
-        return sigintHandler(task, cmd, isTTY);
+        return finishHandler(task, cmd, isTTY);
+      });
+
+      process.once('close', () => {
+        return finishHandler(task, cmd, isTTY);
       });
 
       const methodsAllowed = ['delegate', 'event', 'quit'];
@@ -217,20 +220,14 @@ function goAhead() {
 
           /* Handle sigint for readline, as process.on will not receive the event */
           input.once('SIGINT', () => {
-            return sigintHandler(task, cmd, isTTY);
+            return finishHandler(task, cmd, isTTY);
           });
+
+          input.once('close', () => {
+            return finishHandler(task, cmd, isTTY);
+          })
         }
       });
-
-      // task.on('finish', async (data) => {
-      //   await task.devices.quitAll();
-      //   finish(data, cmd, task);
-      // });
-
-      // task.once('error', async (err) => {
-      //   await task.devices.quitAll();
-      //   process.exit(1);
-      // });
 
       rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
         .then((resp) => {

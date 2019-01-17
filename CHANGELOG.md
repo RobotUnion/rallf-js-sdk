@@ -1,4 +1,8 @@
 
+## v0.7.5
+* Runner on close performs cooldown also
+
+
 ## v0.7.1
 * Removed autocooldown, and updated events to match standard
 
