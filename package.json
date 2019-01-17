@@ -1,10 +1,11 @@
 {
   "name": "rallf-js-sdk",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Toolset to create Tasks for RALLF",
   "main": "index.js",
   "author": "RobotUnion",
   "license": "MIT",
+  "homepage": "https://dev.rallf.com/sdk/js",
   "repository": {
     "type": "github",
     "url": "https://github.com/RobotUnion/rallf-js-sdk"
@@ -65,7 +66,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint && npm test"
+      "pre-commit": "npm test"
     }
   }
 }

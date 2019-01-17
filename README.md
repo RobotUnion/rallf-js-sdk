@@ -36,10 +36,11 @@
   <p>Toolset to create, test & deploy <b>Tasks</b> for <a href="https://rallf.com">RALLF</a> <i>(<b>NodeJS</b> Edition)</i></p>
   
 [![npm]( https://img.shields.io/npm/v/rallf-js-sdk.svg?style=flat-square)](https://www.npmjs.com/package/rallf-js-sdk) [![GitHub package version](https://img.shields.io/github/package-json/v/RobotUnion/rallf-js-sdk.svg?style=flat-square)](https://github.com/RobotUnion/rallf-js-sdk)
+[![Dependencies][npm-deps-img]][github-link]
+
 [![Downloads](https://img.shields.io/npm/dw/rallf-js-sdk.svg?style=flat-square)]()  
 [![License][license-img]][github-link]
 [![Website][rallf-status-img]][rallf-link]
-[![Dependencies][npm-deps-img]][github-link]
 [![wiki][wiki-img]][wiki-link]
   
 <!-- Docs: [CLI][docs:cli], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs], [Creating][docs-create], [Running][docs-running] -->
