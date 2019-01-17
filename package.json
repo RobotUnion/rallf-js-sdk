@@ -1,6 +1,6 @@
 {
   "name": "rallf-js-sdk",
-  "version": "0.7.1",
+  "version": "0.7.0",
   "description": "Toolset to create Tasks for RALLF",
   "main": "index.js",
   "author": "RobotUnion",
@@ -22,9 +22,7 @@
     "node": ">= 10.15.0"
   },
   "bin": {
-    "rallf-runner": "bin/runner.js",
-    "rallf-init": "bin/init.js",
-    "rallf-pkg": "bin/packager.js"
+    "rallf-js": "bin/rallf.js"
   },
   "scripts": {
     "test": "jest",

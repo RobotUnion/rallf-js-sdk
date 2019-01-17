@@ -2,7 +2,9 @@
 
 'use strict';
 
+const child_process = require('child_process');
 const clc = require('cli-color');
+const path = require('path');
 const program = require('commander');
 const logging = require('../src/lib/logging');
 const jsonrpc = require('../src/lib/jsonrpc');
@@ -63,6 +65,26 @@ function goAhead() {
 
 
   program
+    .command('init')
+    .option('--nvc', 'Don\'t check version', false)
+    .option('-s, --skill')
+    .option('-f, --force')
+    .action((cmd) => {
+      console.log('init');
+      let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)]);
+    });
+
+  program
+    .command('package')
+    .option('--nvc', 'Don\'t check version', false)
+    .option('-i, --input-path <input_path>', 'Specify an input path', path.join(process.cwd()))
+    .option('-o, --output-path <output_path>', 'Specify an outut path', path.join(process.cwd(), 'output'))
+    .action((cmd) => {
+      console.log('package');
+      let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)]);
+    });
+
+  program
     .command('run')
     .option('-t --task <task>', 'path task, default to cwd')
     .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
@@ -73,6 +95,7 @@ function goAhead() {
     .option('-I --interactive', 'shows prompt to interact with the task via stdin')
     .option('-v --verbose', 'shows  verbose logging', false)
     .action((cmd) => {
+      console.log(cmd);
       let isTTY = process.stdin.isTTY || cmd.tty;
 
       if (!isTTY) {
