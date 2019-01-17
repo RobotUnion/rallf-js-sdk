@@ -90,7 +90,6 @@ function goAhead() {
     .option('-m --mocks <mocks>', 'mocks folder')
     .option('-f --method <method>', 'run method in skill', 'warmup')
     .option('-T --tty', 'if TTY should be set', true)
-    .option('-I --interactive', 'shows prompt to interact with the task via stdin')
     .option('-v --verbose', 'shows  verbose logging', false)
     .action((cmd) => {
       let isTTY = process.stdin.isTTY || cmd.tty;
