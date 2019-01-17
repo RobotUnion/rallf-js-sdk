@@ -160,10 +160,12 @@ function goAhead() {
 
       /* Handle sigint before readline is active */
       process.once('SIGINT', () => {
+        console.log('process: SIGINT');
         return finishHandler(task, cmd, isTTY);
       });
 
       process.once('close', () => {
+        console.log('process:close');
         return finishHandler(task, cmd, isTTY);
       });
 
@@ -191,17 +193,12 @@ function goAhead() {
 
                 now.timeFnExecutionAsync(() => task[method](args))
                   .then((res) => {
-                    let response = rpiecy.createResponse(request.id, {
-                      timed: res.timed,
-                      debug: {
-                        method,
-                        args,
-                        result: res.return
-                      }
-                    }, null);
+                    logging.log("info", "Finshed: ", res);
+                    let response = rpiecy.createResponse(request.id, res.return, null);
                     response.output();
                   })
                   .catch((err) => {
+                    console.log("err: ", err);
                     let response = rpiecy.createResponse(request.id, null, {
                       code: jsonrpc.INTERNAL_ERROR,
                       data: err,
@@ -211,7 +208,7 @@ function goAhead() {
                     process.exit(1);
                   });
               } else if (request.result || request.error) {
-                task.emit('response:' + request.id, request);
+                task.emit('response:' + request.id, request.result);
               }
             } else if (cmd.verbose) {
               logging.log('debug', 'Received request without id', request);
@@ -220,10 +217,12 @@ function goAhead() {
 
           /* Handle sigint for readline, as process.on will not receive the event */
           input.once('SIGINT', () => {
+            console.log('sdk-SIGINT');
             return finishHandler(task, cmd, isTTY);
           });
 
           input.once('close', () => {
+            console.log('sdk-close');
             return finishHandler(task, cmd, isTTY);
           })
         }
