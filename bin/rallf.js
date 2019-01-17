@@ -70,7 +70,6 @@ function goAhead() {
     .option('-s, --skill')
     .option('-f, --force')
     .action((cmd) => {
-      console.log('init');
       let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)]);
     });
 
@@ -80,7 +79,6 @@ function goAhead() {
     .option('-i, --input-path <input_path>', 'Specify an input path', path.join(process.cwd()))
     .option('-o, --output-path <output_path>', 'Specify an outut path', path.join(process.cwd(), 'output'))
     .action((cmd) => {
-      console.log('package');
       let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)]);
     });
 
@@ -95,7 +93,6 @@ function goAhead() {
     .option('-I --interactive', 'shows prompt to interact with the task via stdin')
     .option('-v --verbose', 'shows  verbose logging', false)
     .action((cmd) => {
-      console.log(cmd);
       let isTTY = process.stdin.isTTY || cmd.tty;
 
       if (!isTTY) {
