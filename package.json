@@ -1,6 +1,6 @@
 {
   "name": "rallf-js-sdk",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Toolset to create Tasks for RALLF",
   "main": "index.js",
   "author": "RobotUnion",
@@ -16,7 +16,11 @@
     "Rallf",
     "RobotUnion",
     "Selenium",
-    "sdk"
+    "sdk",
+    "AI",
+    "Browser",
+    "Robotics",
+    "Testing"
   ],
   "engines": {
     "node": ">= 10.15.0"

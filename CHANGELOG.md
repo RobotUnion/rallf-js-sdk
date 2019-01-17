@@ -1,4 +1,7 @@
 
+## v0.7.1
+* Removed autocooldown, and updated events to match standard
+
 ## v0.7.0
 * Changed rpc comunication standard to match https://github.com/QbitArtifacts/rallf-doc/blob/master/tech/developers/sdk/specification.md
 
