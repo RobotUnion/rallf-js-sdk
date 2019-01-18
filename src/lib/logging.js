@@ -45,7 +45,7 @@ module.exports = {
 
   // Ugly, improve
   log(type, msg, data, channel = 'runner') {
-    if (type === 'debug' && !process.env.DEBUG) {
+    if ((type === 'debug' && process.env.DEBUG) || (type != 'debug')) {
       let cl = this.getClFromType(type);
       let segments = [
         cl(this.padd(type.toUpperCase().substr(0, 3))),

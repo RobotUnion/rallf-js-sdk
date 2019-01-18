@@ -72,6 +72,11 @@ function goAhead() {
     return finish({}, cmd, task);
   }
 
+  function pipeSubcommandOutput(cp) {
+    cp.stdout.pipe(process.stdout);
+    cp.stderr.pipe(process.stderr);
+  }
+
 
   program
     .command('init')
@@ -79,7 +84,10 @@ function goAhead() {
     .option('-s, --skill')
     .option('-f, --force')
     .action((cmd) => {
-      let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)]);
+      let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)], {
+        stdio: ['inherit']
+      });
+      pipeSubcommandOutput(cp);
     });
 
   program
@@ -88,7 +96,10 @@ function goAhead() {
     .option('-i, --input-path <input_path>', 'Specify an input path', path.join(process.cwd()))
     .option('-o, --output-path <output_path>', 'Specify an outut path', path.join(process.cwd(), 'output'))
     .action((cmd) => {
-      let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)]);
+      let cp = child_process.spawn('node', [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)], {
+        stdio: ['inherit']
+      });
+      pipeSubcommandOutput(cp);
     });
 
   program

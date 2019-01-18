@@ -29,16 +29,18 @@ checkVersion(process.argv.includes('--nvc'))
   .catch(goAhead);
 
 function goAhead() {
+  logging.logger = logging.prettyLogger;
+
   /**
-  * @param {*} colorName 
-  * @param {*} str 
-  * @param {*} colorEnabled 
-  */
+   * @param {*} colorName 
+   * @param {*} str 
+   * @param {*} colorEnabled 
+   */
   function color(colorName, str, colorEnabled = true) {
     if (colorEnabled) {
       try {
         str = clc[colorName](str);
-      } catch (error) { }
+      } catch (error) {}
     }
 
     return str;
@@ -77,7 +79,6 @@ function goAhead() {
     let valid = checker.isValidTaskProject(cmd.inputPath, manifest);
     if (valid.error) {
       logging.log('error', valid.error, null, 'packager');
-
       return process.exit(1);
     }
 
