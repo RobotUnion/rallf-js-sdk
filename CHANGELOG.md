@@ -1,4 +1,9 @@
 
+
+## v0.7.8
+* Fixed `rallf-js package` not outputing 
+
+
 ## v0.7.5
 * Runner on close performs cooldown also
 
