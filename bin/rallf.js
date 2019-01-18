@@ -111,7 +111,7 @@ function goAhead() {
     .option('-f --method <method>', 'run method in skill', 'warmup')
     .option('-T --tty', 'if TTY should be set', true)
     .option('-v --verbose', 'shows  verbose logging', false)
-    .action((cmd) => {
+    .action((cmd, args) => {
       let isTTY = process.stdin.isTTY || cmd.tty;
 
       if (!isTTY) {
@@ -249,6 +249,7 @@ function goAhead() {
           process.exit(1);
         });
     });
+
 
   program.parse(process.argv);
 }

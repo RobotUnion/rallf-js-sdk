@@ -52,10 +52,10 @@ class Runner {
 
     let robot_path = this.locateRobot(robot);
     if (!robot) {
-      robot_path = '/robots/nullrobot';
+      robot_path = task_path + '/robots/nullrobot';
     }
 
-    robot_path = task_path + robot_path;
+    robot_path = robot_path;
 
     if (!fs.existsSync(robot_path)) {
       this.generateDefaultRobot(robot_path, manifest.fqtn);
