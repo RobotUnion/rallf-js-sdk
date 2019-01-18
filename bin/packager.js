@@ -114,17 +114,17 @@ function goAhead() {
       let namePadded = fname + ' '.repeat(maxWidth - fname.length);
       if (stats.isFile()) {
         let fileBuffer = fs.readFileSync(filePath);
-        logging.log('info', '   ' + color('blueBright', namePadded) + ' ' + getByteSize(fileBuffer.byteLength), null, 'packager');
+        logging.log('info', '   📄 ' + color('blueBright', namePadded) + ' ' + getByteSize(fileBuffer.byteLength), null, 'packager');
         zip.addFile(fname, fileBuffer);
       } else {
         let files = fs.readdirSync(filePath);
-        logging.log('info', '   ' + color('blueBright', namePadded), null, 'packager');
+        logging.log('info', '   📁 ' + color('blueBright', namePadded), null, 'packager');
         files.forEach((file) => {
           let fileBuffer = fs.readFileSync(path.join(filePath, file));
           let namePadded2 = file + ' '.repeat(maxWidth - file.length - 2);
 
-          logging.log('info', '     ' + color('blueBright', namePadded2) + ' ' + getByteSize(fileBuffer.byteLength), null, 'packager');
-          zip.addFile(fname, fileBuffer);
+          logging.log('info', '     📄 ' + color('blueBright', namePadded2) + ' ' + getByteSize(fileBuffer.byteLength), null, 'packager');
+          zip.addFile(path.join(fname, file), fileBuffer);
         });
       }
     }
@@ -139,7 +139,7 @@ function goAhead() {
 
     logging.log('info', ' ', null, 'packager');
     logging.log('info', 'Package available at: ' + color('blueBright', zipPath), null, 'packager');
-    logging.log('info', 'Use (' + color('blackBright', 'rallf-publish') + ') to publish it to rallf market', null, 'packager');
+    logging.log('info', 'Use (' + color('blackBright', 'rallf-js publish') + ') to publish it to rallf market', null, 'packager');
   });
 
   program.parse(process.argv);
