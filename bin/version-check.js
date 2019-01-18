@@ -8,13 +8,11 @@ module.exports = async (ncv) => {
     const pkg = require('../package.json');
 
     return new Promise((resolve, reject) => {
-      console.log('');
       update.default({
         package: pkg.name,
         version: pkg.version,
         persistCheck: false
       }).then((res) => {
-        console.log('');
         if (res.update) {
           resolve('update available');
         } else {

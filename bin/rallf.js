@@ -13,13 +13,10 @@ const pkg = require('../package.json');
 const rpiecy = require('json-rpiecy');
 const checkVersion = require('./version-check');
 
-
-program.version(pkg.version);
-program.option('--nvc', 'Don\'t check version', false);
-
 checkVersion(process.argv.includes('--nvc'))
   .then(goAhead)
   .catch(goAhead);
+
 
 function goAhead() {
   const Runner = require('../src/lib/runner');
@@ -78,11 +75,14 @@ function goAhead() {
   }
 
 
+  program.version(pkg.version, '-v --version');
+  program.option('-V --verbose', 'show verbose logging', false)
+  program.option('-N --nvc', 'don\'t check version', false);
+  
   program
     .command('init')
-    .option('--nvc', 'Don\'t check version', false)
-    .option('-s, --skill')
-    .option('-f, --force')
+    .option('-s, --skill', 'generate skill template')
+    .option('-f, --force', 'rorce the generation, under your own risk!')
     .action((cmd) => {
       let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)], {
         stdio: ['inherit']
@@ -92,9 +92,8 @@ function goAhead() {
 
   program
     .command('package')
-    .option('--nvc', 'Don\'t check version', false)
-    .option('-i, --input-path <input_path>', 'Specify an input path', path.join(process.cwd()))
-    .option('-o, --output-path <output_path>', 'Specify an outut path', path.join(process.cwd(), 'output'))
+    .option('-i, --input-path <input_path>', 'specify an input path', path.join(process.cwd()))
+    .option('-o, --output-path <output_path>', 'specify an output path', path.join(process.cwd(), 'output'))
     .action((cmd) => {
       let cp = child_process.spawn('node', [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)], {
         stdio: ['inherit']
@@ -110,7 +109,6 @@ function goAhead() {
     .option('-m --mocks <mocks>', 'mocks folder')
     .option('-f --method <method>', 'run method in skill', 'warmup')
     .option('-T --tty', 'if TTY should be set', true)
-    .option('-v --verbose', 'shows  verbose logging', false)
     .action((cmd, args) => {
       let isTTY = process.stdin.isTTY || cmd.tty;
 
