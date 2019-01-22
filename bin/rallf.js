@@ -78,7 +78,7 @@ function goAhead() {
   program.version(pkg.version, '-v --version');
   program.option('-V --verbose', 'show verbose logging', false)
   program.option('-N --nvc', 'don\'t check version', false);
-  
+
   program
     .command('init')
     .option('-s, --skill', 'generate skill template')
@@ -128,7 +128,8 @@ function goAhead() {
         try {
           cmd.input = JSON.parse(cmd.input);
         } catch (error) {
-          throw new Error(`Error parsing input, must be valid json: ${cmd.input}`);
+          logging.log('warning', 'Error parsing input, must be valid json', cmd.input);
+          cmd.input = {};
         }
       } else {
         cmd.input = {};
