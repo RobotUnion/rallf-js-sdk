@@ -65,6 +65,6 @@ fdescribe('Runner', () => {
     let task = runner.createTask('./examples/basic-example', manifest, mock);
     let res = await runner.runMethod(task, 'start', {}, false);
     console.log(res);
-    expect(res).toEqual('started');
+    expect(res).toEqual('finished');
   });
 });
