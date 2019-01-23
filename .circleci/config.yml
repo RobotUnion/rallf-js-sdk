@@ -2,6 +2,7 @@ version: 2
 jobs:
   build:
     working_directory: ~/mern-starter
+    machine: true
     steps:
       - checkout
       - run:
