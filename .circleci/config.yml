@@ -4,4 +4,6 @@ jobs:
   build:
     machine: true
     steps:
-      - npm test
+      - run: # run tests
+          name: test
+          command: npm test
