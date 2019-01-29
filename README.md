@@ -63,7 +63,15 @@
 * [Examples](examples)
 
 ## Installing
-* Run `npm install rallf-js-sdk -g` to install the sdk and have access to global [commands]()
+To have access to global [commands](./wiki/CLI), run:
+```zsh
+$ npm install rallf-js-sdk -g
+``` 
+
+For using within a task:
+```zsh
+$ npm install rallf-js-sdk
+```
 
 ## Getting Started
 Now you can check the [Getting Started][docs:GettingStarted] guide to start developing 🤖!
