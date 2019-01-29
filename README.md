@@ -63,7 +63,7 @@
 * [Examples](examples)
 
 ## Installing
-To have access to global [commands](./wiki/CLI), run:
+To have access to global [commands][docs:cli], run:
 ```zsh
 $ npm install rallf-js-sdk -g
 ``` 
