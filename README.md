@@ -1,7 +1,7 @@
 
 <!-- Docs links -->
 [docs:manifest]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest
-[docs:cli]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI---runner
+[docs:cli]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI
 [docs:Task]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Task
 [docs:Skill]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
 [docs:Running]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Running-Tasks
