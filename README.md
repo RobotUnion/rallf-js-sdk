@@ -1,7 +1,7 @@
 
 <!-- Docs links -->
 [docs:manifest]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Manifest
-[docs:cli]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI---runner
+[docs:cli]: https://github.com/RobotUnion/rallf-js-sdk/wiki/CLI
 [docs:Task]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Task
 [docs:Skill]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Integration---Skill
 [docs:Running]: https://github.com/RobotUnion/rallf-js-sdk/wiki/Running-Tasks
@@ -63,7 +63,15 @@
 * [Examples](examples)
 
 ## Installing
-* Run `npm install rallf-js-sdk -g` to install the sdk and have access to global [commands]()
+To have access to global [commands][docs:cli], run:
+```zsh
+$ npm install rallf-js-sdk -g
+``` 
+
+For using within a task:
+```zsh
+$ npm install rallf-js-sdk
+```
 
 ## Getting Started
 Now you can check the [Getting Started][docs:GettingStarted] guide to start developing 🤖!
