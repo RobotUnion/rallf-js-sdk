@@ -109,14 +109,15 @@ function goAhead() {
     .option('-m --mocks <mocks>', 'mocks folder')
     .option('-f --method <method>', 'run method in skill', 'warmup')
     .option('-T --tty', 'if TTY should be set', true)
+    .option('-p --pretty', 'show pretty output', false)
     .action((cmd, args) => {
       let isTTY = process.stdin.isTTY || cmd.tty;
 
-      if (!isTTY) {
+      if (cmd.pretty || !isTTY) {
         logging.logger = logging.prettyLogger;
         logging.color = true;
-        color = color.bind(color, true);
-        outputRpc = outputRpc.bind(outputRpc, true);
+        color = color.bind(this, true);
+        outputRpc = outputRpc.bind(this, true);
       } else {
         logging.logger = logging.rpcLogger;
         logging.color = false;
@@ -150,7 +151,7 @@ function goAhead() {
       logging.log('debug', 'Created task');
       logging.log('debug', 'Executing task');
 
-      if (!isTTY) {
+      if (cmd.pretty || !isTTY) {
         task.logger.pretty = true;
       } else {
         task.logger.pretty = false;
@@ -165,17 +166,16 @@ function goAhead() {
           context: task.fqtn,
           time: now()
         }, rpiecy.id());
-        request.output();
+        outputRpc(request);
+        // request.output();
       };
 
       /* Handle sigint before readline is active */
       process.once('SIGINT', () => {
-        console.log('process: SIGINT');
         return finishHandler(task, cmd, isTTY);
       });
 
       process.once('close', () => {
-        console.log('process:close');
         return finishHandler(task, cmd, isTTY);
       });
 
@@ -192,7 +192,7 @@ function goAhead() {
                 code: -32601,
                 data: {}
               });
-              response.output();
+              outputRpc(response);
             } else if (request.id) {
               if (
                 request.method === 'delegate' &&
@@ -205,16 +205,15 @@ function goAhead() {
                   .then((res) => {
                     logging.log("info", "Finshed: ", res);
                     let response = rpiecy.createResponse(request.id, res.return, null);
-                    response.output();
+                    outputRpc(response);
                   })
                   .catch((err) => {
-                    console.log("err: ", err);
                     let response = rpiecy.createResponse(request.id, null, {
                       code: jsonrpc.INTERNAL_ERROR,
                       data: err,
                       message: 'error running method'
                     });
-                    response.output();
+                    outputRpc(response);
                     process.exit(1);
                   });
               } else if (request.result || request.error) {
@@ -227,12 +226,10 @@ function goAhead() {
 
           /* Handle sigint for readline, as process.on will not receive the event */
           input.once('SIGINT', () => {
-            console.log('sdk-SIGINT');
             return finishHandler(task, cmd, isTTY);
           });
 
           input.once('close', () => {
-            console.log('sdk-close');
             return finishHandler(task, cmd, isTTY);
           })
         }
@@ -248,7 +245,6 @@ function goAhead() {
           process.exit(1);
         });
     });
-
 
   program.parse(process.argv);
 }
