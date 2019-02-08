@@ -1,0 +1,10 @@
+{
+  "name": "test-task-1",
+  "main": "src/main.js",
+  "scripts": {
+    
+  },
+  "dependencies": {
+    "rallf-js-sdk": "*"
+  }
+}

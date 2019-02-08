@@ -1,0 +1,10 @@
+{
+  "name": "test-task-1",
+  "main": "src/main.js",
+  "version": "1.0.0",
+  "sdk_version": "0.5.0",
+  "fqtn": "com.test.task1",
+  "language": "nodejs",
+  "type": "task",
+  "skills": {}
+}

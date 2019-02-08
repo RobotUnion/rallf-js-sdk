@@ -85,7 +85,7 @@ function goAhead() {
     .option('-f, --force', 'rorce the generation, under your own risk!')
     .action((cmd) => {
       let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)], {
-        stdio: ['inherit']
+        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
       });
       pipeSubcommandOutput(cp);
     });
@@ -96,7 +96,7 @@ function goAhead() {
     .option('-o, --output-path <output_path>', 'specify an output path', path.join(process.cwd(), 'output'))
     .action((cmd) => {
       let cp = child_process.spawn('node', [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)], {
-        stdio: ['inherit']
+        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
       });
       pipeSubcommandOutput(cp);
     });
@@ -105,14 +105,13 @@ function goAhead() {
     .command('run')
     .option('-t --task <task>', 'path task, default to cwd')
     .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
-    .option('-i --input <input>', 'tasks input')
+    .option('-i --input <input>', 'tasks input', {})
     .option('-m --mocks <mocks>', 'mocks folder')
     .option('-f --method <method>', 'run method in skill', 'warmup')
     .option('-T --tty', 'if TTY should be set', true)
     .option('-p --pretty', 'show pretty output', false)
     .action((cmd, args) => {
       let isTTY = process.stdin.isTTY || cmd.tty;
-
       if (cmd.pretty || !isTTY) {
         logging.logger = logging.prettyLogger;
         logging.color = true;
@@ -145,6 +144,7 @@ function goAhead() {
       }
 
       let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
+
       let taskLbl = color(task.name + '@' + task.version + 'green');
 
       logging.log('debug', 'Running task: ' + taskLbl);
@@ -240,7 +240,7 @@ function goAhead() {
           logging.log('debug', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
         })
         .catch(async (err) => {
-          logging.log('error', `Finished method ${cmd.method} with ERROR ` + err.stack);
+          logging.log('error', `Finished method ${cmd.method} with ERROR `, err);
           await task.devices.quitAll();
           process.exit(1);
         });

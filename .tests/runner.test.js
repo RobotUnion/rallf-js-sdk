@@ -1,19 +1,22 @@
-const { Runner } = require('../src/lib');
-const { Task } = require('../src/integration');
+const {
+  Runner
+} = require('../src/lib');
+
+const {
+  DoubleExtendedTask,
+  OnceExtendedTask,
+  NotExtendedTask
+} = require('./test-tasks/extending');
+
 const fs = require('fs-extra');
 
 jest.setTimeout(120e3);
 
 let cwd = process.cwd();
 
-fdescribe('Runner', () => {
+describe('Runner tests', () => {
 
   const runner = new Runner();
-
-  // beforeEach(_ => {
-  //   process.chdir(cwd);
-  // })
-
 
   it(`should be defined`, () => {
     expect(Runner).toBeDefined();
@@ -23,14 +26,24 @@ fdescribe('Runner', () => {
 
   it(`should contain method: runTask`, isMethodAFunction('runTask'));
 
-  it(`should throw error if anything but a task is passed to: runTask`, async () => {
+  it(`"runTask" checks for invalid inheritance`, async () => {
     try {
-      await runner.runTask({});
+      await runner.runTask(new NotExtendedTask(), {});
     } catch (e) {
       expect(e).toEqual({
-        error: 'Exported class must extend from \"Task\"'
+        error: 'ERROR: Task seams to not be a valid rallf.Task, please make sure your class extends rallf.Task'
       });
     }
+  });
+
+  it(`"runTask" direct inheritance works`, async () => {
+    let res = await runner.runTask(new OnceExtendedTask(), {});
+    expect(res).toEqual('worked');
+  });
+
+  it(`"runTask" indirect inheritance works`, async () => {
+    let res = await runner.runTask(new DoubleExtendedTask(), {});
+    expect(res).toEqual('worked');
   });
 
   it(`should throw error if path is not a task`, () => {
@@ -38,33 +51,31 @@ fdescribe('Runner', () => {
   });
 
   it(`should not throw error if path is a task`, () => {
-    expect(() => runner.getManifest('./examples/basic-example')).not.toThrowError();
+    expect(() => runner.getManifest('./.tests/test-tasks/basic-example')).not.toThrowError();
   });
 
   it(`.getManifest should return correct data`, () => {
-    let mani = fs.readJSONSync('./examples/basic-example/config/manifest.json');
-    expect(runner.getManifest('./examples/basic-example')).toEqual(mani);
+    let mani = fs.readJSONSync('./.tests/test-tasks/basic-example/config/manifest.json');
+    expect(runner.getManifest('./.tests/test-tasks/basic-example')).toEqual(mani);
   });
 
   it(`.getTask should throw error if bad task passed`, () => {
-    expect(() => runner.createTask('./examples/non-existing', {})).toThrowError();
+    expect(() => runner.createTask('./.tests/test-tasks/non-existing', {})).toThrowError();
   });
 
-  it(`.getTask should return a task`, () => {
-    process.chdir(cwd);
-    let manifest = runner.getManifest('./examples/basic-example');
-    let mock = runner.getMock('./examples/basic-example', 'test');
-    let task = runner.createTask('./examples/basic-example', manifest, mock);
-    expect(task.__proto__.constructor.__proto__.name).toEqual('Task');
-  });
+  // it(`.getTask should return a task`, () => {
+  //   // process.chdir(cwd);
+  //   let manifest = runner.getManifest('./.tests/test-tasks/basic-example');
+  //   let mock = runner.getMock('./.tests/test-tasks/basic-example', 'test');
+  //   let task = runner.createTask('./.tests/test-tasks/basic-example', manifest, 'null-robot');
+  //   expect(task.__proto__.constructor.__proto__.name).toEqual('Task');
+  // });
 
-  it(`should run "basic task" and return 'finished'`, async () => {
+  it(`should run "basic-example" and return 'start'`, async () => {
     process.chdir(cwd);
-    let manifest = runner.getManifest('./examples/basic-example');
-    let mock = runner.getMock('./examples/basic-example', 'test');
-    let task = runner.createTask('./examples/basic-example', manifest, mock);
+    let manifest = runner.getManifest('./.tests/test-tasks/basic-example');
+    let task = runner.createTask('./.tests/test-tasks/basic-example', manifest);
     let res = await runner.runMethod(task, 'start', {}, false);
-    console.log(res);
-    expect(res).toEqual('finished');
+    expect(res).toEqual('started');
   });
 });

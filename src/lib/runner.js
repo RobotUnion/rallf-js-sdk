@@ -30,7 +30,7 @@ class Runner {
    * @returns {Task}
    */
   createTask(task_path, manifest, robot, mocks_folder, isTTY) {
-    if (!checker.isValidTaskProject(task_path, manifest)) {
+    if (!checker.isValidTaskProject(path.resolve(task_path), manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
 
@@ -198,15 +198,11 @@ class Runner {
   async runMethod(task, method_name, input, isTTY) {
 
     clearTimeout(this.cooldownTimeout);
-    const subroutines = [];
 
-    // Task instance must extend from Task
-    if (!task || task.__proto__.constructor.__proto__.name !== 'Task') {
-      throw {
-        error: 'Exported class must extend from "Task"'
-      };
-    }
+    // Check if its a valid task
+    checker.checkExportToBeTask(task.constructor);
 
+    // Check if method exists
     if (!checker.hasMethod(task, method_name)) {
       throw {
         error: `Method (${method_name}) was not found in Task: ${task.name}`
@@ -222,10 +218,11 @@ class Runner {
         name: 'warmup'
       });
 
-      let timed = await now.timeFnExecutionAsync(() => task.warmup());
+      let timed = await task.warmup();
       task._hasDoneWarmup(true);
       task.emit('routine:end', {
-        name: 'warmup'
+        name: 'warmup',
+        data: timed
       });
     }
 

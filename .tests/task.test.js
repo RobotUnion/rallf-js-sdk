@@ -15,3 +15,4 @@ describe('Task should', () => {
   it(`Task.logger should be instance of Logger`, isPropInstanceOf('logger', Logger));
   it(`Task.devices should be instance of Devices`, isPropInstanceOf('devices', Devices));
 });
+
