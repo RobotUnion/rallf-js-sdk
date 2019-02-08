@@ -24,5 +24,6 @@ class DoubleExtendedTask extends OnceExtendedTask {
 module.exports = {
   OnceExtendedTask,
   DoubleExtendedTask,
-  NotExtendedTask
+  NotExtendedTask,
+  Task: rallf.Task
 }

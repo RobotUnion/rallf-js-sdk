@@ -1,6 +1,8 @@
-const rallf = require('../../../../index');
+const {
+  Task
+} = require('../../extending');
 
-class TestTask1 extends rallf.Task {
+class TestTask1 extends Task {
   constructor() {
     super();
     this.firefox = null;

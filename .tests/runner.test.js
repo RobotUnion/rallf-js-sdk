@@ -74,7 +74,7 @@ describe('Runner tests', () => {
   it(`should run "basic-example" and return 'start'`, async () => {
     process.chdir(cwd);
     let manifest = runner.getManifest('./.tests/test-tasks/basic-example');
-    let task = runner.createTask('./.tests/test-tasks/basic-example', manifest);
+    let task = runner.createTask('./.tests/test-tasks/basic-example', manifest, 'nullrobot');
     let res = await runner.runMethod(task, 'start', {}, false);
     expect(res).toEqual('started');
   });

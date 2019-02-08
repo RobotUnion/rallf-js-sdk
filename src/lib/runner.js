@@ -30,7 +30,7 @@ class Runner {
    * @param {boolean} isTTY 
    * @returns {Task}
    */
-  createTask(task_path, manifest, robot, mocks_folder, isTTY) {
+  createTask(task_path, manifest, robot = 'nullrobot', mocks_folder, isTTY) {
     if (!checker.isValidTaskProject(path.resolve(task_path), manifest)) {
       throw new Error(`ERROR: Task "${task_path}" seams to not be a rallf task. Check this for info on how to create tasks: https://github.com/RobotUnion/rallf-js-sdk/wiki/Creating-Tasks#manual`);
     }
@@ -52,18 +52,19 @@ class Runner {
     taskInstance.id = manifest.name;
     taskInstance.type = manifest.type;
 
-    let robot_path = this.locateRobot(robot);
-    if (!robot) {
-      robot_path = task_path + '/robots/nullrobot';
+    let robot_path = path.resolve('./robots/nullrobot');
+    if (robot) {
+      robot_path = this.locateRobot(robot);
     }
 
-    robot_path = robot_path;
+    robot_path = path.resolve(path.join(task_path, robot_path));
 
     if (!fs.existsSync(robot_path)) {
       this.generateDefaultRobot(robot_path, manifest.fqtn);
     }
 
     let devices = this.getDevices(robot_path);
+
 
     let skills = this.getSkills(robot_path);
 
@@ -104,7 +105,7 @@ class Runner {
     if ((/[\\/]/g).test(nameOrPath)) {
       path_ = nameOrPath;
     } else {
-      path_ = `/robots/${nameOrPath}`;
+      path_ = `robots/${nameOrPath}`;
     }
 
     return path_;
@@ -112,7 +113,6 @@ class Runner {
 
   getDevices(path_) {
     path_ = path.join(path_, 'devices.json');
-
     return fs.readJsonSync(path_);
   }
 

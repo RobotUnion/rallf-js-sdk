@@ -240,10 +240,12 @@ function goAhead() {
           .then((resp) => {
             logging.log('debug', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
           })
-          .catch(async (err) => {
+          .catch((err) => {
+            console.log(err);
             logging.log('error', `Finished method ${cmd.method} with ERROR `, err);
-            await task.devices.quitAll();
-            process.exit(1);
+            task.devices.quitAll().then(resp => {
+              process.exit(1);
+            });
           });
       } catch (error) {
         console.log(error);
