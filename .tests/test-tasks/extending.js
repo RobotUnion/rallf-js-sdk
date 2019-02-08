@@ -1,4 +1,4 @@
-const rallf = require('rallf-js-sdk');
+const rallf = require('../../index');
 
 class NotExtendedTask {
   constructor() {}
