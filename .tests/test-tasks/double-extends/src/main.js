@@ -10,6 +10,7 @@ class TestTask1 extends OnceExtendedTask {
 
   async warmup() {
     this.logger.debug('warmup');
+    this.test();
   }
 
   async start(input) {

@@ -9,6 +9,10 @@ class OnceExtendedTask extends rallf.Task {
     super();
   }
 
+  async test(){
+    console.log('Test');
+  }
+
   async start() {
     return 'worked';
   }

@@ -43,8 +43,6 @@ class Runner {
     }
 
     let UserTask = /** @type {Task} */ require(taskPath);
-    util.inherits(UserTask, Task);
-
     checker.checkExportToBeTask(UserTask, manifest);
 
     let taskInstance = /** @type {UserTask} */ new UserTask();

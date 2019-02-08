@@ -111,40 +111,42 @@ function goAhead() {
     .option('-T --tty', 'if TTY should be set', true)
     .option('-p --pretty', 'show pretty output', false)
     .action((cmd, args) => {
-      try {
-        let isTTY = process.stdin.isTTY || cmd.tty;
-        if (cmd.pretty || !isTTY) {
-          logging.logger = logging.prettyLogger;
-          logging.color = true;
-          color = color.bind(this, true);
-          outputRpc = outputRpc.bind(this, true);
-        } else {
-          logging.logger = logging.rpcLogger;
-          logging.color = false;
-          color = color.bind(color, false);
-          outputRpc = outputRpc.bind(outputRpc, false);
-        }
+      let isTTY = process.stdin.isTTY || cmd.tty;
+      if (cmd.pretty || !isTTY) {
+        logging.logger = logging.prettyLogger;
+        logging.color = true;
+        color = color.bind(this, true);
+        outputRpc = outputRpc.bind(this, true);
+      } else {
+        logging.logger = logging.rpcLogger;
+        logging.color = false;
+        color = color.bind(color, false);
+        outputRpc = outputRpc.bind(outputRpc, false);
+      }
 
-        if (cmd.input) {
-          try {
-            cmd.input = JSON.parse(cmd.input);
-          } catch (error) {
-            logging.log('warning', 'Error parsing input, must be valid json', cmd.input);
-            cmd.input = {};
-          }
-        } else {
+      if (cmd.input) {
+        try {
+          cmd.input = JSON.parse(cmd.input);
+        } catch (error) {
+          logging.log('warning', 'Error parsing input, must be valid json', cmd.input);
           cmd.input = {};
         }
+      } else {
+        cmd.input = {};
+      }
 
-        logging.log('info', 'running command: run', null);
+      logging.log('info', 'running command: run', null);
 
-        let taskPath = cmd.task || cwd;
-        let manifest = rallfRunner.getManifest(taskPath);
-        if (manifest.error) {
-          return logging.log('error', manifest.error);
-        }
+      let taskPath = cmd.task || cwd;
+      let manifest = rallfRunner.getManifest(taskPath);
+      if (manifest.error) {
+        return logging.log('error', manifest.error);
+      }
 
-        let task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
+      let task;
+
+      try {
+        task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
 
         let taskLbl = color(task.name + '@' + task.version + 'green');
 
@@ -248,9 +250,9 @@ function goAhead() {
             });
           });
       } catch (error) {
-        console.log(error);
+        console.log('error', error);
         logging.log('error', `Finished method ${cmd.method} with ERROR `, error);
-        task.devices.quitAll().then(resp => {
+        if (task) task.devices.quitAll().then(resp => {
           process.exit(1);
         });
       }

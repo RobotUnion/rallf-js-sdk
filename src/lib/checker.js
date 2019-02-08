@@ -58,10 +58,13 @@ module.exports = {
     return true;
   },
 
-  checkExportToBeTask(export_) {
-    let expInstance = (new export_());
-    const isTaskInstance = Task.isPrototypeOf(export_) || (expInstance instanceof Task && expInstance.devices);
 
+  /**
+   * @todo This is not reliable, needs improving... 
+   * A hack is in place that check if the prototype of the export is a function
+   */
+  checkExportToBeTask(export_) {
+    const isTaskInstance = Task.isPrototypeOf(export_) || (typeof export_.prototype._hasDoneWarmup === 'function');
     if (!isTaskInstance) {
       throw {
         error: `ERROR: Task seams to not be a valid rallf.Task, please make sure your class extends rallf.Task`
