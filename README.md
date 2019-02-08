@@ -68,7 +68,7 @@ To have access to global [commands][docs:cli], run:
 $ npm install rallf-js-sdk -g
 ``` 
 
-For using within a task:
+For using for development, run inside your task project:
 ```zsh
 $ npm install rallf-js-sdk
 ```
@@ -76,39 +76,11 @@ $ npm install rallf-js-sdk
 ## Getting Started
 Now you can check the [Getting Started][docs:GettingStarted] guide to start developing 🤖!
 
-<!-- ### Create simple Task
-  1. Create an empty folder: `mkdir test-task && cd test-task`
-  2. Init a task project with: `rallf-init`  
-     2.1. Init will ask some questions
-  3. **init** will generate the following some files (_explained below_)
-  * `config/manifest.json` - The [Manifest][manifest-docs] holds information about your Task, e.g: name, version, fqtn
-  * `mocks/test.task.com/index.js` - [Mocks](https://github.com/RobotUnion/rallf-js-sdk/wiki/Testing:-Mocks) are just the way of testing your tasks locally, without a [Incubator]()
-  * `robots/test-robot/` - [Robots]() TODO...
-  * `src/main.js` - This is the main file of the task, the one that will get executed
-
-### Create simple Skill
-1. Follow the steps above until 2.
-2. In step 2 pass `--skill` option, this will generate a skill template for you
-3. It will create the same structure as above.
-
-## Running 
-### Running a task
-  * `npm start`
-  * `rallf-runner run -r test-robot --input {}`    
-    
-### Running a Skill
-  * `npm run run:getTitle`
-  * `rallf-runner run -r test-robot --method getTitle --input '{}'`    
-      * If method is passed it will asume it is a skill and will run that method
-
-
-You will know if everything went OK  .
-
-Now you can have fun! 🤖 -->
-
 ## Found a bug?
 If you found a bug please leave us an issue.
 * Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/master/.github/CONTRIBUTING.md) before.
 * Make sure that issue has not been reported
 
-<!-- {"jsonrpc": "2.0", "method": "run-method", "params": { "method": "followUser", "username":"santoslluis" }, "id": "test"} -->
+## Want to collaborate?
+We love contributions from people, refer to the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/master/.github/CONTRIBUTING.md) for information on how to get started and how we work. Also and don't hesitate in contacting us.
+
