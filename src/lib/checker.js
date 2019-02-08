@@ -60,7 +60,9 @@ module.exports = {
 
 
   /**
-   * @todo This is not reliable, needs improving... 
+   * @TODO - Improve checking if class extends Task
+   * This is not reliable, needs improving... 
+   * Had problems when running with global `rallf-js run` command, running from local package worked
    * A hack is in place that check if the prototype of the export is a function
    */
   checkExportToBeTask(export_) {
