@@ -45,7 +45,7 @@
   
 <!-- Docs: [CLI][docs:cli], [Task][task-docs], [Skill][skill-docs], [Manifest][manifest-docs], [Creating][docs-create], [Running][docs-running] -->
 
-> **Quick Links:**
+
 [`🔗 Getting Started`][docs:GettingStarted]
 [`🔗 Creating`][docs:Creating]
 [`🔗 Running`][docs:Running]
@@ -55,6 +55,7 @@
 [`🔗 Task`][docs:Task]
 </div>
 
+****
 
 ## Resources
 * [Installing](#installing)
