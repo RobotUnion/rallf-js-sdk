@@ -20,6 +20,7 @@ class Task extends events.RallfEventEmitter {
     this._warmup_done = false;
     this.id = null;
     this.type = 'task';
+    this.__is_task = true;
   }
 
   get home() {
@@ -39,7 +40,7 @@ class Task extends events.RallfEventEmitter {
     if (val) {
       this._warmup_done = val;
     } else return this._warmup_done;
-    
+
     return null;
   }
 

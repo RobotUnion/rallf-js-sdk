@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs-extra');
+const util = require('util');
 const path = require('path');
 const {
   Task,
@@ -42,6 +43,7 @@ class Runner {
     }
 
     let UserTask = /** @type {Task} */ require(taskPath);
+    util.inherits(UserTask, Task);
 
     checker.checkExportToBeTask(UserTask, manifest);
 

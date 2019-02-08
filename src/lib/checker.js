@@ -59,7 +59,8 @@ module.exports = {
   },
 
   checkExportToBeTask(export_) {
-    const isTaskInstance = Task.isPrototypeOf(export_);
+    let expInstance = (new export_());
+    const isTaskInstance = Task.isPrototypeOf(export_) || (expInstance instanceof Task && expInstance.devices);
 
     if (!isTaskInstance) {
       throw {

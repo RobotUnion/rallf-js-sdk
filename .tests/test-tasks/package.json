@@ -1,0 +1,14 @@
+{
+  "name": "test-tasks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "extending.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "rallf-js-sdk": "^0.10.0"
+  }
+}

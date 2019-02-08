@@ -1,0 +1,9 @@
+{
+  "name": "test-task-1",
+  "main": "src/main.js",
+  "scripts": {},
+  "dependencies": {
+    "rallf-js-sdk": "*",
+    "webdriverio": "^5.4.17"
+  }
+}

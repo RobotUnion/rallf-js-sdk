@@ -46,7 +46,7 @@
     "please-update": "0.0.1",
     "recursive-copy": "^2.0.9",
     "selenium-webdriver": "^3.6.0",
-    "webdriverio": "^4.14.0",
+    "webdriverio": "^4.14.2",
     "yargs": "^12.0.2"
   },
   "devDependencies": {
