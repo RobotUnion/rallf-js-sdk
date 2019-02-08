@@ -76,6 +76,35 @@ $ npm install rallf-js-sdk
 ## Getting Started
 Now you can check the [Getting Started][docs:GettingStarted] guide to start developing 🤖!
 
+## Overview
+```js
+const rallf = require('rallf-js-sdk'); 
+
+class MyTask extends rallf.Task {
+  constructor() {
+    super();
+    this.firefox = null;
+  }
+
+  async warmup() {
+    this.logger.debug('warmup');
+    this.firefox = await this.devices.get('firefox');
+    await this.firefox.get('https://github.com');
+  }
+
+  async start(input) {
+    this.logger.debug(this.fqtn + ' started');
+    return await this.firefox.getTitle();
+  }
+
+  async cooldown() {
+    this.logger.debug('cooldown');
+    await this.firefox.quit();
+  }
+}
+```
+
+
 ## Found a bug?
 If you found a bug please leave us an issue.
 * Make sure you check the [contributing guidelines](https://github.com/RobotUnion/rallf-js-sdk/blob/master/.github/CONTRIBUTING.md) before.
