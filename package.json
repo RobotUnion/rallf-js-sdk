@@ -65,10 +65,5 @@
       "/examples/",
       "/tests"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm test"
-    }
   }
 }
