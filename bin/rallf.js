@@ -28,7 +28,7 @@ function goAhead() {
     if (colorEnabled) {
       try {
         str = clc[colorName](str);
-      } catch (error) {}
+      } catch (error) { }
     }
 
     return str;
@@ -65,7 +65,7 @@ function goAhead() {
     await rallfRunner.runMethod(task, 'cooldown', [], isTTY);
     try {
       await task.devices.quitAll();
-    } catch (error) {};
+    } catch (error) { };
     return finish({}, cmd, task);
   }
 
@@ -108,10 +108,10 @@ function goAhead() {
     .option('-i --input <input>', 'tasks input', {})
     .option('-m --mocks <mocks>', 'mocks folder')
     .option('-f --method <method>', 'run method in skill', 'warmup')
-    .option('-T --tty', 'if TTY should be set', true)
+    .option('-T --tty <tty>', 'if TTY should be set', true)
     .option('-p --pretty', 'show pretty output', false)
     .action((cmd, args) => {
-      let isTTY = process.stdin.isTTY || cmd.tty;
+      let isTTY = process.stdin.isTTY && cmd.tty;
       if (cmd.pretty || !isTTY) {
         logging.logger = logging.prettyLogger;
         logging.color = true;
@@ -187,54 +187,62 @@ function goAhead() {
           if (params.name === 'warmup') {
             logging.log('debug', 'Warm up done - listening for requests...');
 
-            /* rpiecy.listen Sets up a realine inteface that listens for json-rpc requests/responses */
-            const input = rpiecy.listen((request) => {
-              if (request.method && !methodsAllowed.includes(request.method)) {
-                let response = rpiecy.createResponse(request.id, null, {
-                  message: 'Method "' + request.method + '" not found.',
-                  code: -32601,
-                  data: {}
-                });
-                outputRpc(response);
-              } else if (request.id) {
-                if (
-                  request.method === 'delegate' &&
-                  request.params
-                ) {
-                  let method = request.params.routine;
-                  let args = request.params.args || {};
+            console.log("isTTY", isTTY);
 
-                  now.timeFnExecutionAsync(() => task[method](args))
-                    .then((res) => {
-                      logging.log("info", "Finshed: ", res);
-                      let response = rpiecy.createResponse(request.id, res.return, null);
-                      outputRpc(response);
-                    })
-                    .catch((err) => {
-                      let response = rpiecy.createResponse(request.id, null, {
-                        code: jsonrpc.INTERNAL_ERROR,
-                        data: err,
-                        message: 'error running method'
+            if (isTTY == false || isTTY == 'false') {
+              console.log("isTTY");
+              setInterval(() => { }, 200000);
+            } else {
+              console.log("ASdasdjaopsjd");
+              /* rpiecy.listen Sets up a readline inteface that listens for json-rpc requests/responses */
+              const input = rpiecy.listen((request) => {
+                if (request.method && !methodsAllowed.includes(request.method)) {
+                  let response = rpiecy.createResponse(request.id, null, {
+                    message: 'Method "' + request.method + '" not found.',
+                    code: -32601,
+                    data: {}
+                  });
+                  outputRpc(response);
+                } else if (request.id) {
+                  if (
+                    request.method === 'delegate' &&
+                    request.params
+                  ) {
+                    let method = request.params.routine;
+                    let args = request.params.args || {};
+
+                    now.timeFnExecutionAsync(() => task[method](args))
+                      .then((res) => {
+                        logging.log("info", "Finshed: ", res);
+                        let response = rpiecy.createResponse(request.id, res.return, null);
+                        outputRpc(response);
+                      })
+                      .catch((err) => {
+                        let response = rpiecy.createResponse(request.id, null, {
+                          code: jsonrpc.INTERNAL_ERROR,
+                          data: err,
+                          message: 'error running method'
+                        });
+                        outputRpc(response);
+                        process.exit(1);
                       });
-                      outputRpc(response);
-                      process.exit(1);
-                    });
-                } else if (request.result || request.error) {
-                  task.emit('response:' + request.id, request.result);
+                  } else if (request.result || request.error) {
+                    task.emit('response:' + request.id, request.result);
+                  }
+                } else if (cmd.verbose) {
+                  logging.log('debug', 'Received request without id', request);
                 }
-              } else if (cmd.verbose) {
-                logging.log('debug', 'Received request without id', request);
-              }
-            });
+              });
 
-            /* Handle sigint for readline, as process.on will not receive the event */
-            input.once('SIGINT', () => {
-              return finishHandler(task, cmd, isTTY);
-            });
+              /* Handle sigint for readline, as process.on will not receive the event */
+              input.once('SIGINT', () => {
+                return finishHandler(task, cmd, isTTY);
+              });
 
-            input.once('close', () => {
-              return finishHandler(task, cmd, isTTY);
-            })
+              input.once('close', () => {
+                return finishHandler(task, cmd, isTTY);
+              });
+            }
           }
         });
 

@@ -10,8 +10,8 @@ class TestTask1 extends Task {
 
   async warmup() {
     this.logger.debug('warmup');
-    this.firefox = await this.devices.get('firefox');
-    await this.firefox.get('https://github.com');
+    // this.firefox = await this.devices.get('firefox');
+    // await this.firefox.get('https://github.com');
   }
 
   async start(input) {
