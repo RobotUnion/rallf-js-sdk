@@ -165,6 +165,10 @@ class Devices {
       opts.addArgument(`user-data-dir=${device_options.profile}`);
     }
 
+    if(device_options.args){
+      opts.addArgument(...device_options.args);
+    }
+
     // console.log('opts', opts)
 
     opts.device_name = deviceName;
