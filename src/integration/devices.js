@@ -14,8 +14,8 @@ const wdio = require('webdriverio');
  */
 class Devices {
   constructor() {
-    this.devices = /** @type {any][]} */ [];
-    this._instances = /** @type {WebDriver[]} */ [];
+    this.devices = /** @type {any][]} */[];
+    this._instances = /** @type {WebDriver[]} */[];
   }
 
   /**
@@ -48,8 +48,9 @@ class Devices {
             builder.setChromeOptions(options);
           }
 
-          if(device.proxy || device_options.proxy){
-            builder.setProxy(proxy.manual(device.proxy || device_options.proxy));
+          if (device.proxy || device_options.proxy) {
+            // const mitmProxy = { proxyType: 'manual', httpProxy: 'localhost:8080', httpProxyPort: 8080, sslProxy: 'localhost:8081', sslProxyPort: 8081 };
+            builder.setProxy(device.proxy);
           }
 
           let deviceInstance = await builder.build();
@@ -170,7 +171,7 @@ class Devices {
       opts.addArgument(`user-data-dir=${device_options.profile}`);
     }
 
-    if(device_options.args){
+    if (device_options.args) {
       opts.addArgument(...device_options.args);
     }
 
