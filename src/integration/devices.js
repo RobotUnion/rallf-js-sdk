@@ -49,9 +49,10 @@ class Devices {
             builder.setChromeOptions(options);
           }
           console.log('building', device);
-          if (device && device.proxy || device_options && device_options.proxy) {
-            console.log(device_options.proxy);
-            builder.setProxy(device_options.proxy || device.proxy);
+          if ((device && device.proxy)) {
+            builder.setProxy(device.proxy);
+          } else if (device_options && device_options.proxy) {
+            builder.setProxy(device_options.proxy);
           }
 
           let deviceInstance = await builder.build();
