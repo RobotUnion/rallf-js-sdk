@@ -42,16 +42,18 @@ class Devices {
         return new Promise(async (resolve, reject) => {
           let builder = new Builder().forBrowser(device.name);
           let options = this._getOptions(device, device_options);
+
+          if (device.proxy || device_options.proxy) {
+            // const mitmProxy = { proxyType: 'manual', httpProxy: 'localhost:8080', httpProxyPort: 8080, sslProxy: 'localhost:8081', sslProxyPort: 8081 };
+            options.setProxy(device.proxy);
+          }
+
           if (device.name === 'firefox') {
             builder.setFirefoxOptions(options);
           } else if (device.name === 'chrome') {
             builder.setChromeOptions(options);
           }
 
-          if (device.proxy || device_options.proxy) {
-            // const mitmProxy = { proxyType: 'manual', httpProxy: 'localhost:8080', httpProxyPort: 8080, sslProxy: 'localhost:8081', sslProxyPort: 8081 };
-            builder.setProxy(device.proxy);
-          }
 
           let deviceInstance = await builder.build();
           this._instances.push({
