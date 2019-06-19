@@ -4,6 +4,7 @@ const {
   WebDriver
 } = require('selenium-webdriver');
 const firefox = require('selenium-webdriver/firefox');
+const proxy = require('selenium-webdriver/proxy');
 const chrome = require('selenium-webdriver/chrome');
 const wdio = require('webdriverio');
 
@@ -45,6 +46,10 @@ class Devices {
             builder.setFirefoxOptions(options);
           } else if (device.name === 'chrome') {
             builder.setChromeOptions(options);
+          }
+
+          if(device.proxy || device_options.proxy){
+            builder.setProxy(proxy.manual(device.proxy || device_options.proxy));
           }
 
           let deviceInstance = await builder.build();
