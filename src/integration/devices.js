@@ -49,7 +49,7 @@ class Devices {
             builder.setChromeOptions(options);
           }
           console.log('building', device);
-          if (device.proxy || device_options.proxy) {
+          if (device && device.proxy || device_options && device_options.proxy) {
             console.log(device_options.proxy);
             builder.setProxy(device_options.proxy || device.proxy);
           }
