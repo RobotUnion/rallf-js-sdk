@@ -12,6 +12,7 @@
     ]
   },
   "logger": {
-    "level": "INFO"
+    "level": "INFO",
+    "formatter": "minimal"
   }
 }

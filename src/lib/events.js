@@ -8,7 +8,7 @@ class RallfEventEmitter extends EventEmitter {
   /**
    * Listens for any event
    * !! Should be overwriten ¡¡ 
-   * @param {function(event: string, data: any)} listener 
+   * @param {function(event: string, data: any)} onAny 
    */
   onAny() {
     return null;

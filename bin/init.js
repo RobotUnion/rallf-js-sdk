@@ -35,19 +35,19 @@ function goAhead() {
   });
 
   let initQuestions = [{
-      "key": "name",
-      "description": "Set a name for your task, the one displayed at market.rallf.com",
-      "default": nameGoodFormat,
-      "pattern": /^[\w\d-_.@$]*$/,
-      "example": "task-name"
-    },
-    {
-      "key": "fqtn",
-      "description": "This is a unique identifier for your task, must be a valid FQDN",
-      "default": `com.${nameGoodFormat}.task`,
-      "pattern": /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.){2,}([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]){2,}$/,
-      "example": "com.example.task"
-    }
+    "key": "name",
+    "description": "Set a name for your task, the one displayed at market.rallf.com",
+    "default": nameGoodFormat,
+    "pattern": /^[\w\d-_.@$]*$/,
+    "example": "task-name"
+  },
+  {
+    "key": "fqtn",
+    "description": "This is a unique identifier for your task, must be a valid FQDN",
+    "default": `com.${nameGoodFormat}.task`,
+    "pattern": /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.){2,}([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]){2,}$/,
+    "example": "com.example.task"
+  }
   ];
 
   let manifestTemplate = {
@@ -91,24 +91,24 @@ function goAhead() {
     logging.log('info', 'Generating rallf-sdk-project ' + clc.blueBright('@' + version));
     let templatePath = __dirname.replace('bin', '') + `/examples/${init_template_name}`;
     let templateFiles = [{
-        path: 'config/manifest.json',
-        vars: manifestTemplate
-      },
-      {
-        path: 'package.json',
-        vars: manifestTemplate
-      },
-      {
-        path: 'README.md',
-        vars: manifestTemplate
-      },
-      {
-        path: 'src/main.js.tmpl',
-        vars: {
-          ...manifestTemplate,
-          name: toPascalCase(manifestTemplate.name)
-        }
-      },
+      path: 'config/manifest.json',
+      vars: manifestTemplate
+    },
+    {
+      path: 'package.json',
+      vars: manifestTemplate
+    },
+    {
+      path: 'README.md',
+      vars: manifestTemplate
+    },
+    {
+      path: 'src/main.js.tmpl',
+      vars: {
+        ...manifestTemplate,
+        name: toPascalCase(manifestTemplate.name)
+      }
+    },
       'mocks/com.test.task/index.js',
       'robots/nullrobot/devices.json',
       'robots/nullrobot/skills.json',
@@ -128,9 +128,11 @@ function goAhead() {
       stdio: ['inherit', 'inherit', 'inherit', 'ipc']
     });
     p.on('exit', (exit_code) => {
-      if (exit_code === 0) logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle' : 'npm start')}`);
-      if (exit_code === 0) logging.log('info', `Readme available at: ${clc.blackBright.underline('./README.md')}`);
-      if (exit_code === 0) logging.log('info', `Documentation at: ${clc.blackBright.underline('https://github.com/RobotUnion/rallf-js-sdk/wiki')}`);
+      if (exit_code === 0) {
+        logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle' : 'npm start')}`);
+        logging.log('info', `Readme available at: ${clc.blackBright.underline('./README.md')}`);
+        logging.log('info', `Documentation at: ${clc.blackBright.underline('https://github.com/RobotUnion/rallf-js-sdk/wiki')}`);
+      }
     });
   }
 
