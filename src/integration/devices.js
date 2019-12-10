@@ -25,7 +25,6 @@ class Devices {
    * @rejects if device is not found or if build failed
    */
   get(device_name, device_options) {
-    console.log('Getting device', device_name);
     try {
       let device = this.devices[device_name];
 
@@ -48,7 +47,6 @@ class Devices {
           } else if (device.name === 'chrome') {
             builder.setChromeOptions(options);
           }
-          console.log('building', device);
           if ((device && device.proxy)) {
             builder.setProxy(device.proxy);
           } else if (device_options && device_options.proxy) {
@@ -157,7 +155,7 @@ class Devices {
     }
 
 
-    if (device.headless === true) {
+    if (device.headless === true && device_options.headless !== false) {
       opts.headless();
     }
 

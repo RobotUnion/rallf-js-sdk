@@ -6,7 +6,7 @@ const child_process = require('child_process');
 const clc = require('cli-color');
 const path = require('path');
 const program = require('commander');
-const logging = require('../src/lib/logging');
+const { logger } = require('../src/lib/logging');
 const jsonrpc = require('../src/lib/jsonrpc');
 const now = require('../src/lib/now');
 const pkg = require('../package.json');
@@ -44,14 +44,14 @@ function goAhead() {
     }
 
     if (pretty) {
-      logging.log('info', 'rpc:message', rpcent.toObject());
+      logger.debug('rpc:message', rpcent.toObject());
     } else {
       rpcent.output();
     }
   }
 
   function onFinish(resp, cmd, task) {
-    logging.log('success', `Finished ${task.id} ${color('OK', 'green')} ${JSON.stringify(resp)}`);
+    logger.info(`Finished ${task.id} ${color('OK', 'green')} ${JSON.stringify(resp)}`);
     process.exit(0);
   }
 
@@ -103,9 +103,9 @@ function goAhead() {
 
   program
     .command('run')
-    .option('-t --task <task>', 'path task, default to cwd')
-    .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
+    .requiredOption('-t --task <task>', 'path task, default to cwd')
     .option('-i --input <input>', 'tasks input', {})
+    .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
     .option('-m --mocks <mocks>', 'mocks folder')
     .option('-f --method <method>', 'run method in skill', 'warmup')
     .option('-T --tty <tty>', 'if TTY should be set', true)
@@ -113,13 +113,11 @@ function goAhead() {
     .action((cmd, args) => {
       let isTTY = process.stdin.isTTY && cmd.tty;
       if (cmd.pretty || !isTTY) {
-        logging.logger = logging.prettyLogger;
-        logging.color = true;
+        logger.formatter(process.env.LOGGER_FORMATTER || 'detailed').color(true);
         color = color.bind(this, true);
         outputRpc = outputRpc.bind(this, true);
       } else {
-        logging.logger = logging.rpcLogger;
-        logging.color = false;
+        logger.formatter('json').color(false);
         color = color.bind(color, false);
         outputRpc = outputRpc.bind(outputRpc, false);
       }
@@ -128,19 +126,19 @@ function goAhead() {
         try {
           cmd.input = JSON.parse(cmd.input);
         } catch (error) {
-          logging.log('warning', 'Error parsing input, must be valid json', cmd.input);
+          logger.warning('Error parsing input, must be valid json', cmd.input);
           cmd.input = {};
         }
       } else {
         cmd.input = {};
       }
 
-      logging.log('info', 'running command: run', null);
+      logger.debug('running command: run');
 
       let taskPath = cmd.task || cwd;
       let manifest = rallfRunner.getManifest(taskPath);
       if (manifest.error) {
-        return logging.log('error', manifest.error);
+        return logger.error(manifest.error);
       }
 
       let task;
@@ -150,9 +148,9 @@ function goAhead() {
 
         let taskLbl = color(task.name + '@' + task.version + 'green');
 
-        logging.log('debug', 'Running task: ' + taskLbl);
-        logging.log('debug', 'Created task');
-        logging.log('debug', 'Executing task');
+        logger.debug('Running task:   ' + taskLbl);
+        logger.debug('Created task:   ' + taskLbl);
+        logger.debug('Executing task: ' + taskLbl);
 
         if (cmd.pretty || !isTTY) {
           task.logger.pretty = true;
@@ -170,30 +168,23 @@ function goAhead() {
             time: now()
           }, rpiecy.id());
           outputRpc(request);
-          // request.output();
         };
 
         /* Handle sigint before readline is active */
-        process.once('SIGINT', () => {
-          return finishHandler(task, cmd, isTTY);
-        });
+        process.once('SIGINT', () =>
+          finishHandler(task, cmd, isTTY));
 
-        process.once('close', () => {
-          return finishHandler(task, cmd, isTTY);
-        });
+        process.once('close', () =>
+          finishHandler(task, cmd, isTTY));
 
         const methodsAllowed = ['delegate', 'event', 'quit'];
         task.on('routine:end', (params) => {
           if (params.name === 'warmup') {
-            logging.log('debug', 'Warm up done - listening for requests...');
-
-            console.log("isTTY", isTTY);
+            logger.debug('Warm up done - listening for requests...');
 
             if (isTTY == false || isTTY == 'false') {
-              console.log("isTTY");
               setInterval(() => { }, 200000);
             } else {
-              console.log("ASdasdjaopsjd");
               /* rpiecy.listen Sets up a readline inteface that listens for json-rpc requests/responses */
               const input = rpiecy.listen((request) => {
                 if (request.method && !methodsAllowed.includes(request.method)) {
@@ -211,9 +202,10 @@ function goAhead() {
                     let method = request.params.routine;
                     let args = request.params.args || {};
 
+                    // TODO: This is no longer needed?
                     now.timeFnExecutionAsync(() => task[method](args))
                       .then((res) => {
-                        logging.log("info", "Finshed: ", res);
+                        logger.info("Finshed: ", res);
                         let response = rpiecy.createResponse(request.id, res.return, null);
                         outputRpc(response);
                       })
@@ -230,7 +222,7 @@ function goAhead() {
                     task.emit('response:' + request.id, request.result);
                   }
                 } else if (cmd.verbose) {
-                  logging.log('debug', 'Received request without id', request);
+                  logger.debug('Received request without id', request);
                 }
               });
 
@@ -246,25 +238,32 @@ function goAhead() {
           }
         });
 
-        rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
+        return rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
           .then((resp) => {
-            logging.log('debug', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
+            logger.debug(`Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
           })
-          .catch((err) => {
-            console.log(err);
-            logging.log('error', `Finished method ${cmd.method} with ERROR `, err);
-            task.devices.quitAll().then(resp => {
-              process.exit(1);
-            });
-          });
+
+        // // Remove this, as it propagates to catch
+        // .catch((err) => {
+        //   logger.log('error', `Finished method ${cmd.method} with ERROR `, err);
+        //   task.devices.quitAll().then(resp => {
+        //     process.exit(1);
+        //   });
+        // });
       } catch (error) {
-        console.log('error', error);
-        logging.log('error', `Finished method ${cmd.method} with ERROR `, error);
+        console.log(error);
+        logger.error(`Finished method ${cmd.method} with ERROR `, error);
         if (task) task.devices.quitAll().then(resp => {
           process.exit(1);
         });
       }
     });
 
-  program.parse(process.argv);
+  program
+    .parse(process.argv);
+
+  if (!process.argv.slice(2).length) {
+    program.help();
+    return;
+  }
 }
