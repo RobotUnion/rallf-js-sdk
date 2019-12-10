@@ -6,17 +6,27 @@ const child_process = require('child_process');
 const clc = require('cli-color');
 const path = require('path');
 const program = require('commander');
+const rpiecy = require('json-rpiecy');
+
 const { logger } = require('../src/lib/logging');
 const jsonrpc = require('../src/lib/jsonrpc');
 const now = require('../src/lib/now');
 const pkg = require('../package.json');
-const rpiecy = require('json-rpiecy');
 const checkVersion = require('./version-check');
+
+const stdioDefaults = ['inherit', 'inherit', 'inherit', 'ipc'];
+const forkOptions = {
+  stdio: stdioDefaults
+};
 
 checkVersion(process.argv.includes('--nvc'))
   .then(goAhead)
   .catch(goAhead);
 
+const FLAGS = {
+  color: true,
+  pretty: true,
+};
 
 function goAhead() {
   const Runner = require('../src/lib/runner');
@@ -24,8 +34,8 @@ function goAhead() {
 
   let cwd = process.cwd();
 
-  function color(colorEnabled, str, colorName) {
-    if (colorEnabled) {
+  function color(str, colorName) {
+    if (FLAGS['color']) {
       try {
         str = clc[colorName](str);
       } catch (error) { }
@@ -34,8 +44,7 @@ function goAhead() {
     return str;
   }
 
-  function outputRpc(pretty, rpcent) {
-
+  function outputRpc(rpcent) {
     if (!rpcent.output && rpcent.method) {
       rpcent = rpiecy.createRequest(rpcent.method, rpcent.params, rpcent.id);
     }
@@ -43,7 +52,7 @@ function goAhead() {
       rpcent = rpiecy.createResponse(rpcent.id, rpcent.result, rpcent.error);
     }
 
-    if (pretty) {
+    if (FLAGS['pretty']) {
       logger.debug('rpc:message', rpcent.toObject());
     } else {
       rpcent.output();
@@ -55,7 +64,7 @@ function goAhead() {
     process.exit(0);
   }
 
-  const finish = (data, cmd, task) => {
+  function finish(data, cmd, task) {
     let request = rpiecy.createRequest('finish', data, rpiecy.id());
     onFinish(request, cmd, task);
   };
@@ -74,7 +83,6 @@ function goAhead() {
     cp.stderr.pipe(process.stderr);
   }
 
-
   program.version(pkg.version, '-v --version');
   program.option('-V --verbose', 'show verbose logging', false)
   program.option('-N --nvc', 'don\'t check version', false);
@@ -84,9 +92,11 @@ function goAhead() {
     .option('-s, --skill', 'generate skill template')
     .option('-f, --force', 'rorce the generation, under your own risk!')
     .action((cmd) => {
-      let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)], {
-        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-      });
+      let cp = child_process.fork(
+        path.join(__dirname, '../bin/init.js'),
+        [...process.argv.slice(3)],
+        forkOptions
+      );
       pipeSubcommandOutput(cp);
     });
 
@@ -95,9 +105,11 @@ function goAhead() {
     .option('-i, --input-path <input_path>', 'specify an input path', path.join(process.cwd()))
     .option('-o, --output-path <output_path>', 'specify an output path', path.join(process.cwd(), 'output'))
     .action((cmd) => {
-      let cp = child_process.spawn('node', [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)], {
-        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-      });
+      let cp = child_process.spawn(
+        'node',
+        [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)],
+        forkOptions
+      );
       pipeSubcommandOutput(cp);
     });
 
@@ -114,12 +126,12 @@ function goAhead() {
       let isTTY = process.stdin.isTTY && cmd.tty;
       if (cmd.pretty || !isTTY) {
         logger.formatter(process.env.LOGGER_FORMATTER || 'detailed').color(true);
-        color = color.bind(this, true);
-        outputRpc = outputRpc.bind(this, true);
+        FLAGS['color'] = true;
+        FLAGS['pretty'] = true;
       } else {
         logger.formatter('json').color(false);
-        color = color.bind(color, false);
-        outputRpc = outputRpc.bind(outputRpc, false);
+        FLAGS['color'] = false;
+        FLAGS['pretty'] = false;
       }
 
       if (cmd.input) {
@@ -146,18 +158,11 @@ function goAhead() {
       try {
         task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
 
-        let taskLbl = color(task.name + '@' + task.version + 'green');
+        let taskLbl = color(task.name + '@' + task.version, 'green');
 
         logger.debug('Running task:   ' + taskLbl);
         logger.debug('Created task:   ' + taskLbl);
         logger.debug('Executing task: ' + taskLbl);
-
-        if (cmd.pretty || !isTTY) {
-          task.logger.pretty = true;
-        } else {
-          task.logger.pretty = false;
-        }
-
 
         // On any event
         task.onAny = (evt, data) => {
@@ -202,8 +207,7 @@ function goAhead() {
                     let method = request.params.routine;
                     let args = request.params.args || {};
 
-                    // TODO: This is no longer needed?
-                    now.timeFnExecutionAsync(() => task[method](args))
+                    task[method](args)
                       .then((res) => {
                         logger.info("Finshed: ", res);
                         let response = rpiecy.createResponse(request.id, res.return, null);
@@ -241,15 +245,8 @@ function goAhead() {
         return rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
           .then((resp) => {
             logger.debug(`Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
-          })
+          });
 
-        // // Remove this, as it propagates to catch
-        // .catch((err) => {
-        //   logger.log('error', `Finished method ${cmd.method} with ERROR `, err);
-        //   task.devices.quitAll().then(resp => {
-        //     process.exit(1);
-        //   });
-        // });
       } catch (error) {
         console.log(error);
         logger.error(`Finished method ${cmd.method} with ERROR `, error);
@@ -259,8 +256,7 @@ function goAhead() {
       }
     });
 
-  program
-    .parse(process.argv);
+  program.parse(process.argv);
 
   if (!process.argv.slice(2).length) {
     program.help();
