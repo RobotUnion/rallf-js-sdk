@@ -14,11 +14,6 @@ const now = require('../src/lib/now');
 const pkg = require('../package.json');
 const checkVersion = require('./version-check');
 
-const stdioDefaults = ['inherit', 'inherit', 'inherit', 'ipc'];
-const forkOptions = {
-  stdio: stdioDefaults
-};
-
 checkVersion(process.argv.includes('--nvc'))
   .then(goAhead)
   .catch(goAhead);
@@ -84,34 +79,24 @@ function goAhead() {
   }
 
   program.version(pkg.version, '-v --version');
-  program.option('-V --verbose', 'show verbose logging', false)
-  program.option('-N --nvc', 'don\'t check version', false);
+  program.option('-V --verbose', 'Show verbose logging', false)
+  program.option('-N --nvc', 'Don\'t check version', false);
 
   program
     .command('init')
-    .option('-s, --skill', 'generate skill template')
-    .option('-f, --force', 'rorce the generation, under your own risk!')
-    .action((cmd) => {
-      let cp = child_process.fork(
-        path.join(__dirname, '../bin/init.js'),
-        [...process.argv.slice(3)],
-        forkOptions
-      );
-      pipeSubcommandOutput(cp);
-    });
+    .option('-s, --skill', 'Generate skill template')
+    .option('-f, --force', 'Force the generation, under your own risk!')
+    .action((cmd) => pipeSubcommandOutput(child_process.spawn(
+      'node', [path.join(__dirname, '../bin/init.js'), ...process.argv.slice(3)],
+    )));
 
   program
     .command('package')
     .option('-i, --input-path <input_path>', 'specify an input path', path.join(process.cwd()))
     .option('-o, --output-path <output_path>', 'specify an output path', path.join(process.cwd(), 'output'))
-    .action((cmd) => {
-      let cp = child_process.spawn(
-        'node',
-        [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)],
-        forkOptions
-      );
-      pipeSubcommandOutput(cp);
-    });
+    .action((cmd) => pipeSubcommandOutput(child_process.spawn(
+      'node', [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)],
+    )));
 
   program
     .command('run')
@@ -256,7 +241,12 @@ function goAhead() {
       }
     });
 
-  program.parse(process.argv);
+  let args = program.parse(process.argv);
+  if (args.verbose) {
+    logger.level('DEBUG');
+  } else {
+    logger.level('INFO');
+  }
 
   if (!process.argv.slice(2).length) {
     program.help();
