@@ -6,13 +6,12 @@ const path = require('path');
 const fs = require('fs-extra');
 const clc = require('cli-color');
 const program = require('commander');
-const logging = require('../src/lib/logging');
-const pckg = require('../package.json');
 const readline = require('readline');
 const child_process = require('child_process');
-const checkVersion = require('./version-check');
 
-const version = pckg.version;
+const { logger } = require('../src/lib/logging');
+const { version } = require('../package.json');
+const checkVersion = require('./version-check');
 
 program.version(version);
 program.option('--nvc', 'Don\'t check version', false);
@@ -68,8 +67,8 @@ function goAhead() {
   function copyFile(origin, target, vars) {
 
     target = target.replace('.tmpl', '');
+    logger.info('copy file: ' + target);
 
-    logging.log('info', 'copy file: ' + target);
     let content = fs.readFileSync(origin) || '';
     content = replaceVars(content, vars);
 
@@ -88,7 +87,7 @@ function goAhead() {
   }
 
   function copyTemplate() {
-    logging.log('info', 'Generating rallf-sdk-project ' + clc.blueBright('@' + version));
+    logger.info('Generating rallf-sdk-project ' + clc.blueBright('@' + version));
     let templatePath = __dirname.replace('bin', '') + `/examples/${init_template_name}`;
     let templateFiles = [{
       path: 'config/manifest.json',
@@ -122,16 +121,16 @@ function goAhead() {
       copyFile(path.join(templatePath, file), path.join(cwd, file), vars);
     }
 
-    logging.log('info', 'Installing dependencies, please wait...');
+    logger.info('Installing dependencies, please wait...');
 
     let p = child_process.exec(`cd ${cwd} && npm install`, {
       stdio: ['inherit', 'inherit', 'inherit', 'ipc']
     });
     p.on('exit', (exit_code) => {
       if (exit_code === 0) {
-        logging.log('info', `To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle' : 'npm start')}`);
-        logging.log('info', `Readme available at: ${clc.blackBright.underline('./README.md')}`);
-        logging.log('info', `Documentation at: ${clc.blackBright.underline('https://github.com/RobotUnion/rallf-js-sdk/wiki')}`);
+        logger.info(`To run the task you can do: ${clc.blackBright(isSkill ? 'npm run run:getTitle' : 'npm start')}`);
+        logger.info(`Readme available at: ${clc.blackBright.underline('./README.md')}`);
+        logger.info(`Documentation at: ${clc.blackBright.underline('https://github.com/RobotUnion/rallf-js-sdk/wiki')}`);
       }
     });
   }
@@ -149,7 +148,7 @@ function goAhead() {
         }
 
         if (!question.pattern.test(answer)) {
-          logging.log('\rerror', question.key + ' is not valid format, example: ' + question.example);
+          logger.error(question.key + ' is not valid format, example: ' + question.example);
           askForData(questions);
         } else {
           manifestTemplate[question.key] = answer;
@@ -157,7 +156,7 @@ function goAhead() {
           if (questions.length > 1) {
             askForData(questions.slice(1));
           } else {
-            logging.log('info', 'Saving manifest.json');
+            logger.info('Saving manifest.json');
             rl.close();
             copyTemplate();
           }
@@ -169,7 +168,6 @@ function goAhead() {
     return fs.existsSync(path.join(cwd, 'config/manifest.json'));
   }
 
-
   let force = process.argv.includes('--force');
   let isSkill = process.argv.includes('--skill');
 
@@ -178,13 +176,12 @@ function goAhead() {
   }
 
   if (!force && isTask()) {
-    logging.log('warn', `Folder ./${folderName} is already a rallf-task project`);
+    logger.warning(`Folder ./${folderName} is already a rallf-task project`);
     process.exit();
   }
 
-  logging.log('info', 'running command: init');
-  logging.log('info', 'Answer the following questions to initialize rallf-task project\n');
-
+  logger.info('running command: init');
+  logger.info('Answer the following questions to initialize rallf-task project\n');
 
   askForData(initQuestions);
 
