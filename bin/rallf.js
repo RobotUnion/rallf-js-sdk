@@ -50,7 +50,7 @@ function goAhead() {
     if (FLAGS['pretty']) {
       logger.debug('rpc:message', rpcent.toObject());
     } else {
-      rpcent.output();
+      rpiecy.output(rpcent);
     }
   }
 
