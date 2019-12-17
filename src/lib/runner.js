@@ -118,7 +118,6 @@ class Runner {
 
   getSkills(path_) {
     path_ = path.join(path_, 'skills.json');
-
     return fs.readJsonSync(path_);
   }
 

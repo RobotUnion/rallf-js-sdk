@@ -142,7 +142,6 @@ function goAhead() {
 
       try {
         task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
-
         let taskLbl = color(task.name + '@' + task.version, 'green');
 
         logger.debug('Running task:   ' + taskLbl);

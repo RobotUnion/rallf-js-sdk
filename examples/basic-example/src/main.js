@@ -1,4 +1,5 @@
 const rallf = require('../../../');
+
 class BasicExample extends rallf.Task {
   async warmup() {
     this.logger.info('Warming up ' + this.name);
