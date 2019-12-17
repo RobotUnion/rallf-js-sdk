@@ -1,6 +1,6 @@
 {
   "name": "rallf-js-sdk",
-  "version": "0.11.9",
+  "version": "1.0.0",
   "description": "Toolset to create Tasks for RALLF",
   "main": "index.js",
   "author": "RobotUnion",
@@ -33,7 +33,7 @@
     "test:w": "jest --watchAll",
     "lint": "eslint ./index.js ./src/**/*.js --quiet",
     "init": "node ./bin/init.js",
-    "npm:publish": "npm version patch && npm publish",
+    "npm:publish": "standard-version && npm publish",
     "teste2e": "node ./.tests/e2etest.js"
   },
   "dependencies": {
