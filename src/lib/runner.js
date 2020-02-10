@@ -64,8 +64,6 @@ class Runner {
     }
 
     let devices = this.getDevices(robot_path);
-
-
     let skills = this.getSkills(robot_path);
 
     taskInstance.robot = this.getRobot(robot_path + '/data/' + manifest.fqtn || null);
@@ -219,11 +217,11 @@ class Runner {
         name: 'warmup'
       });
 
-      let timed = await task.warmup();
+      let result = await task.warmup();
       task._hasDoneWarmup(true);
       task.emit('routine:end', {
         name: 'warmup',
-        data: timed
+        data: result
       });
     }
 

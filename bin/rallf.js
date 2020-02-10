@@ -40,15 +40,8 @@ function goAhead() {
   }
 
   function outputRpc(rpcent) {
-    if (!rpcent.output && rpcent.method) {
-      rpcent = rpiecy.createRequest(rpcent.method, rpcent.params, rpcent.id);
-    }
-    if (!rpcent.output && rpcent.result || rpcent.error) {
-      rpcent = rpiecy.createResponse(rpcent.id, rpcent.result, rpcent.error);
-    }
-
-    if (FLAGS['pretty']) {
-      logger.debug('rpc:message', rpcent.toObject());
+    if (FLAGS['pretty'] && !rpcent.isEmpty()) {
+      logger.debug(rpcent.method, rpcent.params);
     } else {
       rpiecy.output(rpcent);
     }
@@ -109,7 +102,7 @@ function goAhead() {
     .option('-p --pretty', 'show pretty output', false)
     .action((cmd, args) => {
       let isTTY = process.stdin.isTTY && cmd.tty;
-      if (cmd.pretty || !isTTY) {
+      if (cmd.pretty) {
         logger.formatter(process.env.LOGGER_FORMATTER || 'detailed').color(true);
         FLAGS['color'] = true;
         FLAGS['pretty'] = true;
@@ -203,6 +196,7 @@ function goAhead() {
                           data: err,
                           message: 'error running method'
                         });
+                        console.log('response', response);
                         outputRpc(response);
                         process.exit(1);
                       });
@@ -230,9 +224,7 @@ function goAhead() {
           .then((resp) => {
             logger.debug(`Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
           });
-
       } catch (error) {
-        console.log(error);
         logger.error(`Finished method ${cmd.method} with ERROR `, error);
         if (task) task.devices.quitAll().then(resp => {
           process.exit(1);
