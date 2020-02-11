@@ -256,14 +256,16 @@ class Runner {
 
   sendAndAwaitForResponse(request, task) {
     task.logger.info(`Task ${task.id} is listening for: response:` + request.id);
+    this.jsonrpc.rpiecy.output(request);
 
-    return request.sendAndAwait()
-      .then((resp) => {
-        return resp.result;
-      })
-      .catch(err => {
-        return err;
-      });
+    return (
+      request
+        .waitFor()
+        .then((resp) => resp.result)
+        .catch(err => {
+          return err;
+        })
+    );
   }
 }
 
