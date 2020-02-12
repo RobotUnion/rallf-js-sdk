@@ -116,7 +116,6 @@ function goAhead() {
         try {
           cmd.input = JSON.parse(cmd.input);
         } catch (error) {
-          logger.warning('Error parsing input, must be valid json', cmd.input);
           cmd.input = {};
         }
       } else {
