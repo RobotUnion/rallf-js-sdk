@@ -100,7 +100,7 @@ function goAhead() {
     .option('-f --method <method>', 'run method in skill', 'warmup')
     .option('-T --tty <tty>', 'if TTY should be set', true)
     .option('-p --pretty', 'show pretty output', false)
-    .action((cmd, args) => {
+    .action(async (cmd, args) => {
       let isTTY = process.stdin.isTTY && cmd.tty;
       if (cmd.pretty) {
         logger.formatter(process.env.LOGGER_FORMATTER || 'detailed').color(true);
@@ -108,6 +108,18 @@ function goAhead() {
         FLAGS['pretty'] = true;
       } else {
         logger.formatter('json').color(false);
+        logger.options.preNotify = (log) => {
+          let newLog = {
+            jsonrpc: '2.0',
+            method: 'log',
+            params: {
+              log,
+            },
+            context: task.fqtn,
+            time: now()
+          };
+          log = newLog;
+        };
         FLAGS['color'] = false;
         FLAGS['pretty'] = false;
       }
@@ -146,7 +158,7 @@ function goAhead() {
             name: evt,
             content: data || {},
             context: task.fqtn,
-            time: now()
+            time: now(),
           }, rpiecy.id());
           outputRpc(request);
         };
@@ -219,15 +231,18 @@ function goAhead() {
           }
         });
 
-        return rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
+        logger.info('running method', { method: cmd.method, task: task.fqtn });
+        return await rallfRunner
+          .runMethod(task, cmd.method, cmd.input, isTTY)
           .then((resp) => {
             logger.debug(`Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
           });
       } catch (error) {
-        logger.error(`Finished method ${cmd.method} with ERROR `, error);
-        if (task) task.devices.quitAll().then(resp => {
-          process.exit(1);
-        });
+        logger.error(`Finished method ${cmd.method} with ERROR`, { error: error.message });
+        if (task) {
+          task.devices.quitAll()
+            .then(() => process.exit(1));
+        }
       }
     });
 
