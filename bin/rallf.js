@@ -115,8 +115,6 @@ function goAhead() {
           // An issue has been opened in Loggin'JS forthis to be implements
           log.jsonrpc = '2.0';
           log.method = 'log';
-          log.context = task.fqtn;
-          log.method = 'log';
           log.params = {
             message: log.message,
             data: log.data,
@@ -124,6 +122,7 @@ function goAhead() {
             time: log.time,
             user: log.user,
             channel: log.channel,
+            context: task.fqtn,
           };
         };
         FLAGS['color'] = false;
