@@ -1,3 +1,14 @@
+# Changelog
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## 1.0.0-beta.3
+* fix: isTTY does not affect formatting now
+* fix: fixed rpiecy sendAndAwait is deprecated now using waitFor and output
+* fix: removed warning if no input is passed just default to {}
+* feat: added preNotify to logger when RPC output is enabled, to convert messages into RPC notifications
+* feat: made std notifier until implemented in LogginJS itself, to be able to output error through stderr
+* fix: removed a log, made it debug instead
 
 
 ## v0.7.8
