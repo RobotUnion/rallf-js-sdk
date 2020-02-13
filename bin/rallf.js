@@ -108,17 +108,23 @@ function goAhead() {
         FLAGS['pretty'] = true;
       } else {
         logger.formatter('json').color(false);
+
         logger.options.preNotify = (log) => {
-          let newLog = {
-            jsonrpc: '2.0',
-            method: 'log',
-            params: {
-              log,
-            },
-            context: task.fqtn,
-            time: now()
+          // This is ugly, but must be done like this for now until loggin-js allows returning an object
+          // This polutes the rpc message with duplicated data
+          // An issue has been opened in Loggin'JS forthis to be implements
+          log.jsonrpc = '2.0';
+          log.method = 'log';
+          log.context = task.fqtn;
+          log.method = 'log';
+          log.params = {
+            message: log.message,
+            data: log.data,
+            level: log.level,
+            time: log.time,
+            user: log.user,
+            channel: log.channel,
           };
-          log = newLog;
         };
         FLAGS['color'] = false;
         FLAGS['pretty'] = false;
