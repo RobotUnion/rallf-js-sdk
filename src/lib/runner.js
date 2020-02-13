@@ -255,7 +255,7 @@ class Runner {
   }
 
   sendAndAwaitForResponse(request, task) {
-    task.logger.info(`Task ${task.id} is listening for: response:` + request.id);
+    task.logger.debug(`Task ${task.id} is listening for: response: ` + request.id);
     this.jsonrpc.rpiecy.output(request);
 
     return (
