@@ -57,6 +57,9 @@
 
 ****
 
+**Disclaimer! This package is in development stage (unstable), it may be potentially buggy**
+
+
 ## Resources
 * [Installing](#installing)
 * [Getting Started](#getting-started)
