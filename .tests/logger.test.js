@@ -1,4 +1,4 @@
-const { Task, Robot, Logger, Devices } = require('../src/integration');
+const { Logger } = require('../src/integration');
 
 describe('Logger should', () => {
   it(`be defined`, () => {

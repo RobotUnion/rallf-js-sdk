@@ -6,17 +6,22 @@ const child_process = require('child_process');
 const clc = require('cli-color');
 const path = require('path');
 const program = require('commander');
-const logging = require('../src/lib/logging');
+const rpiecy = require('json-rpiecy');
+
+const { logger } = require('../src/lib/logging');
 const jsonrpc = require('../src/lib/jsonrpc');
 const now = require('../src/lib/now');
 const pkg = require('../package.json');
-const rpiecy = require('json-rpiecy');
 const checkVersion = require('./version-check');
 
 checkVersion(process.argv.includes('--nvc'))
   .then(goAhead)
   .catch(goAhead);
 
+const FLAGS = {
+  color: true,
+  pretty: true,
+};
 
 function goAhead() {
   const Runner = require('../src/lib/runner');
@@ -24,38 +29,30 @@ function goAhead() {
 
   let cwd = process.cwd();
 
-  function color(colorEnabled, str, colorName) {
-    if (colorEnabled) {
+  function color(str, colorName) {
+    if (FLAGS['color']) {
       try {
         str = clc[colorName](str);
-      } catch (error) {}
+      } catch (error) { }
     }
 
     return str;
   }
 
-  function outputRpc(pretty, rpcent) {
-
-    if (!rpcent.output && rpcent.method) {
-      rpcent = rpiecy.createRequest(rpcent.method, rpcent.params, rpcent.id);
-    }
-    if (!rpcent.output && rpcent.result || rpcent.error) {
-      rpcent = rpiecy.createResponse(rpcent.id, rpcent.result, rpcent.error);
-    }
-
-    if (pretty) {
-      logging.log('info', 'rpc:message', rpcent.toObject());
+  function outputRpc(rpcent) {
+    if (FLAGS['pretty'] && !rpcent.isEmpty()) {
+      logger.debug(rpcent.method, rpcent.params);
     } else {
-      rpcent.output();
+      rpiecy.output(rpcent);
     }
   }
 
   function onFinish(resp, cmd, task) {
-    logging.log('success', `Finished ${task.id} ${color('OK', 'green')} ${JSON.stringify(resp)}`);
+    logger.info(`Finished ${task.id} ${color('OK', 'green')} ${JSON.stringify(resp)}`);
     process.exit(0);
   }
 
-  const finish = (data, cmd, task) => {
+  function finish(data, cmd, task) {
     let request = rpiecy.createRequest('finish', data, rpiecy.id());
     onFinish(request, cmd, task);
   };
@@ -65,7 +62,7 @@ function goAhead() {
     await rallfRunner.runMethod(task, 'cooldown', [], isTTY);
     try {
       await task.devices.quitAll();
-    } catch (error) {};
+    } catch (error) { };
     return finish({}, cmd, task);
   }
 
@@ -74,92 +71,86 @@ function goAhead() {
     cp.stderr.pipe(process.stderr);
   }
 
-
   program.version(pkg.version, '-v --version');
-  program.option('-V --verbose', 'show verbose logging', false)
-  program.option('-N --nvc', 'don\'t check version', false);
+  program.option('-V --verbose', 'Show verbose logging', false)
+  program.option('-N --nvc', 'Don\'t check version', false);
 
   program
     .command('init')
-    .option('-s, --skill', 'generate skill template')
-    .option('-f, --force', 'rorce the generation, under your own risk!')
-    .action((cmd) => {
-      let cp = child_process.fork(path.join(__dirname, '../bin/init.js'), [...process.argv.slice(3)], {
-        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-      });
-      pipeSubcommandOutput(cp);
-    });
+    .option('-s, --skill', 'Generate skill template')
+    .option('-f, --force', 'Force the generation, under your own risk!')
+    .action((cmd) => pipeSubcommandOutput(child_process.spawn(
+      'node', [path.join(__dirname, '../bin/init.js'), ...process.argv.slice(3)],
+    )));
 
   program
     .command('package')
     .option('-i, --input-path <input_path>', 'specify an input path', path.join(process.cwd()))
     .option('-o, --output-path <output_path>', 'specify an output path', path.join(process.cwd(), 'output'))
-    .action((cmd) => {
-      let cp = child_process.spawn('node', [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)], {
-        stdio: ['inherit', 'inherit', 'inherit', 'ipc']
-      });
-      pipeSubcommandOutput(cp);
-    });
+    .action((cmd) => pipeSubcommandOutput(child_process.spawn(
+      'node', [path.join(__dirname, '../bin/packager.js'), ...process.argv.slice(3)],
+    )));
 
   program
     .command('run')
-    .option('-t --task <task>', 'path task, default to cwd')
-    .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
+    .requiredOption('-t --task <task>', 'path task, default to cwd')
     .option('-i --input <input>', 'tasks input', {})
+    .option('-r --robot <robot>', 'what robot to be used', 'nullrobot')
     .option('-m --mocks <mocks>', 'mocks folder')
     .option('-f --method <method>', 'run method in skill', 'warmup')
-    .option('-T --tty', 'if TTY should be set', true)
+    .option('-T --tty <tty>', 'if TTY should be set', true)
     .option('-p --pretty', 'show pretty output', false)
-    .action((cmd, args) => {
-      let isTTY = process.stdin.isTTY || cmd.tty;
-      if (cmd.pretty || !isTTY) {
-        logging.logger = logging.prettyLogger;
-        logging.color = true;
-        color = color.bind(this, true);
-        outputRpc = outputRpc.bind(this, true);
+    .action(async (cmd, args) => {
+      let isTTY = process.stdin.isTTY && cmd.tty;
+      if (cmd.pretty) {
+        logger.formatter(process.env.LOGGER_FORMATTER || 'detailed').color(true);
+        FLAGS['color'] = true;
+        FLAGS['pretty'] = true;
       } else {
-        logging.logger = logging.rpcLogger;
-        logging.color = false;
-        color = color.bind(color, false);
-        outputRpc = outputRpc.bind(outputRpc, false);
+        logger.formatter('json').color(false);
+        logger.options.preNotify = (log) => {
+          let newLog = {
+            jsonrpc: '2.0',
+            method: 'log',
+            params: {
+              log,
+            },
+            context: task.fqtn,
+            time: now()
+          };
+          log = newLog;
+        };
+        FLAGS['color'] = false;
+        FLAGS['pretty'] = false;
       }
 
       if (cmd.input) {
         try {
           cmd.input = JSON.parse(cmd.input);
         } catch (error) {
-          logging.log('warning', 'Error parsing input, must be valid json', cmd.input);
           cmd.input = {};
         }
       } else {
         cmd.input = {};
       }
 
-      logging.log('info', 'running command: run', null);
+      logger.debug('running command: run');
 
       let taskPath = cmd.task || cwd;
       let manifest = rallfRunner.getManifest(taskPath);
       if (manifest.error) {
-        return logging.log('error', manifest.error);
+        return logger.error(manifest.error);
       }
 
       let task;
 
       try {
         task = rallfRunner.createTask(taskPath, manifest, cmd.robot, cmd.mocks, isTTY);
+        let taskLbl = color(task.name + '@' + task.version, 'green');
 
-        let taskLbl = color(task.name + '@' + task.version + 'green');
-
-        logging.log('debug', 'Running task: ' + taskLbl);
-        logging.log('debug', 'Created task');
-        logging.log('debug', 'Executing task');
-
-        if (cmd.pretty || !isTTY) {
-          task.logger.pretty = true;
-        } else {
-          task.logger.pretty = false;
-        }
-
+        logger.debug('Running task:   ' + taskLbl);
+        logger.debug('Created task:   ' + taskLbl);
+        logger.debug('Executing task: ' + taskLbl);
 
         // On any event
         task.onAny = (evt, data) => {
@@ -167,96 +158,103 @@ function goAhead() {
             name: evt,
             content: data || {},
             context: task.fqtn,
-            time: now()
+            time: now(),
           }, rpiecy.id());
           outputRpc(request);
-          // request.output();
         };
 
         /* Handle sigint before readline is active */
-        process.once('SIGINT', () => {
-          return finishHandler(task, cmd, isTTY);
-        });
+        process.once('SIGINT', () =>
+          finishHandler(task, cmd, isTTY));
 
-        process.once('close', () => {
-          return finishHandler(task, cmd, isTTY);
-        });
+        process.once('close', () =>
+          finishHandler(task, cmd, isTTY));
 
         const methodsAllowed = ['delegate', 'event', 'quit'];
         task.on('routine:end', (params) => {
           if (params.name === 'warmup') {
-            logging.log('debug', 'Warm up done - listening for requests...');
+            logger.debug('Warm up done - listening for requests...');
 
-            /* rpiecy.listen Sets up a realine inteface that listens for json-rpc requests/responses */
-            const input = rpiecy.listen((request) => {
-              if (request.method && !methodsAllowed.includes(request.method)) {
-                let response = rpiecy.createResponse(request.id, null, {
-                  message: 'Method "' + request.method + '" not found.',
-                  code: -32601,
-                  data: {}
-                });
-                outputRpc(response);
-              } else if (request.id) {
-                if (
-                  request.method === 'delegate' &&
-                  request.params
-                ) {
-                  let method = request.params.routine;
-                  let args = request.params.args || {};
+            if (isTTY == false || isTTY == 'false') {
+              setInterval(() => { }, 200000);
+            } else {
+              /* rpiecy.listen Sets up a readline inteface that listens for json-rpc requests/responses */
+              const input = rpiecy.listen((request) => {
+                if (request.method && !methodsAllowed.includes(request.method)) {
+                  let response = rpiecy.createResponse(request.id, null, {
+                    message: 'Method "' + request.method + '" not found.',
+                    code: -32601,
+                    data: {}
+                  });
+                  outputRpc(response);
+                } else if (request.id) {
+                  if (
+                    request.method === 'delegate' &&
+                    request.params
+                  ) {
+                    let method = request.params.routine;
+                    let args = request.params.args || {};
 
-                  now.timeFnExecutionAsync(() => task[method](args))
-                    .then((res) => {
-                      logging.log("info", "Finshed: ", res);
-                      let response = rpiecy.createResponse(request.id, res.return, null);
-                      outputRpc(response);
-                    })
-                    .catch((err) => {
-                      let response = rpiecy.createResponse(request.id, null, {
-                        code: jsonrpc.INTERNAL_ERROR,
-                        data: err,
-                        message: 'error running method'
+                    task[method](args)
+                      .then((res) => {
+                        logger.info("Finshed: ", res);
+                        let response = rpiecy.createResponse(request.id, res.return, null);
+                        outputRpc(response);
+                      })
+                      .catch((err) => {
+                        let response = rpiecy.createResponse(request.id, null, {
+                          code: jsonrpc.INTERNAL_ERROR,
+                          data: err,
+                          message: 'error running method'
+                        });
+                        console.log('response', response);
+                        outputRpc(response);
+                        process.exit(1);
                       });
-                      outputRpc(response);
-                      process.exit(1);
-                    });
-                } else if (request.result || request.error) {
-                  task.emit('response:' + request.id, request.result);
+                  } else if (request.result || request.error) {
+                    task.emit('response:' + request.id, request.result);
+                  }
+                } else if (cmd.verbose) {
+                  logger.debug('Received request without id', request);
                 }
-              } else if (cmd.verbose) {
-                logging.log('debug', 'Received request without id', request);
-              }
-            });
+              });
 
-            /* Handle sigint for readline, as process.on will not receive the event */
-            input.once('SIGINT', () => {
-              return finishHandler(task, cmd, isTTY);
-            });
+              /* Handle sigint for readline, as process.on will not receive the event */
+              input.once('SIGINT', () => {
+                return finishHandler(task, cmd, isTTY);
+              });
 
-            input.once('close', () => {
-              return finishHandler(task, cmd, isTTY);
-            })
+              input.once('close', () => {
+                return finishHandler(task, cmd, isTTY);
+              });
+            }
           }
         });
 
-        rallfRunner.runMethod(task, cmd.method, cmd.input, isTTY)
+        logger.info('running method', { method: cmd.method, task: task.fqtn });
+        return await rallfRunner
+          .runMethod(task, cmd.method, cmd.input, isTTY)
           .then((resp) => {
-            logging.log('debug', `Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
-          })
-          .catch((err) => {
-            console.log(err);
-            logging.log('error', `Finished method ${cmd.method} with ERROR `, err);
-            task.devices.quitAll().then(resp => {
-              process.exit(1);
-            });
+            logger.debug(`Received response for ${color(cmd.method, 'blueBright')}(${color(JSON.stringify(cmd.input), 'blackBright')}): ${JSON.stringify(resp.result)}`);
           });
       } catch (error) {
-        console.log('error', error);
-        logging.log('error', `Finished method ${cmd.method} with ERROR `, error);
-        if (task) task.devices.quitAll().then(resp => {
-          process.exit(1);
-        });
+        logger.error(`Finished method ${cmd.method} with ERROR`, { error: error.message });
+        if (task) {
+          task.devices.quitAll()
+            .then(() => process.exit(1));
+        }
       }
     });
 
-  program.parse(process.argv);
+  let args = program.parse(process.argv);
+  if (args.verbose) {
+    logger.level('DEBUG');
+  } else {
+    logger.level('INFO');
+  }
+
+  if (!process.argv.slice(2).length) {
+    program.help();
+    return;
+  }
 }

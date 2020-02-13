@@ -2,9 +2,7 @@
   "firefox": {
     "platform": "selenium",
     "kind": "driver",
-    "name": "firefox",
-    "bin": "firefox/App/Firefox/firefox.exe",
-    "driver": "geckodriver.exe"
+    "name": "firefox"
   },
   "android": {
     "platform": "selenium",

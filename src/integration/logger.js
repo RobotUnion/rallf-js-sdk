@@ -1,67 +1,19 @@
 'use strict';
 
-const AbstractLogger = require('../abstract/logger-abstract');
-const clc = require('cli-color');
-const jsonrpc = require('../lib/jsonrpc');
+const loggin = require('loggin-js');
 
-/**
- * Used for logging
- * @extends AbstractLogger
- */
-class Logger extends AbstractLogger {
-
-  /**
-   * 
-   * @param {*} process 
-   * @param {*} pretty 
-   */
-  constructor(____, pretty, parentTask) {
-    super({
-      notify: (log) => {
-        if (this.pretty) {
-          process.stdout.write(`${clc.bgCyan(' LOG ')} - (${clc.blackBright(this.task_name)}) - [${new Date(log.time).toLocaleString()}] - ${this.getString(log.severity)} - ${log.message} - ${JSON.stringify(log.data)}\n`);
-        } else {
-          log.channel = this.task_name;
-          process.stdout.write(jsonrpc.request('event', {
-            name: 'log',
-            context: this.task_name,
-            content: log
-          }) + '\n');
-        }
-      },
-      task: parentTask
-    });
-    this.pretty = pretty;
-    this.task = parentTask;
+class Logger extends loggin.Logger {
+  constructor(opts = {}, parent) {
+    super(opts);
+    this.task = parent;
+    this.name = 'task-logger-instance';
   }
 
-  /**
-   * 
-   * @param {number} severity
-   * @return {string} 
-   */
-  getString(severity) {
-    return [
-      'EMERGENCY',
-      'ALERT',
-      'CRITICAL',
-      'ERROR',
-      'WARNING',
-      'NOTICE',
-      'INFO',
-      'DEBUG',
-    ][severity];
-  }
-
-  /**
-   * @param {WebDriver} device 
-   * @param {Boolean} saveLocal 
-   */
   capture(device, saveLocal = false) {
     return new Promise((resolve, reject) => {
       let fname = 'img_' + Date.now() + '.png';
-      let captureFN = saveLocal 
-        ? device.saveScreenshot.bind(device, fname) 
+      let captureFN = saveLocal
+        ? device.saveScreenshot.bind(device, fname)
         : device.takeScreenshot;
 
       captureFN((error, capture) => {
@@ -86,3 +38,4 @@ class Logger extends AbstractLogger {
 }
 
 module.exports = Logger;
+module.exports.Logger = loggin.Logger;

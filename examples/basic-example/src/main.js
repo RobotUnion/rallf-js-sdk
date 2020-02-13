@@ -1,16 +1,9 @@
 const rallf = require('../../../');
-// const rallf = require('rallf-js-sdk'); 
 
 class BasicExample extends rallf.Task {
-  constructor() {
-    super();
-    this.firefox = null;
-  }
-
   async warmup() {
-    this.logger.debug('warmup');
-    this.firefox = await this.devices.get('firefox');
-    await this.firefox.get('https://github.com');
+    this.logger.info('Warming up ' + this.name);
+    this.firefox = this.devices.get('firefox');
   }
 
   async start(input) {
@@ -24,7 +17,6 @@ class BasicExample extends rallf.Task {
 
   async cooldown() {
     this.logger.debug('cooldown');
-    // await this.firefox.quit();
   }
 }
 module.exports = BasicExample;

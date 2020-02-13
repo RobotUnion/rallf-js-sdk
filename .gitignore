@@ -17,3 +17,4 @@ Ideas.md
 /**/robots
 !/examples/init-template/robots
 !/examples/init-skill-template/robots
+/coverage

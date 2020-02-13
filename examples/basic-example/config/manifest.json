@@ -6,5 +6,13 @@
   "fqtn": "com.example.basic",
   "language": "nodejs",
   "type": "task",
-  "skills": {}
+  "expose": {
+    "methods": [
+      "start"
+    ]
+  },
+  "logger": {
+    "level": "INFO",
+    "formatter": "minimal"
+  }
 }

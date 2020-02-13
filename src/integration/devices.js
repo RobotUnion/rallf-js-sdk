@@ -4,6 +4,7 @@ const {
   WebDriver
 } = require('selenium-webdriver');
 const firefox = require('selenium-webdriver/firefox');
+const proxy = require('selenium-webdriver/proxy');
 const chrome = require('selenium-webdriver/chrome');
 const wdio = require('webdriverio');
 
@@ -13,8 +14,8 @@ const wdio = require('webdriverio');
  */
 class Devices {
   constructor() {
-    this.devices = /** @type {any][]} */ [];
-    this._instances = /** @type {WebDriver[]} */ [];
+    this.devices = /** @type {any][]} */[];
+    this._instances = /** @type {WebDriver[]} */[];
   }
 
   /**
@@ -45,6 +46,11 @@ class Devices {
             builder.setFirefoxOptions(options);
           } else if (device.name === 'chrome') {
             builder.setChromeOptions(options);
+          }
+          if ((device && device.proxy)) {
+            builder.setProxy(device.proxy);
+          } else if (device_options && device_options.proxy) {
+            builder.setProxy(device_options.proxy);
           }
 
           let deviceInstance = await builder.build();
@@ -149,7 +155,7 @@ class Devices {
     }
 
 
-    if (device.headless === true) {
+    if (device.headless === true && device_options.headless !== false) {
       opts.headless();
     }
 
@@ -163,6 +169,10 @@ class Devices {
     }
     if (device_options.profile && deviceName === 'chrome') {
       opts.addArgument(`user-data-dir=${device_options.profile}`);
+    }
+
+    if (device_options.args) {
+      opts.addArgument(...device_options.args);
     }
 
     // console.log('opts', opts)

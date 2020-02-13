@@ -1,5 +1,6 @@
 'use strict';
 
+const { loggin } = require('../lib/logging');
 const Logger = require('./logger');
 const Devices = require('./devices');
 const Robot = require('./robot');
@@ -12,15 +13,26 @@ class Task extends events.RallfEventEmitter {
   constructor() {
     super();
 
-    this.logger = /** @type {Logger} */ new Logger(process, true, this);
-    this.devices = /** @type {Devices} */ new Devices();
-    this.robot = /** @param {Robot} */ new Robot();
+    this.devices = new Devices();
+    this.robot = new Robot();
+    this.logger = new Logger();
+
+    this.id = null;
+    this.type = 'task';
+
     this._persisting = false;
     this._manifest = null;
     this._warmup_done = false;
-    this.id = null;
-    this.type = 'task';
     this.__is_task = true;
+  }
+
+  setLogger(logger) {
+    this.logger = logger;/*new Logger({
+      channel: opts.channel || this.getName(),
+      formatter: opts.formatter || 'detailed',
+      color: opts.color || true,
+      level: process.env.DEBUG ? loggin.severity('DEBUG') : opts.level,
+    }, this);*/
   }
 
   get home() {

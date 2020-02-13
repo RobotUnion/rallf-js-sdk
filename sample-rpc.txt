@@ -4,3 +4,6 @@
 
 // Invalid rpc
 {"jsonrpc":"2.0", "method": "a", "id": "test", "params": { "routing": "local", "routine": "test", "args": {} }}
+
+
+{"jsonrpc":"2.0", "method": "delegate", "id": "test", "params": { "routing": "local", "routine": "start", "args": {} }}

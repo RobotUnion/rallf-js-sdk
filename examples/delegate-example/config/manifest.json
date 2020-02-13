@@ -6,14 +6,7 @@
   "fqtn": "com.example.basic",
   "language": "nodejs",
   "type": "task",
-  "skills": {
-    "com.test.task": [
-      "like"
-    ]
-  },
-  "tasks": {
-    "com.test.task": [
-      "like"
-    ]
+  "uses": {
+    "com.test.task": ["*"]
   }
 }

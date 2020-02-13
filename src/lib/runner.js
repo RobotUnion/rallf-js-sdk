@@ -1,15 +1,13 @@
 'use strict';
 
 const fs = require('fs-extra');
-const util = require('util');
 const path = require('path');
 const {
   Task,
   Robot
 } = require('../integration');
 const checker = require('./checker');
-const examples = require('./examples');
-const now = require('./now');
+const { loggin, logger } = require('../lib/logging');
 
 const COOLDOWN_TIMEOUT = process.env.RALLF_COOLDOWN_TIMEOUT || 10 * 60e3;
 
@@ -45,7 +43,11 @@ class Runner {
     let UserTask = /** @type {Task} */ require(taskPath);
     checker.checkExportToBeTask(UserTask, manifest);
 
-    let taskInstance = /** @type {UserTask} */ new UserTask();
+    let taskInstance = new UserTask();
+    taskInstance.setLogger(logger.clone({
+      channel: manifest.name,
+    }));
+
     taskInstance._manifest = manifest;
     taskInstance.id = manifest.name;
     taskInstance.type = manifest.type;
@@ -62,8 +64,6 @@ class Runner {
     }
 
     let devices = this.getDevices(robot_path);
-
-
     let skills = this.getSkills(robot_path);
 
     taskInstance.robot = this.getRobot(robot_path + '/data/' + manifest.fqtn || null);
@@ -116,7 +116,6 @@ class Runner {
 
   getSkills(path_) {
     path_ = path.join(path_, 'skills.json');
-
     return fs.readJsonSync(path_);
   }
 
@@ -218,16 +217,16 @@ class Runner {
         name: 'warmup'
       });
 
-      let timed = await task.warmup();
+      let result = await task.warmup();
       task._hasDoneWarmup(true);
       task.emit('routine:end', {
         name: 'warmup',
-        data: timed
+        data: result
       });
     }
 
     if (method_name === 'warmup') {
-      return new Promise((res) => {});
+      return new Promise((res) => { });
     } else {
       task.emit('routine:start', {
         name: method_name
@@ -256,15 +255,17 @@ class Runner {
   }
 
   sendAndAwaitForResponse(request, task) {
-    task.logger.info(`Task ${task.id} is listening for: response:` + request.id);
+    task.logger.debug(`Task ${task.id} is listening for: response: ` + request.id);
+    this.jsonrpc.rpiecy.output(request);
 
-    return request.sendAndAwait()
-      .then((resp) => {
-        return resp.result;
-      })
-      .catch(err => {
-        return err;
-      });
+    return (
+      request
+        .waitFor()
+        .then((resp) => resp.result)
+        .catch(err => {
+          return err;
+        })
+    );
   }
 }
 

@@ -82,5 +82,4 @@ module.exports = {
       typeof object[method_name] === 'function'
     );
   }
-
 };
